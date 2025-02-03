@@ -1,44 +1,37 @@
 # admin-san-martin-porres
+
 Sistema de Administración de cursos y personal para el Centro de Capacitación San Martín de Porres.
 Servicio Comunitario
 
-# Welcome to Remix!
+## Configurar la base de datos
 
-- 📖 [Remix docs](https://remix.run/docs)
+1. Crea un gestor de base de datos en Postgres con el nombre
+   `adminDB`.
 
-## Development
+2. Crea un archivo `.env` en la raíz del proyecto con la variable de entorno
+   `DATABASE_URL` que contenga la URL de conexión a la base de datos.
 
-Run the dev server:
+3. Crea el esquema de la base de datos ejecutando
+   `npx drizzle-kit push`
 
-```shellscript
+## Comenzar con el desarrollo
+
+1. Instala las dependencias:
+
+```sh
+npm install
+```
+
+2. Inicia el servidor de desarrollo:
+
+```sh
 npm run dev
 ```
 
-## Deployment
+3. Abre tu navegador en `http://localhost:5173/`.
 
-First, build your app for production:
+## Conexión LAN
 
-```sh
-npm run build
-```
+El sistema se estará ejecutando en una máquina principal pero también es posible acceder al sistema desde cualquier computadora conectada a la misma red.
 
-Then run the app in production mode:
-
-```sh
-npm start
-```
-
-Now you'll need to pick a host to deploy it to.
-
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+Para ello colocar en el naveador `http://<tu-direccion-ip>:5173/`
