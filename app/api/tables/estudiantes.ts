@@ -6,7 +6,11 @@ export const estudiantes = sqliteTable('estudiantes', {
   apellido: text().notNull(),
   cedula: text().notNull().unique(),
   sexo: text().notNull(),
-  fecha: 
-  age: integer({ mode: 'number' }).notNull(),
-  email: text().notNull().unique(),
+  fechaNacimiento: integer({ mode: 'timestamp_ms' }),
+  edad: integer({ mode: 'number' }).notNull(),
+  religion: text().notNull(),
+  telefono: text().notNull(),
+  correo: text().notNull().unique(),
+  direccion: text().notNull(),
+  ultimoAñoCursado: text().notNull(),
 });
