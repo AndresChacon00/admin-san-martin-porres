@@ -1,5 +1,5 @@
 import db from './db';
-import { estudiantes } from './tables/estudiantesSchema';
+import { estudiantes } from './tables/estudiantes';
 
 await db.transaction(async (tx) => {
   const estudiantesEjemplo = [

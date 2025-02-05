@@ -4,11 +4,8 @@ import type {
   ActionFunction,
 } from '@remix-run/node';
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
-import {
-  addEstudiante,
-  getEstudiantes,
-} from '~/api/controllers/estudiantesController';
-import { estudiantes } from '../api/tables/estudiantesSchema';
+import { addEstudiante, getEstudiantes } from '~/api/controllers/estudiantes';
+import { estudiantes } from '../api/tables/estudiantes';
 export const meta: MetaFunction = () => {
   return [
     { title: 'New Remix App' },
