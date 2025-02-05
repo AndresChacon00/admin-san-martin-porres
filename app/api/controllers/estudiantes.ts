@@ -1,5 +1,21 @@
+import { eq } from 'drizzle-orm';
 import db from '../db';
 import { estudiantes } from '../tables/estudiantes';
+
+export interface Estudiante {
+  id: number;
+  nombre: string;
+  apellido: string;
+  cedula: string;
+  sexo: string;
+  fechaNacimiento: Date;
+  edad: number;
+  religion: string;
+  telefono: string;
+  correo: string;
+  direccion: string;
+  ultimoAñoCursado: string;
+}
 
 export const getEstudiantes = async () => {
   try {
@@ -15,18 +31,46 @@ export const getEstudiantes = async () => {
 };
 
 export const addEstudiante = async (
-  name: string,
-  age: number,
-  email: string,
+  nombre: string,
+  apellido: string,
+  cedula: string,
+  sexo: string,
+  fechaNacimiento: Date,
+  edad: number,
+  religion: string,
+  telefono: string,
+  correo: string,
+  direccion: string,
+  ultimoAñoCursado: string,
 ) => {
   try {
     const newEstudiante = await db
       .insert(estudiantes)
-      .values({ name, age, email })
+      .values({
+        nombre,
+        apellido,
+        cedula,
+        sexo,
+        fechaNacimiento,
+        edad,
+        religion,
+        telefono,
+        correo,
+        direccion,
+        ultimoAñoCursado,
+      })
       .returning();
 
     return newEstudiante[0];
   } catch (error) {
     console.error('Error al añadir un estudiante: ', error);
+  }
+};
+
+export const deleteEstudiante = async (id: number) => {
+  try {
+    await db.delete(estudiantes).where(eq(estudiantes.id, id));
+  } catch (error) {
+    console.error('Error al eliminar estudiante: ', error);
   }
 };

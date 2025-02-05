@@ -4,7 +4,11 @@ import type {
   ActionFunction,
 } from '@remix-run/node';
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
-import { addEstudiante, getEstudiantes } from '~/api/controllers/estudiantes';
+import {
+  addEstudiante,
+  deleteEstudiante,
+  getEstudiantes,
+} from '~/api/controllers/estudiantes';
 import { estudiantes } from '../api/tables/estudiantes';
 export const meta: MetaFunction = () => {
   return [
@@ -20,15 +24,39 @@ export const loader: LoaderFunction = async () => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  const name = formData.get('name');
-  const age = formData.get('age');
-  const email = formData.get('email');
+  const actionType = formData.get('_action');
+  const id = formData.get('id');
 
-  if (typeof name !== 'string' || typeof email !== 'string') {
-    return { error: 'Invalid form data' };
+  if (actionType === 'delete' && id != null) {
+    await deleteEstudiante(Number(id));
+    return null;
   }
 
-  await addEstudiante(name, Number(age), email);
+  const nombre = formData.get('nombre') as string;
+  const apellido = formData.get('apellido') as string;
+  const cedula = formData.get('cedula') as string;
+  const sexo = formData.get('sexo') as string;
+  const fechaNacimiento = formData.get('fechaNacimiento') as string;
+  const edad = formData.get('edad') as string;
+  const religion = formData.get('religion') as string;
+  const telefono = formData.get('telefono') as string;
+  const correo = formData.get('correo') as string;
+  const direccion = formData.get('direccion') as string;
+  const ultimoAñoCursado = formData.get('ultimoAñoCursado') as string;
+
+  await addEstudiante(
+    nombre,
+    apellido,
+    cedula,
+    sexo,
+    new Date(fechaNacimiento),
+    Number(edad),
+    religion,
+    telefono,
+    correo,
+    direccion,
+    ultimoAñoCursado,
+  );
   return null;
 };
 
@@ -42,29 +70,82 @@ export default function Index() {
       <ul>
         {students.map((student) => (
           <li key={student.id}>
-            {student.name} ({student.email})
+            {student.nombre} {student.apellido} ({student.correo})
+            <Form method='post' style={{ display: 'inline' }}>
+              <input type='hidden' name='id' value={student.id} />
+              <button type='submit' name='_action' value='delete'>
+                Eliminar
+              </button>
+            </Form>
           </li>
         ))}
       </ul>
-
       <h2>Add Student</h2>
       <Form method='post'>
         <div>
           <label>
-            Name:
-            <input type='text' name='name' required />
+            Nombre:
+            <input type='text' name='nombre' required />
           </label>
         </div>
         <div>
           <label>
-            Age:
-            <input type='number' name='age' required />
+            Apellido:
+            <input type='text' name='apellido' required />
           </label>
         </div>
         <div>
           <label>
-            Email:
-            <input type='email' name='email' required />
+            Cedula:
+            <input type='text' name='cedula' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Sexo:
+            <input type='text' name='sexo' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Fecha de Nacimiento:
+            <input type='date' name='fechaNacimiento' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Edad:
+            <input type='number' name='edad' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Religion:
+            <input type='text' name='religion' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Telefono:
+            <input type='text' name='telefono' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Correo:
+            <input type='email' name='correo' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Direccion:
+            <input type='text' name='direccion' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Ultimo Año Cursado:
+            <input type='text' name='ultimoAñoCursado' required />
           </label>
         </div>
         {actionData?.error && (
