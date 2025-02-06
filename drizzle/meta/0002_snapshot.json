@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "785f84b2-a46c-49ef-95d9-6753ee5795c4",
-  "prevId": "a5fdd501-8502-4bf7-856d-1e73f683a82a",
+  "id": "eeb13832-300e-453f-895c-abd4dc699b9c",
+  "prevId": "785f84b2-a46c-49ef-95d9-6753ee5795c4",
   "tables": {
     "empleados": {
       "name": "empleados",
@@ -400,11 +400,25 @@
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "profesores_id_empleados_id_fk": {
+          "name": "profesores_id_empleados_id_fk",
+          "tableFrom": "profesores",
+          "tableTo": "empleados",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}

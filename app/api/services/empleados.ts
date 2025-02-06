@@ -4,6 +4,21 @@ import { empleados } from '../tables/empleados';
 import { eq } from 'drizzle-orm';
 
 /**
+ * Gets a single employee
+ * @author Gabriel
+ * @param id
+ * @throws if the employee could not be selected
+ */
+export async function getSingleEmpleado(id: number) {
+  const empleado = await db
+    .select()
+    .from(empleados)
+    .where(eq(empleados.id, id));
+
+  return empleado[0];
+}
+
+/**
  * Insert a new employee into the database
  * @author Gabriel
  * @param data
