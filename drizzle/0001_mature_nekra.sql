@@ -1,4 +1,4 @@
-CREATE TABLE `empleados` (
+CREATE TABLE IF NOT EXISTS `empleados` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`cedula` text NOT NULL,
 	`nombreCompleto` text NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE `empleados` (
 	`fechaActualizacion` integer DEFAULT (cast((julianday('now') - 2440587.5)*86400000 as integer)) NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `empleados_cedula_unique` ON `empleados` (`cedula`);--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS `empleados_cedula_unique` ON `empleados` (`cedula`);--> statement-breakpoint
 CREATE TABLE `profesores` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL
 );
