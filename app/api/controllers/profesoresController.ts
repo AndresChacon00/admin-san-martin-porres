@@ -2,6 +2,7 @@ import db from '../db';
 import { profesores } from '../tables/profesores';
 import { empleados } from '../tables/empleados';
 import { EmpleadoInsert } from '~/types/empleados.types';
+import { eq } from 'drizzle-orm';
 
 export const getProfesores = async () => {
   try {
@@ -73,5 +74,63 @@ export const addProfesor = async (data: EmpleadoInsert) => {
     return newProfesor[0];
   } catch (error) {
     console.error('Error al añadir un profesor: ', error);
+  }
+};
+
+export const deleteProfesor = async (cedula: string) => {
+  try {
+    const empleado = await db
+      .select({
+        id: empleados.id
+      })
+      .from(empleados)
+      .where(eq(empleados.cedula, cedula));
+
+    if (empleado.length === 0) {
+      throw new Error('Empleado no encontrado');    }
+
+    const empleadoId = empleado[0].id;
+
+    await db
+      .delete(profesores)      
+      .where(eq(profesores.id, empleadoId))
+      .returning();
+
+    await db
+      .delete(empleados)      
+      .where(eq(empleados.id, empleadoId))
+      .returning();
+
+  } catch (error) {
+    console.error('Error al eliminar un profesor: ', error);
+  }
+};
+
+export const updateProfesor = async (cedula: string, data: Partial<EmpleadoInsert>) => {
+  try {
+    // Buscar el id del empleado usando la cédula
+    const empleado = await db
+      .select({
+        id: empleados.id
+      })
+      .from(empleados)
+      .where(eq(empleados.cedula, cedula));
+
+    if (empleado.length === 0) {
+      throw new Error('Empleado no encontrado');
+    }
+
+    const empleadoId = empleado[0].id;
+
+    // Actualizar el registro del empleado con los nuevos datos
+    await db
+      .update(empleados)
+      .set(data)
+      .where(eq(empleados.id, empleadoId))
+      .returning();
+
+    console.log('Empleado actualizado correctamente');
+  } catch (error) {
+    console.error('Error al actualizar el empleado: ', error);
   }
 };
