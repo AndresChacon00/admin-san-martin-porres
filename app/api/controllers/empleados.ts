@@ -99,7 +99,8 @@ export async function deleteEmpleado(id: number) {
     return {
       type: 'success',
       message: 'Empleado eliminado exitosamente',
-    } as const;
+    } as const;npx shadcn@latest add button
+
   } catch (error) {
     console.error('Error al eliminar un empleado: ', error);
     return {

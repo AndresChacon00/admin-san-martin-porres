@@ -8,7 +8,7 @@ import {
   addEstudiante,
   getEstudiantes,
 } from '~/api/controllers/estudiantesController';
-import { estudiantes } from '../api/tables/estudiantesSchema';
+import { Button } from '~/components/ui/button';
 export const meta: MetaFunction = () => {
   return [
     { title: 'New Remix App' },
@@ -41,6 +41,7 @@ export default function Index() {
   return (
     <div>
       <h1>San Martin de Porres</h1>
+      <Button>Hola</Button>
       <h2>Students</h2>
       <ul>
         {students.map((student) => (
