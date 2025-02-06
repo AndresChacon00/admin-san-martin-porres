@@ -11,7 +11,13 @@ export const getProfesores = async () => {
       .from(profesores)
       .orderBy(profesores.id);
 
-    return profesoresList;
+    const empleadosList = await db
+      .select()
+      .from(empleados)
+      .orderBy(empleados.id)
+      .where(eq(empleados.id, profesores.id));
+
+    return empleadosList;
   } catch (error) {
     console.error('Error al obtener a los profesores: ', error);
   }
