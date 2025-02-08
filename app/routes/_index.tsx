@@ -8,8 +8,8 @@ import {
   addEstudiante,
   deleteEstudiante,
   getEstudiantes,
-} from '~/api/controllers/estudiantesController';
-import { estudiantes } from '../api/tables/estudiantesSchema';
+} from '~/api/controllers/estudiantes';
+import { estudiantes } from '../api/tables/estudiantes';
 import Button from '../components/Button';
 export const meta: MetaFunction = () => {
   return [
@@ -72,82 +72,29 @@ export default function Index() {
       <ul>
         {students.map((student) => (
           <li key={student.id}>
-            {student.nombre} {student.apellido} ({student.correo})
-            <Form method='post' style={{ display: 'inline' }}>
-              <input type='hidden' name='id' value={student.id} />
-              <button type='submit' name='_action' value='delete'>
-                Eliminar
-              </button>
-            </Form>
+            {student.name} ({student.email})
           </li>
         ))}
       </ul>
+
       <h2>Add Student</h2>
       <Form method='post'>
         <div>
           <label>
-            Nombre:
-            <input type='text' name='nombre' required />
+            Name:
+            <input type='text' name='name' required />
           </label>
         </div>
         <div>
           <label>
-            Apellido:
-            <input type='text' name='apellido' required />
+            Age:
+            <input type='number' name='age' required />
           </label>
         </div>
         <div>
           <label>
-            Cedula:
-            <input type='text' name='cedula' required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Sexo:
-            <input type='text' name='sexo' required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Fecha de Nacimiento:
-            <input type='date' name='fechaNacimiento' required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Edad:
-            <input type='number' name='edad' required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Religion:
-            <input type='text' name='religion' required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Telefono:
-            <input type='text' name='telefono' required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Correo:
-            <input type='email' name='correo' required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Direccion:
-            <input type='text' name='direccion' required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Ultimo Año Cursado:
-            <input type='text' name='ultimoAñoCursado' required />
+            Email:
+            <input type='email' name='email' required />
           </label>
         </div>
         {actionData?.error && (
