@@ -38,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <SidebarProvider>
           <AppSidebar />
           <SidebarTrigger />
-          {children}
+          <div className='ps-4 pt-12'>{children}</div>
           <ScrollRestoration />
           <Scripts />
         </SidebarProvider>

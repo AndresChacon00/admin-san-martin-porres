@@ -6,7 +6,7 @@ import {
   createEmpleado,
   deleteEmpleadoFromDb,
   updateEmpleadoInDb,
-} from '../services/empleados';
+} from '../services/empleados.server';
 
 /**
  * Get full list of employees
@@ -99,8 +99,7 @@ export async function deleteEmpleado(id: number) {
     return {
       type: 'success',
       message: 'Empleado eliminado exitosamente',
-    } as const;npx shadcn@latest add button
-
+    } as const;
   } catch (error) {
     console.error('Error al eliminar un empleado: ', error);
     return {
