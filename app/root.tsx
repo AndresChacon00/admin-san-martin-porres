@@ -11,10 +11,7 @@ import styles from './tailwind.css?url';
 import { SidebarProvider, SidebarTrigger } from '../app/components/ui/sidebar';
 import { AppSidebar } from '../app/components/Sidebar';
 
-import './tailwind.css';
-
 export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: styles },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
     rel: 'preconnect',
@@ -25,6 +22,7 @@ export const links: LinksFunction = () => [
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
   },
+  { rel: 'stylesheet', href: styles },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
