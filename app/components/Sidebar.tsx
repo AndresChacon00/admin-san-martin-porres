@@ -1,4 +1,4 @@
-import { Home, HardHat } from 'lucide-react';
+import { Home, HardHat, GraduationCap } from 'lucide-react';
 
 import {
   Sidebar,
@@ -23,6 +23,11 @@ const items = [
     title: 'Empleados',
     url: '/empleados',
     icon: HardHat,
+  },
+  {
+    title: 'Estudiantes',
+    url: '/estudiantes',
+    icon: GraduationCap,
   },
 ];
 
