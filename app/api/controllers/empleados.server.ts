@@ -1,10 +1,11 @@
-import { desc, eq } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 import db from '../db';
 import { empleados } from '../tables/empleados';
 import type { EmpleadoInsert, EmpleadoUpdate } from '~/types/empleados.types';
 import {
   createEmpleado,
   deleteEmpleadoFromDb,
+  getSingleEmpleado,
   updateEmpleadoInDb,
 } from '../services/empleados.server';
 
@@ -36,12 +37,7 @@ export async function getEmpleados() {
  */
 export async function getEmpleadoById(id: number) {
   try {
-    const empleado = await db
-      .select()
-      .from(empleados)
-      .where(eq(empleados.id, id));
-
-    return empleado[0];
+    return await getSingleEmpleado(id);
   } catch (error) {
     console.error('Error al obtener a un empleado por ID: ', error);
     return {
