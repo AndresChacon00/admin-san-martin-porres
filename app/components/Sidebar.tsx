@@ -24,6 +24,11 @@ const items = [
     url: '/empleados',
     icon: HardHat,
   },
+  {
+    title: 'Profesor',
+    url: '/crearProfesor',
+    icon: HardHat,
+  },
 ];
 
 export function AppSidebar() {

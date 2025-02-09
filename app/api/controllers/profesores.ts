@@ -7,7 +7,7 @@ import {
   createEmpleado,
   getSingleEmpleado,
   updateEmpleadoInDb,
-} from '../services/empleados';
+} from '../services/empleados.server';
 
 /**
  * Get full list of teachers

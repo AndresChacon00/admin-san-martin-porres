@@ -6,11 +6,12 @@ import type {
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
 import {
   getEmpleados,
-} from '~/api/controllers/empleados';
+} from '../api/controllers/empleados.server';
 import {
     addProfesor,
 } from '~/api/controllers/profesores';
-import Button from '../components/Button';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 
 export const meta: MetaFunction = () => {
   return [
@@ -165,268 +166,263 @@ export default function CrearProfesor() {
   const empleados = useLoaderData<any[]>();
   const actionData = useActionData<{ error?: string }>();
   return (
-    <div>
-      <Button/>
+    <div>      
       <h1>San Martin de Porres</h1>
-      <h2>Profesores</h2>
-      <ul>
-        {empleados.map((empleado) => (
-          <li key={empleado.id}>
-            {empleado.nombreCompleto} ({empleado.cedula})
-          </li>
-        ))}
-      </ul>
-
+      <h1 className='text-xl font-bold'>Profesores</h1>
       <h2>Agregar Profesor</h2>
       <Form method='post'>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Cedula:
-            <input type='text' name='cedula' required />
+            <Input type='text' name='cedula' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Nombre Completo:
-            <input type='text' name='nombreCompleto' required />
+            <Input type='text' name='nombreCompleto' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Fecha de Nacimiento:
-            <input type='date' name='fechaNacimiento' required />
+            <Input type='date' name='fechaNacimiento' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Sexo:
-            <input type='text' name='sexo' required />
+            <Input type='text' name='sexo' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Estado Civil:
-            <input type='text' name='estadoCivil' required />
+            <Input type='text' name='estadoCivil' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Religion:
-            <input type='text' name='religion' required />
+            <Input type='text' name='religion' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Hijos Menores de Seis:
-            <input type='number' name='hijosMenoresSeis' required />
+            <Input type='number' name='hijosMenoresSeis' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Monto Mensual Guarderia:
-            <input type='number' name='montoMensualGuarderia' required />
+            <Input type='number' name='montoMensualGuarderia' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Fecha de Ingreso AVEC:
-            <input type='date' name='fechaIngresoAvec' required />
+            <Input type='date' name='fechaIngresoAvec' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Fecha de Ingreso Plantel:
-            <input type='date' name='fechaIngresoPlantel' required />
+            <Input type='date' name='fechaIngresoPlantel' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Titulo:
-            <input type='text' name='titulo' required />
+            <Input type='text' name='titulo' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Descripcion del Titulo:
-            <input type='text' name='descripcionTitulo' required />
+            <Input type='text' name='descripcionTitulo' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Mencion del Titulo:
-            <input type='text' name='mencionTitulo' required />
+            <Input type='text' name='mencionTitulo' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Carrera Estudiando:
-            <input type='text' name='carreraEstudiando' required />
+            <Input type='text' name='carreraEstudiando' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Tipo de Lapso de Estudios:
-            <input type='text' name='tipoLapsoEstudios' required />
+            <Input type='text' name='tipoLapsoEstudios' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Numero de Lapsos Aprobados:
-            <input type='number' name='numeroLapsosAprobados' required />
+            <Input type='number' name='numeroLapsosAprobados' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Postgrado:
-            <input type='text' name='postgrado' required />
+            <Input type='text' name='postgrado' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Experiencia Laboral:
-            <input type='number' name='experienciaLaboral' required />
+            <Input type='number' name='experienciaLaboral' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Grado en el Sistema:
-            <input type='text' name='gradoSistema' required />
+            <Input type='text' name='gradoSistema' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Nivel en el Sistema:
-            <input type='text' name='nivelSistema' required />
+            <Input type='text' name='nivelSistema' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Grado en el Centro:
-            <input type='text' name='gradoCentro' required />
+            <Input type='text' name='gradoCentro' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Nivel en el Centro:
-            <input type='text' name='nivelCentro' required />
+            <Input type='text' name='nivelCentro' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Cargo:
-            <input type='text' name='cargo' required />
+            <Input type='text' name='cargo' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Horas Semanales:
-            <input type='number' name='horasSemanales' required />
+            <Input type='number' name='horasSemanales' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Sueldo:
-            <input type='number' name='sueldo' required />
+            <Input type='number' name='sueldo' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Asignaciones Mensuales:
-            <input type='number' name='asignacionesMensual' required />
+            <Input type='number' name='asignacionesMensual' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Deducciones Mensuales:
-            <input type='number' name='deduccionesMensual' required />
+            <Input type='number' name='deduccionesMensual' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Prima de Antigüedad:
-            <input type='number' name='primaAntiguedad' required />
+            <Input type='number' name='primaAntiguedad' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Prima Geográfica:
-            <input type='number' name='primaGeografica' required />
+            <Input type='number' name='primaGeografica' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Prima de Compensación Académica:
-            <input type='number' name='primaCompensacionAcademica' required />
+            <Input type='number' name='primaCompensacionAcademica' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Cantidad de Hijos:
-            <input type='number' name='cantidadHijos' required />
+            <Input type='number' name='cantidadHijos' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Prima Asistencial:
-            <input type='number' name='primaAsistencial' required />
+            <Input type='number' name='primaAsistencial' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Contribución por Discapacidad:
-            <input type='number' name='contribucionDiscapacidad' required />
+            <Input type='number' name='contribucionDiscapacidad' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Contribución por Discapacidad de Hijos:
-            <input type='number' name='contribucionDiscapacidadHijos' required />
+            <Input type='number' name='contribucionDiscapacidadHijos' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Porcentaje SSO:
-            <input type='number' name='porcentajeSso' required />
+            <Input type='number' name='porcentajeSso' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Porcentaje RPE:
-            <input type='number' name='porcentajeRpe' required />
+            <Input type='number' name='porcentajeRpe' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Porcentaje FAOV:
-            <input type='number' name='porcentajeFaov' required />
+            <Input type='number' name='porcentajeFaov' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Pago Directo:
-            <input type='checkbox' name='pagoDirecto' />
+            <Input type='checkbox' name='pagoDirecto' />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Jubilado:
-            <input type='checkbox' name='jubilado' />
+            <Input type='checkbox' name='jubilado' />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Cuenta Bancaria:
-            <input type='text' name='cuentaBancaria' required />
+            <Input type='text' name='cuentaBancaria' required />
           </label>
         </div>
-        <div>
+        <div style={{ marginBottom: '15px' }}>
           <label>
             Observaciones:
-            <textarea name='observaciones' />
+            <Input as='textarea' name='observaciones' />
           </label>
         </div>
         {actionData?.error && <p>{actionData.error}</p>}
-        <button type='submit'>Agregar Profesor</button>
+        <Button
+          type='submit'
+        >
+          Agregar
+        </Button>
       </Form>
     </div>
   );
