@@ -1,5 +1,7 @@
 import { useLoaderData, MetaFunction } from '@remix-run/react';
 import { getEstudiantes } from '~/api/controllers/estudiantes';
+import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
+import { DataTable } from '~/components/ui/data-table';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Estudiantes | San Matín de Porres' }];
@@ -15,7 +17,15 @@ export default function EstudiantesPage() {
 
   return (
     <>
-      <h1>Estudiantes</h1>
+      <h1 className='text-xl font-bold'>Estudiantes</h1>
+      <main className='py-4'>
+        {'type' in data && data.type === 'error' && (
+          <p>Ocurrió un error cargando los datos</p>
+        )}
+        {!('type' in data) && (
+          <DataTable columns={estudiantesColumns} data={data} />
+        )}
+      </main>
     </>
   );
 }

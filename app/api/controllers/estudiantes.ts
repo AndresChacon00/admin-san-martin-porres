@@ -16,6 +16,10 @@ export interface Estudiante {
   direccion: string;
   ultimoAñoCursado: string;
 }
+/**
+ * Get full list of students
+ * @author Andrés Chacón
+ */
 
 export const getEstudiantes = async () => {
   try {
@@ -27,9 +31,17 @@ export const getEstudiantes = async () => {
     return estudiantesList;
   } catch (error) {
     console.error('Error al obtener a los estudiantes: ', error);
+    return {
+      type: 'error',
+      message: 'Error al obtener a los empleados',
+    } as const;
   }
 };
 
+/**
+ * Endpoint for adding a student
+ * @author Andrés Chacón
+ */
 export const addEstudiante = async (
   nombre: string,
   apellido: string,
@@ -64,13 +76,30 @@ export const addEstudiante = async (
     return newEstudiante[0];
   } catch (error) {
     console.error('Error al añadir un estudiante: ', error);
+    return {
+      type: 'error',
+      message: 'Error al añadir un estudiante',
+    } as const;
   }
 };
 
+/**
+ * Endpoint for deleting an student by id
+ * @author Andrés Chacón
+ * @param id
+ */
 export const deleteEstudiante = async (id: number) => {
   try {
     await db.delete(estudiantes).where(eq(estudiantes.id, id));
+    return {
+      type: 'success',
+      message: 'Estudiante eliminado exitosamente',
+    };
   } catch (error) {
     console.error('Error al eliminar estudiante: ', error);
+    return {
+      type: 'error',
+      message: 'Error al eliminar un estudiante',
+    } as const;
   }
 };
