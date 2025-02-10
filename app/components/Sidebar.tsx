@@ -1,4 +1,4 @@
-import { Home, HardHat } from 'lucide-react';
+import { Home, HardHat, BookOpen } from 'lucide-react'; // Added BookOpen for Cursos icon
 
 import {
   Sidebar,
@@ -23,6 +23,11 @@ const items = [
     title: 'Empleados',
     url: '/empleados',
     icon: HardHat,
+  },
+  {
+    title: 'Cursos',
+    url: '/cursos',
+    icon: BookOpen, // Added icon for Cursos
   },
 ];
 

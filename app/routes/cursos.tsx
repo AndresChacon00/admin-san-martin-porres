@@ -1,29 +1,29 @@
 import { MetaFunction, useLoaderData } from '@remix-run/react';
-import { getEmpleados } from '~/api/controllers/empleados';
-import { empleadoColumns } from '~/components/columns/empleados-columns';
+import { getCursos } from '~/api/controllers/cursos';
+import { cursoColumns } from '~/components/columns/cursos-columns';
 import { DataTable } from '~/components/ui/data-table';
 
 export const meta: MetaFunction = () => {
-  return [{ title: 'Empleados | San Martín de Porres' }];
+  return [{ title: 'Cursos | San Martín de Porres' }];
 };
 
 export async function loader() {
-  const data = await getEmpleados();
+  const data = await getCursos();
   return data;
 }
 
-export default function EmpleadosPage() {
+export default function CursosPage() {
   const data = useLoaderData<typeof loader>();
 
   return (
     <>
-      <h1 className='text-xl font-bold'>Empleados</h1>
+      <h1 className='text-xl font-bold'>Cursos</h1>
       <main className='py-4'>
         {'type' in data && data.type === 'error' && (
           <p>Ocurrió un error cargando los datos</p>
         )}
         {!('type' in data) && (
-          <DataTable columns={empleadoColumns} data={data} />
+          <DataTable columns={cursoColumns} data={data} />
         )}
       </main>
     </>

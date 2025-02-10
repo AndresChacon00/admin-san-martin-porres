@@ -7,7 +7,7 @@ import { Form, useActionData, useLoaderData } from '@remix-run/react';
 import {
   addEmpleado,
   getEmpleados,
-} from '~/api/controllers/empleados';
+} from '../api/controllers/empleados';
 import { empleados } from '../api/tables/empleados';
 import Button from '../components/Button';
 

@@ -6,7 +6,7 @@ import type {
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
 import {
   getEmpleados,
-} from '~/api/controllers/empleados';
+} from '../api/controllers/empleados';
 import {
     addProfesor,
 } from '~/api/controllers/profesores';

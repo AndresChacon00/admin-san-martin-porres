@@ -7,7 +7,7 @@ import {
   deleteEmpleadoFromDb,
   getSingleEmpleado,
   updateEmpleadoInDb,
-} from '../services/empleados.server';
+} from '../services/empleados';
 
 /**
  * Get full list of employees
