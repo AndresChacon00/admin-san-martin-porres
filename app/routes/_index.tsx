@@ -45,19 +45,19 @@ export const action: ActionFunction = async ({ request }) => {
   const direccion = formData.get('direccion') as string;
   const ultimoAñoCursado = formData.get('ultimoAñoCursado') as string;
 
-  await addEstudiante(
+  await addEstudiante({
     nombre,
     apellido,
     cedula,
     sexo,
-    new Date(fechaNacimiento),
-    Number(edad),
+    fechaNacimiento: new Date(fechaNacimiento),
+    edad: Number(edad),
     religion,
     telefono,
     correo,
     direccion,
     ultimoAñoCursado,
-  );
+  });
   return null;
 };
 
