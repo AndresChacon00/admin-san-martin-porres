@@ -8,7 +8,7 @@ import {
   addEstudiante,
   deleteEstudiante,
   getEstudiantes,
-} from '~/api/controllers/estudiantes';
+} from '~/api/controllers/estudiantes.server';
 import { estudiantes } from '../api/tables/estudiantes';
 import Button from '../components/Button';
 export const meta: MetaFunction = () => {

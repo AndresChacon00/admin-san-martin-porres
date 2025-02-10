@@ -1,5 +1,5 @@
 import { useLoaderData, MetaFunction } from '@remix-run/react';
-import { getEstudiantes } from '~/api/controllers/estudiantes';
+import { getEstudiantes } from '~/api/controllers/estudiantes.server';
 import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
 import { DataTable } from '~/components/ui/data-table';
 

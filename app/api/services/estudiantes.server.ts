@@ -5,7 +5,7 @@ import { EstudianteInsert, EstudianteUpdate } from '~/types/estudiantes.types';
 
 /**
  * Gets a single student
- * @author Andrés
+ * @author Andréss
  * @param id
  * @throws if the student could not be selected
  */
@@ -47,11 +47,11 @@ export async function updateEstudianteInDb(id: number, data: EstudianteUpdate) {
 }
 
 /**
- * Deletes a student in the database by ID
+ * Deletes a student from the database by ID
  * @author Andrés
  * @param id
  * @throws if the student could not be deleted
  */
-export async function deleteEstudianteInDb(id: number) {
+export async function deleteEstudianteFromDb(id: number) {
   await db.delete(estudiantes).where(eq(estudiantes.id, id));
 }
