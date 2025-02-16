@@ -81,20 +81,68 @@ export default function Index() {
       <Form method='post'>
         <div>
           <label>
-            Name:
-            <input type='text' name='name' required />
+            Nombre:
+            <input type='text' name='nombre' required />
           </label>
         </div>
         <div>
           <label>
-            Age:
-            <input type='number' name='age' required />
+            Apellido:
+            <input type='text' name='apellido' required />
           </label>
         </div>
         <div>
           <label>
-            Email:
-            <input type='email' name='email' required />
+            Cedula:
+            <input type='text' name='cedula' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Sexo:
+            <input type='text' name='sexo' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Fecha de Nacimiento:
+            <input type='date' name='fechaNacimiento' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Edad:
+            <input type='number' name='edad' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Religion:
+            <input type='text' name='religion' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Telefono:
+            <input type='text' name='telefono' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Correo:
+            <input type='email' name='correo' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Direccion:
+            <input type='text' name='direccion' required />
+          </label>
+        </div>
+        <div>
+          <label>
+            Ultimo Año Cursado:
+            <input type='text' name='ultimoAñoCursado' required />
           </label>
         </div>
         {actionData?.error && (
