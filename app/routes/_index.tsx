@@ -6,9 +6,10 @@ import type {
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
 import {
   addEstudiante,
+  deleteEstudiante,
   getEstudiantes,
-} from '~/api/controllers/estudiantesController';
-import { estudiantes } from '../api/tables/estudiantesSchema';
+} from '~/api/controllers/estudiantes.server';
+import { estudiantes } from '../api/tables/estudiantes';
 import Button from '../components/Button';
 export const meta: MetaFunction = () => {
   return [
@@ -24,15 +25,39 @@ export const loader: LoaderFunction = async () => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  const name = formData.get('name');
-  const age = formData.get('age');
-  const email = formData.get('email');
+  const actionType = formData.get('_action');
+  const id = formData.get('id');
 
-  if (typeof name !== 'string' || typeof email !== 'string') {
-    return { error: 'Invalid form data' };
+  if (actionType === 'delete' && id != null) {
+    await deleteEstudiante(Number(id));
+    return null;
   }
 
-  await addEstudiante(name, Number(age), email);
+  const nombre = formData.get('nombre') as string;
+  const apellido = formData.get('apellido') as string;
+  const cedula = formData.get('cedula') as string;
+  const sexo = formData.get('sexo') as string;
+  const fechaNacimiento = formData.get('fechaNacimiento') as string;
+  const edad = formData.get('edad') as string;
+  const religion = formData.get('religion') as string;
+  const telefono = formData.get('telefono') as string;
+  const correo = formData.get('correo') as string;
+  const direccion = formData.get('direccion') as string;
+  const ultimoAñoCursado = formData.get('ultimoAñoCursado') as string;
+
+  await addEstudiante({
+    nombre,
+    apellido,
+    cedula,
+    sexo,
+    fechaNacimiento: new Date(fechaNacimiento),
+    edad: Number(edad),
+    religion,
+    telefono,
+    correo,
+    direccion,
+    ultimoAñoCursado,
+  });
   return null;
 };
 
@@ -41,7 +66,7 @@ export default function Index() {
   const actionData = useActionData<{ error?: string }>();
   return (
     <div>
-      <Button/>
+      <Button />
       <h1>San Martin de Porres</h1>
       <h2>Students</h2>
       <ul>
