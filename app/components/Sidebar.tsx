@@ -1,4 +1,4 @@
-import { Home, HardHat, PencilRuler } from 'lucide-react';
+import { Home, HardHat, PencilRuler, GraduationCap } from 'lucide-react';
 
 import {
   Sidebar,
@@ -29,6 +29,11 @@ const items = [
     title: 'Profesores',
     url: '/profesores',
     icon: PencilRuler,
+  },
+  {
+    title: 'Estudiantes',
+    url: '/estudiantes',
+    icon: GraduationCap,
   },
 ];
 
