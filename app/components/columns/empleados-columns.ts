@@ -21,6 +21,9 @@ export const empleadoColumns: ColumnDef<Empleado>[] = [
   {
     accessorKey: 'fechaIngresoPlantel',
     header: 'Ingreso al Plantel',
+    accessorFn: (row) => {
+      return new Date(row.fechaIngresoPlantel).toLocaleDateString();
+    },
   },
   {
     accessorKey: 'sueldo',

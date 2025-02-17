@@ -1,4 +1,4 @@
-import { Home, HardHat } from 'lucide-react';
+import { Home, HardHat, PencilRuler } from 'lucide-react';
 
 import {
   Sidebar,
@@ -25,9 +25,9 @@ const items = [
     icon: HardHat,
   },
   {
-    title: 'Profesor',
-    url: '/crearProfesor',
-    icon: HardHat,
+    title: 'Profesores',
+    url: '/profesores',
+    icon: PencilRuler,
   },
 ];
 
