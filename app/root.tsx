@@ -10,6 +10,7 @@ import styles from './tailwind.css?url';
 
 import { SidebarProvider, SidebarTrigger } from '../app/components/ui/sidebar';
 import { AppSidebar } from '../app/components/Sidebar';
+import { Toaster } from './components/ui/sonner';
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -38,7 +39,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <SidebarProvider>
           <AppSidebar />
           <SidebarTrigger />
-          <div className='ps-4 pt-12'>{children}</div>
+          <Toaster position='top-center' />
+          <div className='ps-4 pt-12 w-full'>{children}</div>
           <ScrollRestoration />
           <Scripts />
         </SidebarProvider>

@@ -6,6 +6,11 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+.link-button {
+  @apply bg-blue-500 text-white font-bold py-2 px-4 rounded text-sm;
+  @apply hover:bg-blue-700 transition-all;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
