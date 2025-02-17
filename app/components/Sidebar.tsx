@@ -10,7 +10,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '../components/ui/sidebar';
-import { Link } from '@remix-run/react';
+import { Link, useLocation } from '@remix-run/react';
+import { cn } from '~/lib/utils';
 
 // Menu items.
 const items = [
@@ -32,6 +33,7 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const location = useLocation();
   return (
     <Sidebar>
       <SidebarContent>
@@ -40,7 +42,13 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem
+                  key={item.title}
+                  className={cn(
+                    'hover:bg-gray-100 rounded-md transition-all',
+                    location.pathname === item.url ? 'bg-gray-100' : '',
+                  )}
+                >
                   <SidebarMenuButton asChild>
                     <Link to={item.url}>
                       <item.icon />
