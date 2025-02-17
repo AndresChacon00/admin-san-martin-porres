@@ -7,7 +7,7 @@ import {
   createEmpleado,
   getSingleEmpleado,
   updateEmpleadoInDb,
-} from '../services/empleados';
+} from '../services/empleados.server';
 
 /**
  * Get full list of teachers
@@ -62,12 +62,9 @@ export const addProfesor = async (data: EmpleadoInsert) => {
   try {
     const newEmpleado = await createEmpleado(data);
 
-    const newProfesor = await db
-      .insert(profesores)
-      .values({ id: newEmpleado.id })
-      .returning();
+    await db.insert(profesores).values({ id: newEmpleado.id }).returning();
 
-    return newProfesor[0];
+    return { type: 'success', message: 'Profesor creado con éxito' } as const;
   } catch (error) {
     console.error('Error al añadir un profesor: ', error);
     return { type: 'error', message: 'Error al añadir un profesor' } as const;
