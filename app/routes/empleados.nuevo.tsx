@@ -55,21 +55,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const fechaIngresoPlantel = new Date(
     String(formData.get('fechaIngresoPlantel')),
   );
-  const titulo = String(formData.get('titulo') ?? '');
-  const descripcionTitulo = String(formData.get('descripcionTitulo') ?? '');
-  const mencionTitulo = String(formData.get('mencionTitulo') ?? '');
-  const carreraEstudiando = String(formData.get('carreraEstudiando') ?? '');
-  const tipoLapsoEstudios = String(formData.get('tipoLapsoEstudios') ?? '');
+  const titulo = String(formData.get('titulo') || '');
+  const descripcionTitulo = String(formData.get('descripcionTitulo') || '');
+  const mencionTitulo = String(formData.get('mencionTitulo') || '');
+  const carreraEstudiando = String(formData.get('carreraEstudiando') || '');
+  const tipoLapsoEstudios = String(formData.get('tipoLapsoEstudios') || '');
   const numeroLapsosAprobados = Number(
-    formData.get('numeroLapsosAprobados') ?? '',
+    formData.get('numeroLapsosAprobados') || '',
   );
-  const postgrado = String(formData.get('postgrado') ?? '');
+  const postgrado = String(formData.get('postgrado') || '');
   const experienciaLaboral = Number(formData.get('experienciaLaboral'));
-  const gradoSistema = String(formData.get('gradoSistema') ?? '');
-  const nivelSistema = String(formData.get('nivelSistema') ?? '');
-  const gradoCentro = String(formData.get('gradoCentro') ?? '');
-  const nivelCentro = String(formData.get('nivelCentro') ?? '');
-  const cargo = String(formData.get('cargo') ?? '');
+  const gradoSistema = String(formData.get('gradoSistema') || '');
+  const nivelSistema = String(formData.get('nivelSistema') || '');
+  const gradoCentro = String(formData.get('gradoCentro') || '');
+  const nivelCentro = String(formData.get('nivelCentro') || '');
+  const cargo = String(formData.get('cargo') || '');
   const horasSemanales = Number(formData.get('horasSemanales'));
   const sueldo = Number(formData.get('sueldo'));
   const asignacionesMensual = Number(formData.get('asignacionesMensual'));
@@ -91,8 +91,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const porcentajeFaov = Number(formData.get('porcentajeFaov'));
   const pagoDirecto = Boolean(formData.get('pagoDirecto'));
   const jubilado = Boolean(formData.get('jubilado'));
-  const cuentaBancaria = String(formData.get('cuentaBancaria') ?? '');
-  const observaciones = String(formData.get('observaciones') ?? '');
+  const cuentaBancaria = String(formData.get('cuentaBancaria') || '');
+  const observaciones = String(formData.get('observaciones') || '');
 
   const response = await addEmpleado({
     cedula,
@@ -156,6 +156,7 @@ export default function CrearEmpleado() {
     resolver: zodResolver(datosProfesionalesEmpleado),
     defaultValues: {
       numeroLapsosAprobados: 0,
+      experienciaLaboral: 0,
     },
   });
 
