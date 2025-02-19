@@ -54,6 +54,7 @@ export async function getEmpleadoById(id: number) {
  */
 export async function addEmpleado(data: EmpleadoInsert) {
   try {
+    console.log(data);
     await createEmpleado(data);
     return { type: 'success', message: 'Empleado creado con éxito' } as const;
   } catch (error) {

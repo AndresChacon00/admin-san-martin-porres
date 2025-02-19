@@ -4,7 +4,6 @@ import {
   getEstudiantes,
 } from '~/api/controllers/estudiantes.server';
 import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
-import { DialogDemo } from '~/components/Dialog';
 import { DataTable } from '~/components/ui/data-table';
 import {
   Dialog,
