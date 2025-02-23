@@ -29,10 +29,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { cn } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
-import { EstadoCivil, Sexo } from '~/types/empleados.types';
 import { Checkbox } from '~/components/ui/checkbox';
 import { toast } from 'sonner';
 import { addEmpleado } from '~/api/controllers/empleados.server';
+import { extractEmpleadoFormData } from '~/lib/formData';
 
 export const meta: MetaFunction = () => {
   return [
@@ -43,101 +43,8 @@ export const meta: MetaFunction = () => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const cedula = String(formData.get('cedula'));
-  const nombreCompleto = String(formData.get('nombreCompleto'));
-  const fechaNacimiento = new Date(String(formData.get('fechaNacimiento')));
-  const sexo = String(formData.get('sexo')) as Sexo;
-  const estadoCivil = String(formData.get('estadoCivil')) as EstadoCivil;
-  const religion = String(formData.get('religion'));
-  const cantidadHijos = Number(formData.get('cantidadHijos'));
-  const hijosMenoresSeis = Number(formData.get('hijosMenoresSeis'));
-  const fechaIngresoAvec = new Date(String(formData.get('fechaIngresoAvec')));
-  const fechaIngresoPlantel = new Date(
-    String(formData.get('fechaIngresoPlantel')),
-  );
-  const titulo = String(formData.get('titulo') || '');
-  const descripcionTitulo = String(formData.get('descripcionTitulo') || '');
-  const mencionTitulo = String(formData.get('mencionTitulo') || '');
-  const carreraEstudiando = String(formData.get('carreraEstudiando') || '');
-  const tipoLapsoEstudios = String(formData.get('tipoLapsoEstudios') || '');
-  const numeroLapsosAprobados = Number(
-    formData.get('numeroLapsosAprobados') || '',
-  );
-  const postgrado = String(formData.get('postgrado') || '');
-  const experienciaLaboral = Number(formData.get('experienciaLaboral'));
-  const gradoSistema = String(formData.get('gradoSistema') || '');
-  const nivelSistema = String(formData.get('nivelSistema') || '');
-  const gradoCentro = String(formData.get('gradoCentro') || '');
-  const nivelCentro = String(formData.get('nivelCentro') || '');
-  const cargo = String(formData.get('cargo') || '');
-  const horasSemanales = Number(formData.get('horasSemanales'));
-  const sueldo = Number(formData.get('sueldo'));
-  const asignacionesMensual = Number(formData.get('asignacionesMensual'));
-  const deduccionesMensual = Number(formData.get('deduccionesMensual'));
-  const primaAntiguedad = Number(formData.get('primaAntiguedad'));
-  const primaGeografica = Number(formData.get('primaGeografica'));
-  const primaCompensacionAcademica = Number(
-    formData.get('primaCompensacionAcademica'),
-  );
-  const primaAsistencial = Number(formData.get('primaAsistencial'));
-  const contribucionDiscapacidad = Number(
-    formData.get('contribucionDiscapacidad'),
-  );
-  const contribucionDiscapacidadHijos = Number(
-    formData.get('contribucionDiscapacidadHijos'),
-  );
-  const porcentajeSso = Number(formData.get('porcentajeSso'));
-  const porcentajeRpe = Number(formData.get('porcentajeRpe'));
-  const porcentajeFaov = Number(formData.get('porcentajeFaov'));
-  const pagoDirecto = Boolean(formData.get('pagoDirecto'));
-  const jubilado = Boolean(formData.get('jubilado'));
-  const cuentaBancaria = String(formData.get('cuentaBancaria') || '');
-  const observaciones = String(formData.get('observaciones') || '');
-
-  const response = await addEmpleado({
-    cedula,
-    nombreCompleto,
-    fechaNacimiento,
-    sexo,
-    estadoCivil,
-    religion,
-    hijosMenoresSeis,
-    montoMensualGuarderia: 0,
-    fechaIngresoAvec,
-    fechaIngresoPlantel,
-    titulo,
-    descripcionTitulo,
-    mencionTitulo,
-    carreraEstudiando,
-    tipoLapsoEstudios,
-    numeroLapsosAprobados,
-    postgrado,
-    experienciaLaboral,
-    gradoSistema,
-    nivelSistema,
-    gradoCentro,
-    nivelCentro,
-    cargo,
-    horasSemanales,
-    sueldo,
-    asignacionesMensual,
-    deduccionesMensual,
-    primaAntiguedad,
-    primaGeografica,
-    primaCompensacionAcademica,
-    cantidadHijos,
-    primaAsistencial,
-    contribucionDiscapacidad,
-    contribucionDiscapacidadHijos,
-    porcentajeSso,
-    porcentajeRpe,
-    porcentajeFaov,
-    pagoDirecto,
-    jubilado,
-    cuentaBancaria,
-    observaciones,
-  });
-
+  const data = extractEmpleadoFormData(formData);
+  const response = await addEmpleado(data);
   return json(response);
 };
 
@@ -155,6 +62,12 @@ export default function CrearEmpleado() {
   const formStepTwo = useForm<z.infer<typeof datosProfesionalesEmpleado>>({
     resolver: zodResolver(datosProfesionalesEmpleado),
     defaultValues: {
+      titulo: '',
+      carreraEstudiando: '',
+      descripcionTitulo: '',
+      mencionTitulo: '',
+      postgrado: '',
+      tipoLapsoEstudios: '',
       numeroLapsosAprobados: 0,
       experienciaLaboral: 0,
     },
