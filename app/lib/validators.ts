@@ -36,13 +36,13 @@ export const datosProfesionalesEmpleado = z.object({
       required_error: 'Fecha de ingreso al plantel es requerida',
     })
     .date('Fecha inválida'),
-  titulo: z.string().default(''),
-  descripcionTitulo: z.string().default(''),
-  mencionTitulo: z.string().default(''),
-  carreraEstudiando: z.string().default(''),
-  tipoLapsoEstudios: z.string().default(''),
+  titulo: z.string().optional().default(''),
+  descripcionTitulo: z.string().optional().default(''),
+  mencionTitulo: z.string().optional().default(''),
+  carreraEstudiando: z.string().optional().default(''),
+  tipoLapsoEstudios: z.string().optional().default(''),
   numeroLapsosAprobados: z.number().int().default(0),
-  postgrado: z.string().default(''),
+  postgrado: z.string().optional().default(''),
   experienciaLaboral: z.coerce
     .number()
     .int()
