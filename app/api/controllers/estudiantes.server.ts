@@ -60,7 +60,7 @@ export async function addEstudiante(data: EstudianteInsert) {
     console.error('Error al añadir un estudiante: ', error);
     return {
       type: 'error',
-      message: 'Error al añadir un estudiante',
+      message: 'Error al añadir un estudiantee',
     } as const;
   }
 }

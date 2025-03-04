@@ -1,4 +1,10 @@
-import { useLoaderData, MetaFunction, Form } from '@remix-run/react';
+import {
+  useLoaderData,
+  MetaFunction,
+  Form,
+  redirect,
+  useActionData,
+} from '@remix-run/react';
 import {
   addEstudiante,
   getEstudiantes,
@@ -7,6 +13,8 @@ import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
 import { DataTable } from '~/components/ui/data-table';
 import { ActionFunction } from '@remix-run/node';
 import { AgregarEstudianteModal } from '~/components/crud/AgregarEstudianteModal';
+import { json } from '@remix-run/node';
+
 export const meta: MetaFunction = () => {
   return [{ title: 'Estudiantes | San Matín de Porres' }];
 };
@@ -31,8 +39,6 @@ export const action: ActionFunction = async ({ request }) => {
   const direccion = formData.get('direccion');
   const ultimoAñoCursado = formData.get('ultimoAñoCursado');
 
-  // Aquí puedes agregar validaciones de los datos
-
   if (
     typeof nombre !== 'string' ||
     typeof apellido !== 'string' ||
@@ -46,10 +52,10 @@ export const action: ActionFunction = async ({ request }) => {
     typeof direccion !== 'string' ||
     typeof ultimoAñoCursado !== 'string'
   ) {
-    return { error: 'Datos inválidos' };
+    return json({ error: 'Datos inválidos' }, { status: 400 });
   }
 
-  await addEstudiante({
+  const result = await addEstudiante({
     nombre,
     apellido,
     cedula,
@@ -62,7 +68,11 @@ export const action: ActionFunction = async ({ request }) => {
     direccion,
     ultimoAñoCursado,
   });
-  return null;
+  if ('type' in result && result.type === 'error') {
+    console.log('ERRORRRRcito', result.message);
+    return json({ error: result.message }, { status: 400 });
+  }
+  return redirect('/estudiantes');
 };
 
 export default function EstudiantesPage() {
@@ -72,6 +82,7 @@ export default function EstudiantesPage() {
     <>
       <h1 className='text-xl font-bold'>Estudiantes</h1>
       <AgregarEstudianteModal />
+
       <main className='py-4'>
         {'type' in data && data.type === 'error' && (
           <p>Ocurrió un error cargando los datos</p>

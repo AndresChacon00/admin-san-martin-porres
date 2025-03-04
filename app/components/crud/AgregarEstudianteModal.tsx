@@ -50,36 +50,8 @@ export function AgregarEstudianteModal() {
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const validate = () => {
-    const validationErrors: Partial<FormValues> = {};
-    if (!values.nombre.trim())
-      validationErrors.nombre = 'El nombre es requerido.';
-    if (!values.apellido.trim())
-      validationErrors.apellido = 'El apellido es requerido.';
-    if (!values.cedula.trim())
-      validationErrors.cedula = 'La cédula es requerida.';
-    if (!values.sexo.trim()) validationErrors.sexo = 'El sexo es requerido.';
-    if (!values.fechaNacimiento.trim())
-      validationErrors.fechaNacimiento = 'La fecha de nacimiento es requerida.';
-    if (!values.edad.trim()) validationErrors.edad = 'La edad es requerida.';
-    if (!values.religion.trim())
-      validationErrors.religion = 'La religión es requerida.';
-    if (!values.telefono.trim())
-      validationErrors.telefono = 'El teléfono es requerido.';
-    if (!values.correo.trim())
-      validationErrors.correo = 'El correo es requerido.';
-    if (!values.direccion.trim())
-      validationErrors.direccion = 'La dirección es requerida.';
-    if (!values.ultimoAñoCursado.trim())
-      validationErrors.ultimoAñoCursado = 'El último año cursado es requerido.';
-
-    setErrors(validationErrors);
-    return Object.keys(validationErrors).length === 0;
-  };
-
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!validate()) return;
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
       formData.append(key, value);
@@ -89,8 +61,8 @@ export function AgregarEstudianteModal() {
 
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button variant='outline'>Agregar Estudiante</Button>
+      <DialogTrigger asChild>
+        <Button variant={'outline'}>Agregar Estudiante</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -111,10 +83,8 @@ export function AgregarEstudianteModal() {
               value={values.nombre}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.nombre && (
-              <p className='col-span-4 text-red-500 text-sm'>{errors.nombre}</p>
-            )}
           </div>
 
           {/* Apellido */}
@@ -128,12 +98,8 @@ export function AgregarEstudianteModal() {
               value={values.apellido}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.apellido && (
-              <p className='col-span-4 text-red-500 text-sm'>
-                {errors.apellido}
-              </p>
-            )}
           </div>
 
           {/* Cédula */}
@@ -147,10 +113,8 @@ export function AgregarEstudianteModal() {
               value={values.cedula}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.cedula && (
-              <p className='col-span-4 text-red-500 text-sm'>{errors.cedula}</p>
-            )}
           </div>
 
           {/* Sexo */}
@@ -164,10 +128,8 @@ export function AgregarEstudianteModal() {
               value={values.sexo}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.sexo && (
-              <p className='col-span-4 text-red-500 text-sm'>{errors.sexo}</p>
-            )}
           </div>
 
           {/* Fecha de Nacimiento */}
@@ -182,12 +144,8 @@ export function AgregarEstudianteModal() {
               value={values.fechaNacimiento}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.fechaNacimiento && (
-              <p className='col-span-4 text-red-500 text-sm'>
-                {errors.fechaNacimiento}
-              </p>
-            )}
           </div>
 
           {/* Edad */}
@@ -202,10 +160,8 @@ export function AgregarEstudianteModal() {
               value={values.edad}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.edad && (
-              <p className='col-span-4 text-red-500 text-sm'>{errors.edad}</p>
-            )}
           </div>
 
           {/* Religión */}
@@ -219,12 +175,8 @@ export function AgregarEstudianteModal() {
               value={values.religion}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.religion && (
-              <p className='col-span-4 text-red-500 text-sm'>
-                {errors.religion}
-              </p>
-            )}
           </div>
 
           {/* Teléfono */}
@@ -238,12 +190,8 @@ export function AgregarEstudianteModal() {
               value={values.telefono}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.telefono && (
-              <p className='col-span-4 text-red-500 text-sm'>
-                {errors.telefono}
-              </p>
-            )}
           </div>
 
           {/* Correo */}
@@ -258,10 +206,8 @@ export function AgregarEstudianteModal() {
               value={values.correo}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.correo && (
-              <p className='col-span-4 text-red-500 text-sm'>{errors.correo}</p>
-            )}
           </div>
 
           {/* Dirección */}
@@ -275,12 +221,8 @@ export function AgregarEstudianteModal() {
               value={values.direccion}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.direccion && (
-              <p className='col-span-4 text-red-500 text-sm'>
-                {errors.direccion}
-              </p>
-            )}
           </div>
 
           {/* Último Año Cursado */}
@@ -294,12 +236,8 @@ export function AgregarEstudianteModal() {
               value={values.ultimoAñoCursado}
               onChange={handleChange}
               className='col-span-3'
+              required
             />
-            {errors.ultimoAñoCursado && (
-              <p className='col-span-4 text-red-500 text-sm'>
-                {errors.ultimoAñoCursado}
-              </p>
-            )}
           </div>
 
           <DialogFooter>
