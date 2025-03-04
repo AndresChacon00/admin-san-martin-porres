@@ -1,5 +1,5 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useFetcher } from '@remix-run/react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
+import { estudiantes } from '../../api/tables/estudiantes';
 
 interface FormValues {
   nombre: string;
@@ -27,33 +28,26 @@ interface FormValues {
   ultimoAñoCursado: string;
 }
 
-export function AgregarEstudianteModal() {
-  const fetcher = useFetcher();
-  const [values, setValues] = useState<FormValues>({
-    nombre: '',
-    apellido: '',
-    cedula: '',
-    sexo: '',
-    fechaNacimiento: '',
-    edad: '',
-    religion: '',
-    telefono: '',
-    correo: '',
-    direccion: '',
-    ultimoAñoCursado: '',
-  });
-  const [errors, setErrors] = useState<Partial<FormValues>>({});
+interface EditarEstudianteModalProps {
+  estudiante: FormValues;
+}
 
+export function EditarEstudianteModal({
+  estudiante,
+}: EditarEstudianteModalProps) {
+  const fetcher = useFetcher();
+  const [values, setValues] = useState<FormValues>(() => ({
+    ...estudiante,
+  }));
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setValues((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('actionType', 'agregar');
+    formData.append('actionType', 'editar');
     Object.entries(values).forEach(([key, value]) => {
       formData.append(key, value);
     });
@@ -67,9 +61,9 @@ export function AgregarEstudianteModal() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Agregar estudiante</DialogTitle>
+          <DialogTitle>Editar estudiante</DialogTitle>
           <DialogDescription>
-            Ingresa los datos del nuevo estudiante.
+            Modifica los datos del estudiante
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className='grid gap-4 py-4'>
