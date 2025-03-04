@@ -1,4 +1,4 @@
-import { Home, HardHat, PencilRuler, GraduationCap } from 'lucide-react';
+import { Home, HardHat, PencilRuler, GraduationCap, BookOpen, Calendar } from 'lucide-react';
 
 import {
   Sidebar,
@@ -13,7 +13,7 @@ import {
 import { Link, useLocation } from '@remix-run/react';
 import { cn } from '~/lib/utils';
 
-// Menu items.
+// Menú de navegación
 const items = [
   {
     title: 'Inicio',
@@ -34,6 +34,16 @@ const items = [
     title: 'Estudiantes',
     url: '/estudiantes',
     icon: GraduationCap,
+  },
+  {
+    title: 'Cursos',
+    url: '/cursos',
+    icon: BookOpen,
+  },
+  {
+    title: 'Periodos',
+    url: '/periodos',
+    icon: Calendar, // Icono para Periodos
   },
 ];
 
