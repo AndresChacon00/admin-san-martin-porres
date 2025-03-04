@@ -24,6 +24,7 @@ import { useState } from 'react';
 import { Empleado } from '~/types/empleados.types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Button } from '../ui/button';
+import { Link } from '@remix-run/react';
 
 interface DataTableProps {
   columns: ColumnDef<Empleado>[];
@@ -39,7 +40,7 @@ export function DataTable({ columns, data, deleteEmployee }: DataTableProps) {
   });
 
   const [selected, setSelected] = useState<number | null>(null);
-  const [action, setAction] = useState<'edit' | 'delete' | null>(null);
+  const [action, setAction] = useState<'delete' | null>(null);
 
   return (
     <div className='rounded-md border'>
@@ -80,13 +81,10 @@ export function DataTable({ columns, data, deleteEmployee }: DataTableProps) {
                       <Ellipsis color='gray' aria-label='Opciones' />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setAction('edit');
-                          setSelected(row.original.id);
-                        }}
-                      >
-                        Editar
+                      <DropdownMenuItem>
+                        <Link to={`editar/${row.original.id}`}>
+                          Ver o Editar
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
