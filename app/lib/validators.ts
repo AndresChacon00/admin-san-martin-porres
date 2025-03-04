@@ -41,7 +41,7 @@ export const datosProfesionalesEmpleado = z.object({
   mencionTitulo: z.string().optional().default(''),
   carreraEstudiando: z.string().optional().default(''),
   tipoLapsoEstudios: z.string().optional().default(''),
-  numeroLapsosAprobados: z.number().int().default(0),
+  numeroLapsosAprobados: z.coerce.number().int().default(0),
   postgrado: z.string().optional().default(''),
   experienciaLaboral: z.coerce
     .number()

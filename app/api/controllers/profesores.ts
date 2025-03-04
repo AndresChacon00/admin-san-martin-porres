@@ -98,10 +98,16 @@ export const deleteProfesor = async (id: number) => {
  */
 export const updateProfesor = async (id: number, data: EmpleadoUpdate) => {
   try {
-    const updated = updateEmpleadoInDb(id, data);
-    return updated;
+    await updateEmpleadoInDb(id, data);
+    return {
+      type: 'success',
+      message: 'Profesor actualizado con éxito',
+    } as const;
   } catch (error) {
     console.error('Error al actualizar el profesor: ', error);
-    return { type: 'error', message: 'Error al actualizar el profesor' };
+    return {
+      type: 'error',
+      message: 'Error al actualizar el profesor',
+    } as const;
   }
 };
