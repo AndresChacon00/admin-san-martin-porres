@@ -15,12 +15,13 @@ import { Input } from '~/components/ui/input';
 import { estudiantes } from '../../api/tables/estudiantes';
 
 interface FormValues {
+  id: number;
   nombre: string;
   apellido: string;
   cedula: string;
   sexo: string;
-  fechaNacimiento: string;
-  edad: string;
+  fechaNacimiento: Date | null;
+  edad: number;
   religion: string;
   telefono: string;
   correo: string;
@@ -57,7 +58,7 @@ export function EditarEstudianteModal({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={'outline'}>Agregar Estudiante</Button>
+        <Button variant={'outline'}>Editar Estudiante</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -67,6 +68,19 @@ export function EditarEstudianteModal({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className='grid gap-4 py-4'>
+          {/* ID (non-editable) */}
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='id' className='text-right'>
+              ID
+            </Label>
+            <Input
+              id='id'
+              name='id'
+              value={values.id}
+              readOnly
+              className='col-span-3'
+            />
+          </div>
           {/* Nombre */}
           <div className='grid grid-cols-4 items-center gap-4'>
             <Label htmlFor='nombre' className='text-right'>
@@ -136,7 +150,11 @@ export function EditarEstudianteModal({
               id='fechaNacimiento'
               name='fechaNacimiento'
               type='date'
-              value={values.fechaNacimiento}
+              value={
+                values.fechaNacimiento
+                  ? values.fechaNacimiento.toISOString().split('T')[0]
+                  : ''
+              }
               onChange={handleChange}
               className='col-span-3'
               required

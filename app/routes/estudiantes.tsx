@@ -8,12 +8,14 @@ import {
 import {
   addEstudiante,
   getEstudiantes,
+  updateEstudiante,
 } from '~/api/controllers/estudiantes.server';
 import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
 import { DataTable } from '~/components/ui/data-table';
 import { ActionFunction } from '@remix-run/node';
 import { AgregarEstudianteModal } from '~/components/crud/AgregarEstudianteModal';
 import { json } from '@remix-run/node';
+import { DataTableEstudiantes } from '~/components/data-tables/estudiantes-data-table';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Estudiantes | San Matín de Porres' }];
@@ -76,6 +78,57 @@ export const action: ActionFunction = async ({ request }) => {
       return json({ error: result.message }, { status: 400 });
     }
   }
+
+  if (actionType === 'editar') {
+    const id = formData.get('id');
+
+    const nombre = formData.get('nombre');
+    const apellido = formData.get('apellido');
+    const cedula = formData.get('cedula');
+    const sexo = formData.get('sexo');
+    const fechaNacimiento = formData.get('fechaNacimiento');
+    const edad = formData.get('edad');
+    const religion = formData.get('religion');
+    const telefono = formData.get('telefono');
+    const correo = formData.get('correo');
+    const direccion = formData.get('direccion');
+    const ultimoAñoCursado = formData.get('ultimoAñoCursado');
+
+    if (
+      typeof id !== 'string' ||
+      typeof nombre !== 'string' ||
+      typeof apellido !== 'string' ||
+      typeof cedula !== 'string' ||
+      typeof sexo !== 'string' ||
+      typeof fechaNacimiento !== 'string' ||
+      typeof edad !== 'string' ||
+      typeof religion !== 'string' ||
+      typeof telefono !== 'string' ||
+      typeof correo !== 'string' ||
+      typeof direccion !== 'string' ||
+      typeof ultimoAñoCursado !== 'string'
+    ) {
+      return json({ error: 'Datos inválidos' }, { status: 400 });
+    }
+    const result = await updateEstudiante(parseInt(id), {
+      nombre,
+      apellido,
+      cedula,
+      sexo,
+      fechaNacimiento: new Date(fechaNacimiento),
+      edad: Number(edad),
+      religion,
+      telefono,
+      correo,
+      direccion,
+      ultimoAñoCursado,
+    });
+
+    if ('type' in result && result.type === 'error') {
+      console.log('ERRORRRRcito', result.message);
+      return json({ error: result.message }, { status: 400 });
+    }
+  }
   return redirect('/estudiantes');
 };
 
@@ -92,7 +145,7 @@ export default function EstudiantesPage() {
           <p>Ocurrió un error cargando los datos</p>
         )}
         {!('type' in data) && (
-          <DataTable columns={estudiantesColumns} data={data} />
+          <DataTableEstudiantes columns={estudiantesColumns} data={data} />
         )}
       </main>
     </>
