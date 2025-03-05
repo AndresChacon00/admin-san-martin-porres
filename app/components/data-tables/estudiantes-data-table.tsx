@@ -64,8 +64,14 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
                   </TableCell>
                 ))}
                 <TableCell>
-                  <EditarEstudianteModal estudiante={row.original} />
-                  <EliminarEstudianteModal estudiante={row.original} />
+                  <EditarEstudianteModal
+                    key={row.original.id}
+                    estudiante={row.original}
+                  />
+                  <EliminarEstudianteModal
+                    key={`del-${row.original.id}`}
+                    estudiante={row.original}
+                  />
                 </TableCell>
               </TableRow>
             ))
