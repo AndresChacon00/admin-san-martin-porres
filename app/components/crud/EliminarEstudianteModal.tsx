@@ -10,6 +10,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { useFetcher } from '@remix-run/react';
 import { useState } from 'react';
+import { DialogClose } from '@radix-ui/react-dialog';
 
 interface FormValues {
   id: number;
@@ -59,7 +60,9 @@ export function EliminarEstudianteModal({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant='ghost'>Cancelar</Button>
+          <DialogClose asChild>
+            <Button variant='ghost'>Cancelar</Button>
+          </DialogClose>
           <Button variant='destructive' onClick={handleDelete}>
             Sí, eliminar
           </Button>

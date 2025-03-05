@@ -7,6 +7,7 @@ import {
 } from '@remix-run/react';
 import {
   addEstudiante,
+  deleteEstudiante,
   getEstudiantes,
   updateEstudiante,
 } from '~/api/controllers/estudiantes.server';
@@ -129,6 +130,21 @@ export const action: ActionFunction = async ({ request }) => {
       return json({ error: result.message }, { status: 400 });
     }
   }
+
+  if (actionType === 'eliminar') {
+    const id = formData.get('id');
+
+    if (typeof id !== 'string') {
+      return json({ error: 'ID inválido' }, { status: 400 });
+    }
+
+    const result = await deleteEstudiante(parseInt(id));
+    if ('type' in result && result.type === 'error') {
+      console.log('ERRORRRRcito', result.message);
+      return json({ error: result.message }, { status: 400 });
+    }
+  }
+
   return redirect('/estudiantes');
 };
 

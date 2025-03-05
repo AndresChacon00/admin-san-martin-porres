@@ -16,6 +16,7 @@ import {
 import { AgregarEstudianteModal } from '../crud/AgregarEstudianteModal';
 import { EditarEstudianteModal } from '../crud/EditarEstudianteModal';
 import { Estudiante } from '~/types/estudiantes.types';
+import { EliminarEstudianteModal } from '../crud/EliminarEstudianteModal';
 
 interface DataTableProps {
   columns: ColumnDef<Estudiante>[];
@@ -64,7 +65,7 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
                 ))}
                 <TableCell>
                   <EditarEstudianteModal estudiante={row.original} />
-                  <AgregarEstudianteModal />
+                  <EliminarEstudianteModal estudiante={row.original} />
                 </TableCell>
               </TableRow>
             ))
