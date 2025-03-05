@@ -40,6 +40,14 @@ export function EditarEstudianteModal({
   const [values, setValues] = useState<FormValues>(() => ({
     ...estudiante,
   }));
+
+  //  Restaura valores al cerrar el diálogo
+  function handleOpenChange(isOpen: boolean) {
+    if (!isOpen) {
+      setValues({ ...estudiante });
+    }
+  }
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setValues((prev) => ({ ...prev, [name]: value }));
@@ -56,7 +64,7 @@ export function EditarEstudianteModal({
   };
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant={'outline'}>Editar Estudiante</Button>
       </DialogTrigger>
