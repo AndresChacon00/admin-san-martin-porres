@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+// #region Empleados
 export const datosPersonalesEmpleado = z.object({
   cedula: z
     .string({ required_error: 'Cédula requerida' })
@@ -84,3 +85,12 @@ export const datosCargoEmpleado = z.object({
   cuentaBancaria: z.string().optional().default(''),
   observaciones: z.string().optional().default(''),
 });
+
+// #endregion
+
+// #region Auth
+export const loginSchema = z.object({
+  email: z.string().email('Correo inválido'),
+  password: z.string().min(6, 'Contraseña muy corta'),
+});
+// #endregion
