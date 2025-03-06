@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { EyeIcon, EyeOff } from 'lucide-react';
 import { commitSession, getSession } from '~/sessions';
 import { useSubmit } from '@remix-run/react';
+import { login } from '~/api/controllers/auth.server';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Iniciar Sesión | San Martín de Porres' }];
@@ -29,7 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const email = form.get('email');
   const password = form.get('password');
 
-  const userId = null; // await login(email, password);
+  const userId = await login(String(email), String(password));
 
   if (userId == null) {
     session.flash('error', 'Correo o contraseña inválida');
@@ -42,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  session.set('userId', userId);
+  session.set('userId', String(userId));
 
   // Login succeeded, send them to the home page.
   return redirect('/cursos', {
