@@ -90,7 +90,18 @@ export const datosCargoEmpleado = z.object({
 
 // #region Auth
 export const loginSchema = z.object({
-  email: z.string().email('Correo inválido'),
-  password: z.string().min(6, 'Contraseña muy corta'),
+  email: z
+    .string({ required_error: 'El correo es requerido' })
+    .email('Correo inválido'),
+  password: z
+    .string({ required_error: 'La contraseña es requerida' })
+    .min(6, 'Contraseña muy corta'),
+});
+
+export const newUserSchema = loginSchema.extend({
+  nombre: z.string({ required_error: 'El nombre es requerido' }),
+  adminPassword: z.string({
+    required_error: 'La clave de administrador es requerida',
+  }),
 });
 // #endregion

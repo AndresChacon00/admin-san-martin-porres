@@ -66,7 +66,7 @@ export default function IniciarSesion() {
     <div className='bg-[#e3f5ff] min-h-screen flex items-center justify-center'>
       <Card className='px-6'>
         <CardHeader>
-          <CardTitle>Inicia sesión</CardTitle>
+          <CardTitle className='text-center text-xl'>Inicia sesión</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...loginForm}>

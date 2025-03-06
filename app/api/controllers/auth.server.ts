@@ -31,3 +31,39 @@ export async function login(email: string, password: string) {
     return null;
   }
 }
+
+/**
+ * Registers a user with the given information
+ * @author gabrielm
+ * @param nombre
+ * @param email
+ * @param password
+ * @param adminPassword
+ */
+export async function createUser(
+  nombre: string,
+  email: string,
+  password: string,
+  adminPassword: string,
+) {
+  try {
+    if (adminPassword !== process.env.ADMIN_PASS) {
+      throw new Error('Clave de administrador inválida');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await db
+      .insert(usuarios)
+      .values({ nombre, email, password: hashedPassword })
+      .execute();
+
+    return { type: 'success', message: 'Usuario creado', _action: 'new-user' };
+  } catch (error) {
+    console.error(error);
+    if (error instanceof Error) {
+      return { type: 'error', message: error.message, _action: 'new-user' };
+    }
+    return { type: 'error', message: 'Ocurrió un error', _action: 'new-user' };
+  }
+}
