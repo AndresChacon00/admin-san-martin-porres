@@ -4,11 +4,13 @@ import {
   GraduationCap,
   BookOpen,
   Calendar,
+  LogOut,
 } from 'lucide-react';
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -16,8 +18,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '../components/ui/sidebar';
-import { Link, useLocation } from '@remix-run/react';
+import { Link, useFetcher, useLocation } from '@remix-run/react';
 import { cn } from '~/lib/utils';
+import { Button } from './ui/button';
 
 // Menú de navegación
 const items = [
@@ -50,6 +53,7 @@ const items = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const fetcher = useFetcher();
   return (
     <Sidebar collapsible='icon' className='bg-blue-900'>
       <SidebarHeader>
@@ -89,6 +93,28 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Button
+                variant='ghost'
+                className='text-white hover:bg-blue-800 bg-opacity-20'
+                onClick={() =>
+                  fetcher.submit(
+                    {},
+                    { method: 'post', action: '/cerrar-sesion' },
+                  )
+                }
+              >
+                <LogOut size='5' />
+                <span>Cerrar sesión</span>
+              </Button>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
