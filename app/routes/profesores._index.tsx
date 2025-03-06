@@ -1,10 +1,12 @@
-import { Link, MetaFunction, useLoaderData } from '@remix-run/react';
+import { Link, MetaFunction, useLoaderData, Form } from '@remix-run/react';
 import { writeFile } from 'xlsx';
-import { getProfesores } from '~/api/controllers/profesores';
+import { getProfesores, addProfesor } from '~/api/controllers/profesores';
 import { empleadoColumns } from '~/components/columns/empleados-columns';
 import { Button } from '~/components/ui/button';
 import { DataTable } from '~/components/ui/data-table';
 import { exportEmpleados } from '~/lib/exporters';
+import { importEmpleados } from '~/lib/importers';
+import { useRef } from 'react';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Profesores | San Martín de Porres' }];
@@ -15,13 +17,41 @@ export async function loader() {
   return data;
 }
 
+export async function action({ request }: { request: Request }) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    if (file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const profesores = importEmpleados(arrayBuffer);
+      for (const profesor of profesores) {
+        await addProfesor(profesor);
+      }
+    }
+    return null;
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: 'Unknown error occurred' };
+  }
+}
+
 export default function ProfesoresPage() {
   const data = useLoaderData<typeof loader>();
+  const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
     if ('type' in data) return;
     const workbook = exportEmpleados(data);
     writeFile(workbook, 'profesores.xlsx', { compression: true });
+  };
+
+  const handleFileChange = () => {
+    if (formRef.current) {
+      formRef.current.requestSubmit();
+    }
   };
 
   return (
@@ -38,6 +68,22 @@ export default function ProfesoresPage() {
           >
             Exportar a Excel
           </Button>
+          <Form method="post" encType="multipart/form-data" ref={formRef}>
+            <input
+              type="file"
+              name="file"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
+            <Button
+              type="button"
+              className="link-button !bg-green-600 hover:!bg-green-700"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Importar desde Excel
+            </Button>
+          </Form>
         </div>
         <div className='mt-4'>
           {'type' in data && data.type === 'error' && (

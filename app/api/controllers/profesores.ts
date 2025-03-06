@@ -60,9 +60,21 @@ export const getProfesorById = async (id: number) => {
  */
 export const addProfesor = async (data: EmpleadoInsert) => {
   try {
-    const newEmpleado = await createEmpleado(data);
+    const existingEmpleado = await db
+      .select()
+      .from(empleados)
+      .where(eq(empleados.cedula, data.cedula))
+      .limit(1);
+    
+    let empleadoId;
+    if (existingEmpleado.length > 0) {
+      empleadoId = existingEmpleado[0].id;
+    } else {
+      const newEmpleado = await createEmpleado(data);
+      empleadoId = newEmpleado.id;
+    }
 
-    await db.insert(profesores).values({ id: newEmpleado.id }).returning();
+    await db.insert(profesores).values({ id: empleadoId }).returning();
 
     return { type: 'success', message: 'Profesor creado con éxito' } as const;
   } catch (error) {
