@@ -67,3 +67,49 @@ export async function createUser(
     return { type: 'error', message: 'Ocurrió un error', _action: 'new-user' };
   }
 }
+
+/**
+ * Reset a password from admin form
+ * @author gabrielm
+ * @param email 
+ * @param password 
+ * @param adminPassword 
+ */
+export async function resetPassword(
+  email: string,
+  password: string,
+  adminPassword: string,
+) {
+  try {
+    if (adminPassword !== process.env.ADMIN_PASS) {
+      throw new Error('Clave de administrador inválida');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await db
+      .update(usuarios)
+      .set({ password: hashedPassword })
+      .where(eq(usuarios.email, email));
+
+    return {
+      type: 'success',
+      message: 'Contraseña reestablecida',
+      _action: 'reset-password',
+    };
+  } catch (error) {
+    console.error(error);
+    if (error instanceof Error) {
+      return {
+        type: 'error',
+        message: error.message,
+        _action: 'reset-password',
+      };
+    }
+    return {
+      type: 'error',
+      message: 'Ocurrió un error',
+      _action: 'reset-password',
+    };
+  }
+}

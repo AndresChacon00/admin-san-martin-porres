@@ -104,4 +104,10 @@ export const newUserSchema = loginSchema.extend({
     required_error: 'La clave de administrador es requerida',
   }),
 });
+
+export const resetPasswordSchema = loginSchema.extend({
+  adminPassword: z.string({
+    required_error: 'La clave de administrador es requerida',
+  }),
+});
 // #endregion

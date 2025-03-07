@@ -7,8 +7,7 @@ body {
 }
 
 .link-button {
-  @apply bg-blue-500 text-white font-bold py-2 px-4 rounded text-sm;
-  @apply hover:bg-blue-700 transition-all;
+  @apply bg-blue-500 text-white font-bold py-2 px-4 rounded text-sm hover:!bg-blue-700 transition-all;
 }
 
 @layer base {
@@ -157,8 +156,6 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
-
 
 @layer base {
   * {

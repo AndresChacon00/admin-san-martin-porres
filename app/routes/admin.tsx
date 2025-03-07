@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ActionFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useForm } from 'react-hook-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { newUserSchema } from '~/lib/validators';
+import { newUserSchema, resetPasswordSchema } from '~/lib/validators';
 import { z } from 'zod';
 import {
   Form,
@@ -18,7 +18,7 @@ import { EyeIcon, EyeOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { useFetcher } from '@remix-run/react';
-import { createUser } from '~/api/controllers/auth.server';
+import { createUser, resetPassword } from '~/api/controllers/auth.server';
 import { toast } from 'sonner';
 
 export const meta: MetaFunction = () => {
@@ -27,15 +27,23 @@ export const meta: MetaFunction = () => {
 
 export async function action({ request }: ActionFunctionArgs) {
   const form = await request.formData();
-  const nombre = form.get('nombre');
   const email = form.get('email');
   const password = form.get('password');
   const adminPassword = form.get('adminPassword');
   const _action = String(form.get('_action'));
 
   if (_action === 'new-user') {
+    const nombre = form.get('nombre');
     return await createUser(
       String(nombre),
+      String(email),
+      String(password),
+      String(adminPassword),
+    );
+  }
+
+  if (_action === 'reset-password') {
+    return await resetPassword(
       String(email),
       String(password),
       String(adminPassword),
@@ -70,6 +78,8 @@ export default function AdminPage() {
             </TabsList>
 
             <NewUserForm />
+
+            <ResetPasswordForm />
           </Tabs>
         </CardContent>
       </Card>
@@ -87,7 +97,11 @@ function NewUserForm() {
   const fetcher = useFetcher<typeof action>();
 
   useEffect(() => {
-    if (fetcher.state && fetcher.data && fetcher.data._action === 'new-user') {
+    if (
+      fetcher.state === 'idle' &&
+      fetcher.data &&
+      fetcher.data._action === 'new-user'
+    ) {
       if (fetcher.data.type === 'error') {
         toast.error(fetcher.data.message);
       } else {
@@ -194,6 +208,120 @@ function NewUserForm() {
 
           <Button className='link-button w-full !mt-4' type='submit'>
             Crear usuario
+          </Button>
+        </form>
+      </Form>
+    </TabsContent>
+  );
+}
+
+function ResetPasswordForm() {
+  const passwordForm = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const fetcher = useFetcher<typeof action>();
+
+  useEffect(() => {
+    if (
+      fetcher.state === 'idle' &&
+      fetcher.data &&
+      fetcher.data._action === 'reset-password'
+    ) {
+      if (fetcher.data.type === 'error') {
+        toast.error(fetcher.data.message);
+      } else {
+        toast.success(fetcher.data.message);
+        passwordForm.reset();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.state, fetcher.data]);
+
+  return (
+    <TabsContent value='reset-password'>
+      <Form {...passwordForm}>
+        <form
+          className='space-y-3'
+          onSubmit={passwordForm.handleSubmit((values) => {
+            fetcher.submit(
+              { ...values, _action: 'reset-password' },
+              { method: 'post' },
+            );
+          })}
+        >
+          <FormField
+            control={passwordForm.control}
+            name='email'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Correo electrónico del usuario</FormLabel>
+                <FormControl>
+                  <Input {...field} type='email' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={passwordForm.control}
+            name='password'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nueva contraseña</FormLabel>
+                <FormControl>
+                  <div className='flex'>
+                    <Input
+                      {...field}
+                      type={showPassword ? 'text' : 'password'}
+                    />
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      className='max-w-fit px-1'
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <EyeIcon /> : <EyeOff />}
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={passwordForm.control}
+            name='adminPassword'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Clave de administrador</FormLabel>
+                <FormControl>
+                  <div className='flex'>
+                    <Input
+                      {...field}
+                      type={showPassword ? 'text' : 'password'}
+                    />
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      className='max-w-fit px-1'
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <EyeIcon /> : <EyeOff />}
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button className='link-button w-full !mt-4' type='submit'>
+            Guardar
           </Button>
         </form>
       </Form>

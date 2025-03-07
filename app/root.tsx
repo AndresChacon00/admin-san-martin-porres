@@ -57,6 +57,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </SidebarProvider>
         ) : (
           <>
+            <Toaster position='top-center' />
             {children}
             <ScrollRestoration />
             <Scripts />
