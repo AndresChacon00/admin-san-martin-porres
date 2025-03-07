@@ -1,6 +1,6 @@
 import { useLoaderData, Form, useParams } from '@remix-run/react';
 import { obtenerCursosPorPeriodo, inscribirCursoEnPeriodo } from '~/api/controllers/cursosPeriodo';
-import { cursoColumns } from '~/components/columns/cursos-columns';
+import { cursoColumnsWithActions } from '~/components/columns/cursosPeriodos-columns';
 import { DataTable } from '~/components/ui/data-table';
 import {
   Dialog,
@@ -45,6 +45,7 @@ export default function CursosPeriodoPage() {
       <h1 className="text-xl font-bold">Cursos en el Periodo {idPeriodo}</h1>
 
       {/* Botón para abrir el diálogo de inscripción */}
+      <div className="py-4 w-3/4">
       <Dialog>
         <DialogTrigger>
           <Button variant="outline">Inscribir Curso</Button>
@@ -77,9 +78,10 @@ export default function CursosPeriodoPage() {
         {'type' in cursosInscritos && cursosInscritos.type === 'error' ? (
           <p>Ocurrió un error cargando los cursos</p>
         ) : (
-          <DataTable columns={cursoColumns} data={cursosInscritos} />
+          <DataTable columns={cursoColumnsWithActions(Number(idPeriodo))} data={cursosInscritos} />
         )}
       </main>
+      </div>
     </>
   );
 }
