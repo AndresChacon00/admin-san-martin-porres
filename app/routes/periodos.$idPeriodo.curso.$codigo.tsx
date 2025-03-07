@@ -2,6 +2,7 @@ import { useLoaderData, Form, useParams } from '@remix-run/react';
 import { obtenerEstudiantesDeCursoPeriodo, inscribirEstudianteCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
 import { DataTable } from '~/components/ui/data-table';
 import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
+import { estudiantesCursoColumns } from '~/components/columns/estudiantesCurso-columns';
 import {
   Dialog,
   DialogContent,
@@ -69,7 +70,7 @@ export default function EstudiantesCursoPage() {
         </DialogContent>
       </Dialog>
 
-      <DataTable columns={estudiantesColumns} data={estudiantesInscritos} />
+      <DataTable columns={estudiantesCursoColumns} data={estudiantesInscritos} />
       </div>
     </>
   );
