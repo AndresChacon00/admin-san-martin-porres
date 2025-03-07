@@ -64,6 +64,7 @@ export default function CursosPage() {
   return (
     <>
       <h1 className='text-xl font-bold'>Cursos</h1>
+      <div className='py-4 w-3/4'>
       <Dialog>
         <DialogTrigger>
           <Button variant='outline'>Agregar Curso</Button>
@@ -143,6 +144,7 @@ export default function CursosPage() {
           <DataTable columns={cursoColumns} data={data} />
         )}
       </main>
+      </div>
     </>
   );
 }

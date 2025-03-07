@@ -1,11 +1,11 @@
 import { EstadoCivil, Sexo } from '~/types/empleados.types';
 
 /**
- * Extracts employee data into an object from a `FormData` instance
+ * Extract personal data section from empleado form data
  * @author gabrielm
  * @param formData
  */
-export function extractEmpleadoFormData(formData: FormData) {
+export function extractEmpleadoPersonalData(formData: FormData) {
   const cedula = String(formData.get('cedula'));
   const nombreCompleto = String(formData.get('nombreCompleto'));
   const fechaNacimiento = new Date(String(formData.get('fechaNacimiento')));
@@ -14,6 +14,25 @@ export function extractEmpleadoFormData(formData: FormData) {
   const religion = String(formData.get('religion'));
   const cantidadHijos = Number(formData.get('cantidadHijos'));
   const hijosMenoresSeis = Number(formData.get('hijosMenoresSeis'));
+
+  return {
+    cedula,
+    nombreCompleto,
+    fechaNacimiento,
+    sexo,
+    estadoCivil,
+    religion,
+    cantidadHijos,
+    hijosMenoresSeis,
+  };
+}
+
+/**
+ * Extract professional data section from empleado form data
+ * @author gabrielm
+ * @param formData
+ */
+export function extractEmpleadoProfessionalData(formData: FormData) {
   const fechaIngresoAvec = new Date(String(formData.get('fechaIngresoAvec')));
   const fechaIngresoPlantel = new Date(
     String(formData.get('fechaIngresoPlantel')),
@@ -28,6 +47,27 @@ export function extractEmpleadoFormData(formData: FormData) {
   );
   const postgrado = String(formData.get('postgrado') ?? '');
   const experienciaLaboral = Number(formData.get('experienciaLaboral'));
+
+  return {
+    fechaIngresoAvec,
+    fechaIngresoPlantel,
+    titulo,
+    descripcionTitulo,
+    mencionTitulo,
+    carreraEstudiando,
+    tipoLapsoEstudios,
+    numeroLapsosAprobados,
+    postgrado,
+    experienciaLaboral,
+  };
+}
+
+/**
+ * Extract position section from empleado form data
+ * @author gabrielm
+ * @param formData
+ */
+export function extractEmpleadoPositionData(formData: FormData) {
   const gradoSistema = String(formData.get('gradoSistema') ?? '');
   const nivelSistema = String(formData.get('nivelSistema') ?? '');
   const gradoCentro = String(formData.get('gradoCentro') ?? '');
@@ -58,24 +98,6 @@ export function extractEmpleadoFormData(formData: FormData) {
   const observaciones = String(formData.get('observaciones') ?? '');
 
   return {
-    cedula,
-    nombreCompleto,
-    fechaNacimiento,
-    sexo,
-    estadoCivil,
-    religion,
-    cantidadHijos,
-    hijosMenoresSeis,
-    fechaIngresoAvec,
-    fechaIngresoPlantel,
-    titulo,
-    descripcionTitulo,
-    mencionTitulo,
-    carreraEstudiando,
-    tipoLapsoEstudios,
-    numeroLapsosAprobados,
-    postgrado,
-    experienciaLaboral,
     gradoSistema,
     nivelSistema,
     gradoCentro,
@@ -98,5 +120,18 @@ export function extractEmpleadoFormData(formData: FormData) {
     jubilado,
     cuentaBancaria,
     observaciones,
+  };
+}
+
+/**
+ * Extracts employee data into an object from a `FormData` instance
+ * @author gabrielm
+ * @param formData
+ */
+export function extractEmpleadoFormData(formData: FormData) {
+  return {
+    ...extractEmpleadoPersonalData(formData),
+    ...extractEmpleadoProfessionalData(formData),
+    ...extractEmpleadoPositionData(formData),
   };
 }
