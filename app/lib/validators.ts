@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+// #region Empleados
 export const datosPersonalesEmpleado = z.object({
   cedula: z
     .string({ required_error: 'Cédula requerida' })
@@ -84,3 +85,29 @@ export const datosCargoEmpleado = z.object({
   cuentaBancaria: z.string().optional().default(''),
   observaciones: z.string().optional().default(''),
 });
+
+// #endregion
+
+// #region Auth
+export const loginSchema = z.object({
+  email: z
+    .string({ required_error: 'El correo es requerido' })
+    .email('Correo inválido'),
+  password: z
+    .string({ required_error: 'La contraseña es requerida' })
+    .min(6, 'Contraseña muy corta'),
+});
+
+export const newUserSchema = loginSchema.extend({
+  nombre: z.string({ required_error: 'El nombre es requerido' }),
+  adminPassword: z.string({
+    required_error: 'La clave de administrador es requerida',
+  }),
+});
+
+export const resetPasswordSchema = loginSchema.extend({
+  adminPassword: z.string({
+    required_error: 'La clave de administrador es requerida',
+  }),
+});
+// #endregion

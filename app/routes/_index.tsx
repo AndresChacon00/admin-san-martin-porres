@@ -1,9 +1,16 @@
-import type { LoaderFunction } from '@remix-run/node';
+import type { LoaderFunctionArgs } from '@remix-run/node';
 import { redirect } from '@remix-run/react';
+import { getSession } from '~/sessions';
 
-export const loader: LoaderFunction = async () => {
-  return redirect('/cursos');
-};
+export async function loader({ request }: LoaderFunctionArgs) {
+  // Check session and redirect as needed
+  const session = await getSession(request.headers.get('Cookie'));
+  if (session.has('userId')) {
+    return redirect('/cursos');
+  } else {
+    return redirect('/iniciar-sesion');
+  }
+}
 
 export default function Index() {
   return null;
