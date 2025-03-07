@@ -66,7 +66,7 @@ export function EditarEstudianteModal({
   return (
     <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={'outline'}>Editar Estudiante</Button>
+        <Button variant={'outline'}>Editar</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -262,7 +262,7 @@ export function EditarEstudianteModal({
           </div>
 
           <DialogFooter>
-            <Button type='submit'>Agregar estudiante</Button>
+            <Button type='submit'>Confirmar cambios</Button>
           </DialogFooter>
         </form>
       </DialogContent>
