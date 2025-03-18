@@ -30,6 +30,8 @@ import {
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import RequiredLabel from './required-label';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { CircleHelp } from 'lucide-react';
 
 interface TabbedEmpleadoFormProps {
   empleadoId: number;
@@ -258,7 +260,17 @@ export default function TabbedEmpleadoForm({
               name='cantidadHijos'
               render={({ field }) => (
                 <FormItem>
-                  <RequiredLabel>Cantidad de Hijos</RequiredLabel>
+                  <div className='flex gap-2 items-center'>
+                    <RequiredLabel>Cantidad de Hijos</RequiredLabel>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <CircleHelp size={19} />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Solo los menores de edad que estén estudiando</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <FormControl>
                     <Input {...field} type='number' />
                   </FormControl>

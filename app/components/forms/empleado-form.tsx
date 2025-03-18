@@ -30,6 +30,8 @@ import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { FetcherWithComponents } from '@remix-run/react';
 import { toast } from 'sonner';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { CircleHelp } from 'lucide-react';
 
 interface EmpleadoFormProps {
   fetcher: FetcherWithComponents<{
@@ -249,7 +251,17 @@ export default function EmpleadoForm({
             name='cantidadHijos'
             render={({ field }) => (
               <FormItem>
-                <RequiredLabel>Cantidad de Hijos</RequiredLabel>
+                <div className='flex gap-2 items-center'>
+                  <RequiredLabel>Cantidad de Hijos</RequiredLabel>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <CircleHelp size={19} />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Solo los menores de edad que estén estudiando</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <FormControl>
                   <Input {...field} type='number' />
                 </FormControl>
