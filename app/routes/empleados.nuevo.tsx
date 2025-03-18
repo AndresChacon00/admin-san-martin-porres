@@ -4,6 +4,7 @@ import { ChevronLeft } from 'lucide-react';
 import { addEmpleado } from '~/api/controllers/empleados.server';
 import { extractEmpleadoFormData } from '~/lib/formData';
 import EmpleadoForm from '~/components/forms/empleado-form';
+import { useRef } from 'react';
 
 export const meta: MetaFunction = () => {
   return [
@@ -22,6 +23,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function CrearEmpleado() {
   const fetcher = useFetcher<typeof action>();
 
+  const ref = useRef<HTMLHeadingElement>(null);
+
+  const scrollToTop = () => {
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <>
       <Link
@@ -31,9 +38,11 @@ export default function CrearEmpleado() {
         <ChevronLeft />
         Volver
       </Link>
-      <h1 className='text-xl font-bold mb-3'>Agregar Empleado</h1>
+      <h1 className='text-xl font-bold mb-3' ref={ref}>
+        Agregar Empleado
+      </h1>
       <span className='text-destructive text-sm'>(*) Obligatorio</span>
-      <EmpleadoForm fetcher={fetcher} />
+      <EmpleadoForm fetcher={fetcher} scrollToTop={scrollToTop} />
     </>
   );
 }

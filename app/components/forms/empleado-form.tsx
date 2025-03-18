@@ -36,9 +36,13 @@ interface EmpleadoFormProps {
     readonly type: 'success' | 'error';
     readonly message: string;
   }>;
+  scrollToTop: () => void;
 }
 
-export default function EmpleadoForm({ fetcher }: EmpleadoFormProps) {
+export default function EmpleadoForm({
+  fetcher,
+  scrollToTop,
+}: EmpleadoFormProps) {
   const formStepOne = useForm<z.infer<typeof datosPersonalesEmpleado>>({
     resolver: zodResolver(datosPersonalesEmpleado),
     defaultValues: {
@@ -81,9 +85,12 @@ export default function EmpleadoForm({ fetcher }: EmpleadoFormProps) {
 
   const [step, setStep] = useState(1);
 
-  const goToNext = () => setStep((prev) => prev + 1);
+  const goToNext = () => {
+    scrollToTop();
+    setStep(step + 1);
+  };
 
-  const goToPrevious = () => setStep((prev) => prev - 1);
+  const goToPrevious = () => setStep(step - 1);
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data !== undefined) {
@@ -426,7 +433,7 @@ export default function EmpleadoForm({ fetcher }: EmpleadoFormProps) {
               type='button'
               variant='secondary'
               className='text-neutral-700'
-              onChange={goToPrevious}
+              onClick={goToPrevious}
             >
               Atrás
             </Button>
@@ -769,7 +776,7 @@ export default function EmpleadoForm({ fetcher }: EmpleadoFormProps) {
               type='button'
               variant='secondary'
               className='text-neutral-700'
-              onChange={goToPrevious}
+              onClick={goToPrevious}
             >
               Atrás
             </Button>

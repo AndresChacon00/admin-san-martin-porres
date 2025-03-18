@@ -4,6 +4,7 @@ import { addProfesor } from '~/api/controllers/profesores';
 import { ChevronLeft } from 'lucide-react';
 import { extractEmpleadoFormData } from '~/lib/formData';
 import EmpleadoForm from '~/components/forms/empleado-form';
+import { useRef } from 'react';
 
 export const meta: MetaFunction = () => {
   return [
@@ -22,6 +23,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function CrearProfesor() {
   const fetcher = useFetcher<typeof action>();
 
+  const ref = useRef<HTMLHeadingElement>(null);
+
+  const scrollToTop = () => {
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <>
       <Link
@@ -31,9 +38,11 @@ export default function CrearProfesor() {
         <ChevronLeft />
         Volver
       </Link>
-      <h1 className='text-xl font-bold mb-3'>Agregar Profesor</h1>
+      <h1 className='text-xl font-bold mb-3' ref={ref}>
+        Agregar Profesor
+      </h1>
       <span className='text-destructive text-sm'>(*) Obligatorio</span>
-      <EmpleadoForm fetcher={fetcher} />
+      <EmpleadoForm fetcher={fetcher} scrollToTop={scrollToTop} />
     </>
   );
 }
