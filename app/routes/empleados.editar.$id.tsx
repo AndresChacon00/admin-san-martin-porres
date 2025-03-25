@@ -51,6 +51,7 @@ import {
 } from '~/lib/formData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import type { EmpleadoUpdate } from '~/types/empleados.types';
+import { isRole } from '~/lib/auth';
 
 export const meta: MetaFunction = () => {
   return [
@@ -59,7 +60,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  const authorized = await isRole(request, 'admin');
+  if (!authorized) {
+    return redirect('/');
+  }
+
   const empleado = await getEmpleadoById(Number(params.id));
   if ('type' in empleado) {
     return redirect('/empleados');

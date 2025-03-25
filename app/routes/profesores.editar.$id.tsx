@@ -48,6 +48,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { EmpleadoUpdate } from '~/types/empleados.types';
 import { getProfesorById, updateProfesor } from '~/api/controllers/profesores';
+import { isRole } from '~/lib/auth';
 
 export const meta: MetaFunction = () => {
   return [
@@ -56,7 +57,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  const authorized = await isRole(request, 'admin');
+  if (!authorized) {
+    return redirect('/');
+  }
+
   const profesor = await getProfesorById(Number(params.id));
   if ('type' in profesor) {
     return redirect('/profesores');

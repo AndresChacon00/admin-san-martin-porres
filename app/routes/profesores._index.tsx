@@ -18,14 +18,23 @@ import { DataTable } from '~/components/data-tables/empleados-data-table';
 import { exportEmpleados } from '~/lib/exporters';
 import { importEmpleados } from '~/lib/importers';
 import { useRef, useState, useEffect } from 'react';
-import { ActionFunctionArgs } from '@remix-run/node';
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  redirect,
+} from '@remix-run/node';
 import { toast } from 'sonner';
+import { isRole } from '~/lib/auth';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Profesores | San Martín de Porres' }];
 };
 
-export async function loader() {
+export async function loader({ request }: LoaderFunctionArgs) {
+  const authorized = await isRole(request, 'admin');
+  if (!authorized) {
+    return redirect('/');
+  }
   const data = await getProfesores();
   return data;
 }

@@ -18,8 +18,13 @@ import { writeFile } from 'xlsx';
 import { exportEmpleados } from '~/lib/exporters';
 import { importEmpleados } from '~/lib/importers';
 import { useRef, useState, useEffect } from 'react';
-import { ActionFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from '@remix-run/node';
 import { toast } from 'sonner';
+import { isRole } from '~/lib/auth';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Empleados | San Martín de Porres' }];
@@ -68,7 +73,11 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export async function loader() {
+export async function loader({ request }: LoaderFunctionArgs) {
+  const authorized = await isRole(request, 'admin');
+  if (!authorized) {
+    return redirect('/');
+  }
   const data = await getEmpleados();
   return data;
 }
