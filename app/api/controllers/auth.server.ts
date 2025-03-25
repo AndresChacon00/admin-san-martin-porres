@@ -38,12 +38,14 @@ export async function login(email: string, password: string) {
  * @author gabrielm
  * @param nombre
  * @param email
+ * @param role
  * @param password
  * @param adminPassword
  */
 export async function createUser(
   nombre: string,
   email: string,
+  role: UserRole,
   password: string,
   adminPassword: string,
 ) {
@@ -56,7 +58,7 @@ export async function createUser(
 
     await db
       .insert(usuarios)
-      .values({ nombre, email, password: hashedPassword })
+      .values({ nombre, email, password: hashedPassword, role })
       .execute();
 
     return { type: 'success', message: 'Usuario creado', _action: 'new-user' };

@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { ROLE_TRANSLATIONS } from '~/constants';
+import type { UserRole } from '~/types/usuarios.types';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Panel administrativo | San Martín de Porres' }];
@@ -42,9 +43,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (_action === 'new-user') {
     const nombre = form.get('nombre');
+    const role = form.get('role');
     return await createUser(
       String(nombre),
       String(email),
+      String(role) as UserRole,
       String(password),
       String(adminPassword),
     );
