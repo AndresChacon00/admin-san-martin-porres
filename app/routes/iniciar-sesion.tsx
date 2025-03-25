@@ -13,7 +13,11 @@ import {
 } from '~/components/ui/form';
 import { Input } from '~/components/ui/input';
 import { Button } from '~/components/ui/button';
-import { ActionFunctionArgs, MetaFunction, redirect } from '@remix-run/node';
+import {
+  type ActionFunctionArgs,
+  type MetaFunction,
+  redirect,
+} from '@remix-run/node';
 import { useState } from 'react';
 import { EyeIcon, EyeOff } from 'lucide-react';
 import { commitSession, getSession } from '~/sessions';
@@ -30,9 +34,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const email = form.get('email');
   const password = form.get('password');
 
-  const userId = await login(String(email), String(password));
+  const data = await login(String(email), String(password));
 
-  if (userId == null) {
+  if (data === null) {
     session.flash('error', 'Correo o contraseña inválida');
 
     // Redirect back to the login page with errors.
@@ -43,7 +47,8 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  session.set('userId', String(userId));
+  session.set('userId', String(data.userId));
+  session.set('role', data.role);
 
   // Login succeeded, send them to the home page.
   return redirect('/cursos', {

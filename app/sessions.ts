@@ -1,7 +1,9 @@
 import { createCookieSessionStorage } from '@remix-run/node';
+import { UserRole } from './types/usuarios.types';
 
 type SessionData = {
   userId: string;
+  role: UserRole;
 };
 
 type SessionFlashData = {
