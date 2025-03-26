@@ -66,6 +66,12 @@ export default function IniciarSesion() {
     <div className='bg-[#e3f5ff] min-h-screen flex items-center justify-center'>
       <Card className='px-6'>
         <CardHeader>
+          <img
+            src='/logo-fit.png'
+            alt=''
+            width='80'
+            className='place-self-center'
+          />
           <CardTitle className='text-center text-xl'>Inicia sesión</CardTitle>
         </CardHeader>
         <CardContent>
