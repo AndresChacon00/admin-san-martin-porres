@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import db from '../db';
 import { usuarios } from '../tables/usuarios';
 import bcrypt from 'bcryptjs';
+import type { UserRole } from '~/types/usuarios.types';
 
 /**
  * Log user in with email and password
@@ -25,7 +26,7 @@ export async function login(email: string, password: string) {
       throw new Error('Correo o contraseña inválidos');
     }
 
-    return usuario[0].id;
+    return { userId: usuario[0].id, role: usuario[0].role as UserRole };
   } catch (error) {
     console.error(error);
     return null;
@@ -37,12 +38,14 @@ export async function login(email: string, password: string) {
  * @author gabrielm
  * @param nombre
  * @param email
+ * @param role
  * @param password
  * @param adminPassword
  */
 export async function createUser(
   nombre: string,
   email: string,
+  role: UserRole,
   password: string,
   adminPassword: string,
 ) {
@@ -55,7 +58,7 @@ export async function createUser(
 
     await db
       .insert(usuarios)
-      .values({ nombre, email, password: hashedPassword })
+      .values({ nombre, email, password: hashedPassword, role })
       .execute();
 
     return { type: 'success', message: 'Usuario creado', _action: 'new-user' };
@@ -71,9 +74,9 @@ export async function createUser(
 /**
  * Reset a password from admin form
  * @author gabrielm
- * @param email 
- * @param password 
- * @param adminPassword 
+ * @param email
+ * @param password
+ * @param adminPassword
  */
 export async function resetPassword(
   email: string,

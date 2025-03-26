@@ -21,6 +21,7 @@ import {
   extractEmpleadoProfessionalData,
 } from '~/lib/formData';
 import type { EmpleadoUpdate } from '~/types/empleados.types';
+import { isRole } from '~/lib/auth';
 import TabbedEmpleadoForm from '~/components/forms/tabbed-empleado-form';
 
 export const meta: MetaFunction = () => {
@@ -30,7 +31,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  const authorized = await isRole(request, 'admin');
+  if (!authorized) {
+    return redirect('/');
+  }
+
   const empleado = await getEmpleadoById(Number(params.id));
   if ('type' in empleado) {
     return redirect('/empleados');

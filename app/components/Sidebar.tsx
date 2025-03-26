@@ -21,39 +21,57 @@ import {
 import { Link, useFetcher, useLocation } from '@remix-run/react';
 import { cn } from '~/lib/utils';
 import { Button } from './ui/button';
+import { UserRole } from '~/types/usuarios.types';
+
+type SidebarItemT = {
+  title: string;
+  url: string;
+  icon: React.ComponentType;
+  roles: UserRole[];
+};
 
 // Menú de navegación
-const items = [
+const items: SidebarItemT[] = [
   {
     title: 'Cursos',
     url: '/cursos',
     icon: BookOpen,
+    roles: ['admin', 'secretaria'],
   },
   {
     title: 'Estudiantes',
     url: '/estudiantes',
     icon: GraduationCap,
+    roles: ['admin', 'secretaria'],
   },
   {
     title: 'Empleados',
     url: '/empleados',
     icon: HardHat,
+    roles: ['admin'],
   },
   {
     title: 'Profesores',
     url: '/profesores',
     icon: PencilRuler,
+    roles: ['admin'],
   },
   {
     title: 'Periodos',
     url: '/periodos',
     icon: Calendar,
+    roles: ['admin', 'secretaria'],
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ role }: { role: UserRole | undefined }) {
   const location = useLocation();
   const fetcher = useFetcher();
+
+  const filteredItems = items.filter(
+    (item) => role && item.roles.includes(role),
+  );
+
   return (
     <Sidebar collapsible='icon' className='bg-blue-900'>
       <SidebarHeader>
@@ -73,7 +91,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <SidebarMenuItem
                   key={item.title}
                   className={cn(

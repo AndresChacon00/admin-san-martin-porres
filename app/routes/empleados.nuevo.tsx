@@ -1,8 +1,13 @@
-import type { MetaFunction, ActionFunctionArgs } from '@remix-run/node';
-import { json, Link, useFetcher } from '@remix-run/react';
+import type {
+  MetaFunction,
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+} from '@remix-run/node';
+import { json, Link, redirect, useFetcher } from '@remix-run/react';
 import { ChevronLeft } from 'lucide-react';
 import { addEmpleado } from '~/api/controllers/empleados.server';
 import { extractEmpleadoFormData } from '~/lib/formData';
+import { isRole } from '~/lib/auth';
 import EmpleadoForm from '~/components/forms/empleado-form';
 import { useRef } from 'react';
 
@@ -19,6 +24,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const response = await addEmpleado(data);
   return json(response);
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const authorized = await isRole(request, 'admin');
+  if (!authorized) {
+    return redirect('/');
+  }
+}
 
 export default function CrearEmpleado() {
   const fetcher = useFetcher<typeof action>();

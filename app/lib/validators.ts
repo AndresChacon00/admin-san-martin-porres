@@ -100,6 +100,7 @@ export const loginSchema = z.object({
 
 export const newUserSchema = loginSchema.extend({
   nombre: z.string({ required_error: 'El nombre es requerido' }),
+  role: z.enum(['admin', 'secretaria'], { required_error: 'Rol requerido' }),
   adminPassword: z.string({
     required_error: 'La clave de administrador es requerida',
   }),

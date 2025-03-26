@@ -31,11 +31,12 @@ export const links: LinksFunction = () => [
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
-  return session.has('userId');
+  const role = session.get('role');
+  return { isLoggedIn: session.has('userId'), role };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const isLoggedIn = useLoaderData<typeof loader>();
+  const { isLoggedIn, role } = useLoaderData<typeof loader>();
 
   return (
     <html lang='en'>
@@ -48,7 +49,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         {isLoggedIn ? (
           <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar role={role} />
             <SidebarTrigger />
             <Toaster position='top-center' />
             <div className='ps-4 pt-12 w-full'>{children}</div>

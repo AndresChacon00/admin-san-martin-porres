@@ -1,8 +1,13 @@
-import type { MetaFunction, ActionFunctionArgs } from '@remix-run/node';
-import { json, Link, useFetcher } from '@remix-run/react';
+import type {
+  MetaFunction,
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+} from '@remix-run/node';
+import { json, Link, redirect, useFetcher } from '@remix-run/react';
 import { addProfesor } from '~/api/controllers/profesores';
 import { ChevronLeft } from 'lucide-react';
 import { extractEmpleadoFormData } from '~/lib/formData';
+import { isRole } from '~/lib/auth';
 import EmpleadoForm from '~/components/forms/empleado-form';
 import { useRef } from 'react';
 
@@ -12,6 +17,13 @@ export const meta: MetaFunction = () => {
     { name: 'description', content: 'Registra un profesor en el sistema' },
   ];
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const authorized = await isRole(request, 'admin');
+  if (!authorized) {
+    return redirect('/');
+  }
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();

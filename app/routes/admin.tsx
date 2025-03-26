@@ -20,6 +20,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { useFetcher } from '@remix-run/react';
 import { createUser, resetPassword } from '~/api/controllers/auth.server';
 import { toast } from 'sonner';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select';
+import { ROLE_TRANSLATIONS } from '~/constants';
+import type { UserRole } from '~/types/usuarios.types';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Panel administrativo | San Martín de Porres' }];
@@ -34,9 +43,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (_action === 'new-user') {
     const nombre = form.get('nombre');
+    const role = form.get('role');
     return await createUser(
       String(nombre),
       String(email),
+      String(role) as UserRole,
       String(password),
       String(adminPassword),
     );
@@ -90,6 +101,13 @@ export default function AdminPage() {
 function NewUserForm() {
   const userForm = useForm<z.infer<typeof newUserSchema>>({
     resolver: zodResolver(newUserSchema),
+    defaultValues: {
+      nombre: '',
+      email: '',
+      adminPassword: '',
+      password: '',
+      role: undefined,
+    },
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -147,6 +165,34 @@ function NewUserForm() {
                 <FormControl>
                   <Input {...field} type='email' />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={userForm.control}
+            name='role'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Rol</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Selecciona un rol' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(ROLE_TRANSLATIONS).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>
+                        {value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -218,6 +264,11 @@ function NewUserForm() {
 function ResetPasswordForm() {
   const passwordForm = useForm<z.infer<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      adminPassword: '',
+    },
   });
 
   const [showPassword, setShowPassword] = useState(false);
