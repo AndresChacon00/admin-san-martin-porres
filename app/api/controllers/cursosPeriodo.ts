@@ -15,9 +15,10 @@ import {
 export async function inscribirCursoEnPeriodo(
   idPeriodo: number,
   idCurso: number,
+  horario: string,
 ): Promise<{ type: 'success' | 'error'; message: string }> {
   try {
-    const data: CursoPeriodoInsert = { idPeriodo, idCurso };
+    const data: CursoPeriodoInsert = { idPeriodo, idCurso, horario };
     await addCursoToPeriodo(data);
     return { type: 'success', message: 'Curso inscrito en el periodo' };
   } catch (error) {

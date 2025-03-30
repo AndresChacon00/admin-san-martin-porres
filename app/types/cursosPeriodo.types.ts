@@ -11,7 +11,6 @@ export type CursoEnPeriodo = {
   codigo: string;
   nombreCurso: string;
   descripcion: string | null;
-  horario: string | null;
   estado: number;
   precioTotal: number | null;
 };

@@ -31,7 +31,6 @@ export const action: ActionFunction = async ({ request }) => {
   const codigo = formData.get('codigo');
   const nombreCurso = formData.get('nombreCurso');
   const descripcion = formData.get('descripcion');
-  const horario = formData.get('horario');
   const estado = Number(formData.get('estado'));
   const precioTotal = Number(formData.get('precioTotal'));
 
@@ -39,7 +38,6 @@ export const action: ActionFunction = async ({ request }) => {
     typeof codigo !== 'string' ||
     typeof nombreCurso !== 'string' ||
     typeof descripcion !== 'string' ||
-    typeof horario !== 'string' ||
     isNaN(estado) ||
     isNaN(precioTotal)
   ) {
@@ -50,7 +48,6 @@ export const action: ActionFunction = async ({ request }) => {
     codigo,
     nombreCurso,
     descripcion,
-    horario,
     estado,
     precioTotal,
   });
@@ -98,13 +95,6 @@ export default function CursosPage() {
                   Descripción
                 </Label>
                 <Input id='descripcion' name='descripcion' className='col-span-3' />
-              </div>
-              {/* Horario */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label htmlFor='horario' className='text-right'>
-                  Horario
-                </Label>
-                <Input id='horario' name='horario' className='col-span-3' />
               </div>
               {/* Estado */}
               <div className='grid grid-cols-4 items-center gap-4'>

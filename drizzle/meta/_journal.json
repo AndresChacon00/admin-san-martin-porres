@@ -36,6 +36,20 @@
       "when": 1741324088574,
       "tag": "0004_chubby_punisher",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1742357349001,
+      "tag": "0005_exotic_ultragirl",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1742368139580,
+      "tag": "0006_strong_stingray",
+      "breakpoints": true
     }
   ]
 }

@@ -28,12 +28,13 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
   const idCurso = Number(formData.get('idCurso'));
   const idPeriodo = Number(params.idPeriodo);
+  const horario = String(formData.get('horario'));
 
   if (isNaN(idCurso) || isNaN(idPeriodo)) {
     return { error: 'Datos inválidos' };
   }
 
-  return await inscribirCursoEnPeriodo( idPeriodo, idCurso );
+  return await inscribirCursoEnPeriodo( idPeriodo, idCurso, horario );
 };
 
 export default function CursosPeriodoPage() {
@@ -64,6 +65,12 @@ export default function CursosPeriodoPage() {
                   ID Curso
                 </Label>
                 <Input id="idCurso" name="idCurso" type="number" className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="horario" className="text-right">
+                  Horario
+                </Label>
+                <Input id="horario" name="horario" type="text" className="col-span-3" />
               </div>
             </div>
             <DialogFooter>

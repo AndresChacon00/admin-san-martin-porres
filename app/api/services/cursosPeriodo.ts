@@ -28,8 +28,7 @@ export async function getCursosByPeriodo(idPeriodo: number) {
       codigo: cursos.codigo, // Unique identifier for cursos
       nombreCurso: cursos.nombreCurso,
       descripcion: cursos.descripcion,
-      horario: cursos.horario,
-      estado: cursos.estado,
+      horario: cursosPeriodo.horario,
       precioTotal: cursos.precioTotal,
     })
     .from(cursosPeriodo)

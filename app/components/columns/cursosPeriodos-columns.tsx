@@ -22,11 +22,6 @@ export const cursoColumnsWithActions = (idPeriodo: number): ColumnDef<Curso>[] =
     header: 'Horario',
   },
   {
-    accessorKey: 'estado',
-    header: 'Estado',
-    cell: ({ getValue }) => (getValue() === 1 ? 'Activo' : 'Inactivo'),
-  },
-  {
     accessorKey: 'precioTotal',
     header: 'Precio Total',
   },

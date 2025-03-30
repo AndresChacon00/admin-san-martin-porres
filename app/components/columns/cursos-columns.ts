@@ -15,10 +15,6 @@ export const cursoColumns: ColumnDef<Curso>[] = [
     header: 'Descripción',
   },
   {
-    accessorKey: 'horario',
-    header: 'Horario',
-  },
-  {
     accessorKey: 'estado',
     header: 'Estado',
     cell: ({ getValue }) => (getValue() === 1 ? 'Activo' : 'Inactivo'),
