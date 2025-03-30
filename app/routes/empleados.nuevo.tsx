@@ -30,6 +30,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!authorized) {
     return redirect('/');
   }
+  return null;
 }
 
 export default function CrearEmpleado() {

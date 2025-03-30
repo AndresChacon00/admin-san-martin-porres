@@ -1,9 +1,47 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "207360a1-339a-4683-b692-e7f1e1346e0e",
-  "prevId": "1fea2101-67c9-4719-97d3-df2a20d24d1b",
+  "id": "73e7ea17-61f9-428d-878e-1697a03839fd",
+  "prevId": "494514fc-616b-4561-b04d-e176853a23ca",
   "tables": {
+    "cargos": {
+      "name": "cargos",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nivel_cargo": {
+          "name": "nivel_cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nombre_cargo": {
+          "name": "nombre_cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "cursos": {
       "name": "cursos",
       "columns": {
@@ -450,6 +488,232 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "equivalencia_cargos": {
+      "name": "equivalencia_cargos",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "cargo": {
+          "name": "cargo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "grado": {
+          "name": "grado",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nivel": {
+          "name": "nivel",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tipo_personal": {
+          "name": "tipo_personal",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "equivalencia_cargos_cargo_cargos_id_fk": {
+          "name": "equivalencia_cargos_cargo_cargos_id_fk",
+          "tableFrom": "equivalencia_cargos",
+          "tableTo": "cargos",
+          "columnsFrom": [
+            "cargo"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "equivalencia_cargos_grado_grados_id_fk": {
+          "name": "equivalencia_cargos_grado_grados_id_fk",
+          "tableFrom": "equivalencia_cargos",
+          "tableTo": "grados",
+          "columnsFrom": [
+            "grado"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "equivalencia_cargos_nivel_niveles_id_fk": {
+          "name": "equivalencia_cargos_nivel_niveles_id_fk",
+          "tableFrom": "equivalencia_cargos",
+          "tableTo": "niveles",
+          "columnsFrom": [
+            "nivel"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "check_type_equiv_cargos": {
+          "name": "check_type_equiv_cargos",
+          "value": "\"equivalencia_cargos\".\"tipo_personal\" IN ('administrativo', 'instructor')"
+        }
+      }
+    },
+    "equivalencia_grados": {
+      "name": "equivalencia_grados",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "grado": {
+          "name": "grado",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "experiencia_laboral": {
+          "name": "experiencia_laboral",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "formacion_tecnico_profesional": {
+          "name": "formacion_tecnico_profesional",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tipo_personal": {
+          "name": "tipo_personal",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "equivalencia_grados_grado_grados_id_fk": {
+          "name": "equivalencia_grados_grado_grados_id_fk",
+          "tableFrom": "equivalencia_grados",
+          "tableTo": "grados",
+          "columnsFrom": [
+            "grado"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "equivalencia_grados_titulo_titulos_id_fk": {
+          "name": "equivalencia_grados_titulo_titulos_id_fk",
+          "tableFrom": "equivalencia_grados",
+          "tableTo": "titulos",
+          "columnsFrom": [
+            "titulo"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "check_type_equiv_grados": {
+          "name": "check_type_equiv_grados",
+          "value": "\"equivalencia_grados\".\"tipo_personal\" IN ('administrativo', 'instructor')"
+        }
+      }
+    },
+    "equivalencia_niveles": {
+      "name": "equivalencia_niveles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nivel": {
+          "name": "nivel",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "min_tiempo_servicio": {
+          "name": "min_tiempo_servicio",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "formacion_crecimiento_personal": {
+          "name": "formacion_crecimiento_personal",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "equivalencia_niveles_nivel_niveles_id_fk": {
+          "name": "equivalencia_niveles_nivel_niveles_id_fk",
+          "tableFrom": "equivalencia_niveles",
+          "tableTo": "niveles",
+          "columnsFrom": [
+            "nivel"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "estudiantes": {
       "name": "estudiantes",
       "columns": {
@@ -559,6 +823,70 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "grados": {
+      "name": "grados",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "grados_codigo_unique": {
+          "name": "grados_codigo_unique",
+          "columns": [
+            "codigo"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "niveles": {
+      "name": "niveles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "niveles_nombre_unique": {
+          "name": "niveles_nombre_unique",
+          "columns": [
+            "nombre"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "periodo": {
       "name": "periodo",
       "columns": {
@@ -617,6 +945,37 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "titulos": {
+      "name": "titulos",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}

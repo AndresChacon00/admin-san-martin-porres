@@ -23,6 +23,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!authorized) {
     return redirect('/');
   }
+  return null;
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
