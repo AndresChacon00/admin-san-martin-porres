@@ -1,0 +1,1 @@
+ALTER TABLE `cursos_periodo` ADD `horario` text NOT NULL;

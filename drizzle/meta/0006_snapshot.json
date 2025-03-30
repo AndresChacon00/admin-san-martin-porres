@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "83d6592d-e8f2-4ea5-a21c-398d8aa0e5dc",
-  "prevId": "1fea2101-67c9-4719-97d3-df2a20d24d1b",
+  "id": "1c29b10d-f99b-4311-a6ce-59d65c867604",
+  "prevId": "fece4da6-121c-44ab-bf2f-9b52c450fcae",
   "tables": {
     "cursos": {
       "name": "cursos",
@@ -23,13 +23,6 @@
         },
         "descripcion": {
           "name": "descripcion",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "horario": {
-          "name": "horario",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -70,6 +63,13 @@
         "id_curso": {
           "name": "id_curso",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "horario": {
+          "name": "horario",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -559,6 +559,87 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "estudiantes_curso_periodo": {
+      "name": "estudiantes_curso_periodo",
+      "columns": {
+        "id_periodo": {
+          "name": "id_periodo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "codigo_curso": {
+          "name": "codigo_curso",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estudiante": {
+          "name": "id_estudiante",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "estudiantes_curso_periodo_id_periodo_codigo_curso_id_estudiante_unique": {
+          "name": "estudiantes_curso_periodo_id_periodo_codigo_curso_id_estudiante_unique",
+          "columns": [
+            "id_periodo",
+            "codigo_curso",
+            "id_estudiante"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "estudiantes_curso_periodo_id_periodo_periodo_id_periodo_fk": {
+          "name": "estudiantes_curso_periodo_id_periodo_periodo_id_periodo_fk",
+          "tableFrom": "estudiantes_curso_periodo",
+          "tableTo": "periodo",
+          "columnsFrom": [
+            "id_periodo"
+          ],
+          "columnsTo": [
+            "id_periodo"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "estudiantes_curso_periodo_codigo_curso_cursos_codigo_fk": {
+          "name": "estudiantes_curso_periodo_codigo_curso_cursos_codigo_fk",
+          "tableFrom": "estudiantes_curso_periodo",
+          "tableTo": "cursos",
+          "columnsFrom": [
+            "codigo_curso"
+          ],
+          "columnsTo": [
+            "codigo"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "estudiantes_curso_periodo_id_estudiante_estudiantes_id_fk": {
+          "name": "estudiantes_curso_periodo_id_estudiante_estudiantes_id_fk",
+          "tableFrom": "estudiantes_curso_periodo",
+          "tableTo": "estudiantes",
+          "columnsFrom": [
+            "id_estudiante"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "periodo": {
       "name": "periodo",
       "columns": {
@@ -651,26 +732,13 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'admin'"
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {
-        "check_role": {
-          "name": "check_role",
-          "value": "\"usuarios\".\"role\" IN ('admin', 'secretaria')"
-        }
-      }
+      "checkConstraints": {}
     }
   },
   "views": {},

@@ -1,6 +1,6 @@
 import { useLoaderData, Form, useParams } from '@remix-run/react';
 import { obtenerCursosPorPeriodo, inscribirCursoEnPeriodo } from '~/api/controllers/cursosPeriodo';
-import { cursoColumns } from '~/components/columns/cursos-columns';
+import { cursoColumnsWithActions } from '~/components/columns/cursosPeriodos-columns';
 import { DataTable } from '~/components/ui/data-table';
 import {
   Dialog,
@@ -28,12 +28,13 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
   const idCurso = Number(formData.get('idCurso'));
   const idPeriodo = Number(params.idPeriodo);
+  const horario = String(formData.get('horario'));
 
-  if (isNaN(idCurso) || isNaN(idPeriodo)) {
+  if (isNaN(idCurso) || isNaN(idPeriodo) || !horario) {
     return { error: 'Datos inválidos' };
   }
 
-  return await inscribirCursoEnPeriodo( idPeriodo, idCurso );
+  return await inscribirCursoEnPeriodo( idPeriodo, idCurso, horario );
 };
 
 export default function CursosPeriodoPage() {
@@ -45,6 +46,7 @@ export default function CursosPeriodoPage() {
       <h1 className="text-xl font-bold">Cursos en el Periodo {idPeriodo}</h1>
 
       {/* Botón para abrir el diálogo de inscripción */}
+      <div className="py-4 w-3/4">
       <Dialog>
         <DialogTrigger>
           <Button variant="outline">Inscribir Curso</Button>
@@ -64,6 +66,12 @@ export default function CursosPeriodoPage() {
                 </Label>
                 <Input id="idCurso" name="idCurso" type="number" className="col-span-3" />
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="horario" className="text-right">
+                  Horario
+                </Label>
+                <Input id="horario" name="horario" type="text" className="col-span-3" />
+              </div>
             </div>
             <DialogFooter>
               <Button type="submit">Inscribir Curso</Button>
@@ -77,9 +85,10 @@ export default function CursosPeriodoPage() {
         {'type' in cursosInscritos && cursosInscritos.type === 'error' ? (
           <p>Ocurrió un error cargando los cursos</p>
         ) : (
-          <DataTable columns={cursoColumns} data={cursosInscritos} />
+          <DataTable columns={cursoColumnsWithActions(Number(idPeriodo))} data={cursosInscritos} />
         )}
       </main>
+      </div>
     </>
   );
 }

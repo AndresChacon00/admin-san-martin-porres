@@ -1,6 +1,6 @@
 import { useLoaderData, MetaFunction, Form } from '@remix-run/react';
 import { addPeriodo, getPeriodos } from '~/api/controllers/periodos';
-import { periodosColumns } from '~/components/columns/periodos-columns.tsx';
+import { periodosColumns } from '~/components/columns/periodos-columns';
 import { DataTable } from '~/components/ui/data-table';
 import {
   Dialog,

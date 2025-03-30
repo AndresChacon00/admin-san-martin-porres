@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX `estudiantes_curso_periodo_id_periodo_codigo_curso_id_estudiante_unique` ON `estudiantes_curso_periodo` (`id_periodo`,`codigo_curso`,`id_estudiante`);--> statement-breakpoint
+ALTER TABLE `cursos` DROP COLUMN `horario`;
