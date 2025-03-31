@@ -13,7 +13,7 @@ export const equivGrados = sqliteTable(
     titulo: integer({ mode: 'number' })
       .notNull()
       .references(() => titulos.id, { onDelete: 'cascade' }),
-    experienciaLaboral: integer('experiencia_laboral'),
+    experienciaLaboral: integer('experiencia_laboral').notNull().default(0),
     formacionTecnicoProfesional: text(
       'formacion_tecnico_profesional',
     ).notNull(),

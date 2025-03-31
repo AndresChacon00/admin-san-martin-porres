@@ -50,6 +50,13 @@
       "when": 1743383651319,
       "tag": "0006_lowly_maestro",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1743444523607,
+      "tag": "0007_typical_kabuki",
+      "breakpoints": true
     }
   ]
 }
