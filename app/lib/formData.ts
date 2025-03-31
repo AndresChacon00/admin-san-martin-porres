@@ -37,7 +37,7 @@ export function extractEmpleadoProfessionalData(formData: FormData) {
   const fechaIngresoPlantel = new Date(
     String(formData.get('fechaIngresoPlantel')),
   );
-  const titulo = String(formData.get('titulo') ?? '');
+  const titulo = Number(formData.get('titulo') ?? '');
   const descripcionTitulo = String(formData.get('descripcionTitulo') ?? '');
   const mencionTitulo = String(formData.get('mencionTitulo') ?? '');
   const carreraEstudiando = String(formData.get('carreraEstudiando') ?? '');
@@ -68,11 +68,11 @@ export function extractEmpleadoProfessionalData(formData: FormData) {
  * @param formData
  */
 export function extractEmpleadoPositionData(formData: FormData) {
-  const gradoSistema = String(formData.get('gradoSistema') ?? '');
-  const nivelSistema = String(formData.get('nivelSistema') ?? '');
-  const gradoCentro = String(formData.get('gradoCentro') ?? '');
-  const nivelCentro = String(formData.get('nivelCentro') ?? '');
-  const cargo = String(formData.get('cargo') ?? '');
+  const gradoSistema = Number(formData.get('gradoSistema') ?? '');
+  const nivelSistema = Number(formData.get('nivelSistema') ?? '');
+  const gradoCentro = Number(formData.get('gradoCentro') ?? '');
+  const nivelCentro = Number(formData.get('nivelCentro') ?? '');
+  const cargo = Number(formData.get('cargo') ?? '');
   const horasSemanales = Number(formData.get('horasSemanales'));
   const sueldo = Number(formData.get('sueldo'));
   const asignacionesMensual = Number(formData.get('asignacionesMensual'));

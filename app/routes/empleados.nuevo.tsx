@@ -3,13 +3,24 @@ import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
 } from '@remix-run/node';
-import { json, Link, redirect, useFetcher } from '@remix-run/react';
+import {
+  json,
+  Link,
+  redirect,
+  useFetcher,
+  useLoaderData,
+} from '@remix-run/react';
 import { ChevronLeft } from 'lucide-react';
 import { addEmpleado } from '~/api/controllers/empleados.server';
 import { extractEmpleadoFormData } from '~/lib/formData';
 import { isRole } from '~/lib/auth';
 import EmpleadoForm from '~/components/forms/empleado-form';
 import { useRef } from 'react';
+import {
+  getEquivalenciasCargos,
+  getEquivalenciasGrados,
+  getEquivalenciasNiveles,
+} from '~/api/controllers/equivalencias.server';
 
 export const meta: MetaFunction = () => {
   return [
@@ -30,10 +41,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!authorized) {
     return redirect('/');
   }
-  return null;
+  const equivalenciasNiveles = getEquivalenciasNiveles();
+  const equivalenciasGrados = getEquivalenciasGrados('administrativo');
+  const equivalenciasCargos = getEquivalenciasCargos('administrativo');
+  const response = await Promise.all([
+    equivalenciasNiveles,
+    equivalenciasGrados,
+    equivalenciasCargos,
+  ]);
+  return response;
 }
 
 export default function CrearEmpleado() {
+  const [equivalenciasNiveles, equivalenciasGrados, equivalenciasCargos] =
+    useLoaderData<typeof loader>();
+
   const fetcher = useFetcher<typeof action>();
 
   const ref = useRef<HTMLHeadingElement>(null);
@@ -55,7 +77,14 @@ export default function CrearEmpleado() {
         Agregar Empleado
       </h1>
       <span className='text-destructive text-sm'>(*) Obligatorio</span>
-      <EmpleadoForm fetcher={fetcher} scrollToTop={scrollToTop} />
+      <EmpleadoForm
+        fetcher={fetcher}
+        scrollToTop={scrollToTop}
+        tipoEmpleado='empleados'
+        equivalenciasNiveles={equivalenciasNiveles}
+        equivalenciasGrados={equivalenciasGrados}
+        equivalenciasCargos={equivalenciasCargos}
+      />
     </>
   );
 }

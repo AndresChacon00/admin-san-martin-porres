@@ -32,6 +32,11 @@ import { FetcherWithComponents } from '@remix-run/react';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { CircleHelp } from 'lucide-react';
+import {
+  EquivalenciaCargo,
+  EquivalenciaGrado,
+  EquivalenciaNivel,
+} from '~/types/equivalencias.types';
 
 interface EmpleadoFormProps {
   fetcher: FetcherWithComponents<{
@@ -39,11 +44,19 @@ interface EmpleadoFormProps {
     readonly message: string;
   }>;
   scrollToTop: () => void;
+  tipoEmpleado: 'empleados' | 'profesores';
+  equivalenciasNiveles: EquivalenciaNivel[];
+  equivalenciasGrados: EquivalenciaGrado[];
+  equivalenciasCargos: EquivalenciaCargo[];
 }
 
 export default function EmpleadoForm({
   fetcher,
   scrollToTop,
+  tipoEmpleado,
+  equivalenciasNiveles,
+  equivalenciasGrados,
+  equivalenciasCargos,
 }: EmpleadoFormProps) {
   const formStepOne = useForm<z.infer<typeof datosPersonalesEmpleado>>({
     resolver: zodResolver(datosPersonalesEmpleado),
@@ -116,7 +129,7 @@ export default function EmpleadoForm({
         ...formStepTwo.getValues(),
         ...stepThreeData,
       },
-      { method: 'POST', action: '/empleados/nuevo' },
+      { method: 'POST', action: `/${tipoEmpleado}/nuevo` },
     );
   };
 

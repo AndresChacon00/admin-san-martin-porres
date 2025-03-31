@@ -3,13 +3,24 @@ import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
 } from '@remix-run/node';
-import { json, Link, redirect, useFetcher } from '@remix-run/react';
+import {
+  json,
+  Link,
+  redirect,
+  useFetcher,
+  useLoaderData,
+} from '@remix-run/react';
 import { addProfesor } from '~/api/controllers/profesores';
 import { ChevronLeft } from 'lucide-react';
 import { extractEmpleadoFormData } from '~/lib/formData';
 import { isRole } from '~/lib/auth';
 import EmpleadoForm from '~/components/forms/empleado-form';
 import { useRef } from 'react';
+import {
+  getEquivalenciasCargos,
+  getEquivalenciasGrados,
+  getEquivalenciasNiveles,
+} from '~/api/controllers/equivalencias.server';
 
 export const meta: MetaFunction = () => {
   return [
@@ -23,7 +34,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!authorized) {
     return redirect('/');
   }
-  return null;
+  const equivalenciasNiveles = getEquivalenciasNiveles();
+  const equivalenciasGrados = getEquivalenciasGrados('instructor');
+  const equivalenciasCargos = getEquivalenciasCargos('instructor');
+  const response = await Promise.all([
+    equivalenciasNiveles,
+    equivalenciasGrados,
+    equivalenciasCargos,
+  ]);
+  return response;
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -34,6 +53,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function CrearProfesor() {
+  const [equivalenciasNiveles, equivalenciasGrados, equivalenciasCargos] =
+    useLoaderData<typeof loader>();
+
   const fetcher = useFetcher<typeof action>();
 
   const ref = useRef<HTMLHeadingElement>(null);
@@ -55,7 +77,14 @@ export default function CrearProfesor() {
         Agregar Profesor
       </h1>
       <span className='text-destructive text-sm'>(*) Obligatorio</span>
-      <EmpleadoForm fetcher={fetcher} scrollToTop={scrollToTop} />
+      <EmpleadoForm
+        fetcher={fetcher}
+        scrollToTop={scrollToTop}
+        tipoEmpleado='profesores'
+        equivalenciasNiveles={equivalenciasNiveles}
+        equivalenciasGrados={equivalenciasGrados}
+        equivalenciasCargos={equivalenciasCargos}
+      />
     </>
   );
 }

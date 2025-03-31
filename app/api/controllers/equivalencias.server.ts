@@ -7,6 +7,11 @@ import { cargos } from '../tables/cargos';
 import { niveles } from '../tables/niveles';
 import { grados } from '../tables/grados';
 import { titulos } from '../tables/titulos';
+import {
+  EquivalenciaCargo,
+  EquivalenciaGrado,
+  EquivalenciaNivel,
+} from '~/types/equivalencias.types';
 
 type TipoPersonal = 'administrativo' | 'instructor';
 
@@ -14,8 +19,11 @@ type TipoPersonal = 'administrativo' | 'instructor';
  * Equivalencias de cargos por tipo de personal
  * @author gabrielm
  * @param tipoPersonal
+ * @throws
  */
-export async function getEquivalenciasCargos(tipoPersonal: TipoPersonal) {
+export async function getEquivalenciasCargos(
+  tipoPersonal: TipoPersonal,
+): Promise<EquivalenciaCargo[]> {
   try {
     const equivalenciasQuery = await db
       .select({
@@ -39,8 +47,9 @@ export async function getEquivalenciasCargos(tipoPersonal: TipoPersonal) {
 /**
  * Equivalencias de niveles
  * @author gabrielm
+ * @throws
  */
-export async function getEquivalenciasNiveles() {
+export async function getEquivalenciasNiveles(): Promise<EquivalenciaNivel[]> {
   try {
     const equivalenciasQuery = await db
       .select({
@@ -62,8 +71,11 @@ export async function getEquivalenciasNiveles() {
 /**
  * Equivalencias de grados por tipo de personal
  * @param tipoPersonal
+ * @throws
  */
-export async function getEquivalenciasGrados(tipoPersonal: TipoPersonal) {
+export async function getEquivalenciasGrados(
+  tipoPersonal: TipoPersonal,
+): Promise<EquivalenciaGrado[]> {
   try {
     const equivalenciasQuery = await db
       .select({
