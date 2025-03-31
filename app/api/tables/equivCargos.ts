@@ -15,7 +15,9 @@ export const equivCargos = sqliteTable(
       .references(() => niveles.id, {
         onDelete: 'cascade',
       }),
-    tipoPersonal: text('tipo_personal').notNull(),
+    tipoPersonal: text('tipo_personal', {
+      enum: ['administrativo', 'instructor'],
+    }).notNull(),
   },
   (table) => [
     check(

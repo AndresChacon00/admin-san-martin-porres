@@ -17,7 +17,9 @@ export const equivGrados = sqliteTable(
     formacionTecnicoProfesional: text(
       'formacion_tecnico_profesional',
     ).notNull(),
-    tipoPersonal: text('tipo_personal').notNull(),
+    tipoPersonal: text('tipo_personal', {
+      enum: ['administrativo', 'instructor'],
+    }).notNull(),
   },
   (table) => [
     check(

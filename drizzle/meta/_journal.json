@@ -43,6 +43,13 @@
       "when": 1743374444516,
       "tag": "0005_nebulous_joshua_kane",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1743383651319,
+      "tag": "0006_lowly_maestro",
+      "breakpoints": true
     }
   ]
 }
