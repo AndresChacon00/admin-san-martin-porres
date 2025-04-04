@@ -21,6 +21,7 @@ import {
   getEquivalenciasGrados,
   getEquivalenciasNiveles,
 } from '~/api/controllers/equivalencias.server';
+import { getTitulos } from '~/api/controllers/titulos.server';
 
 export const meta: MetaFunction = () => {
   return [
@@ -32,6 +33,7 @@ export const meta: MetaFunction = () => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const data = extractEmpleadoFormData(formData);
+  console.log(data);
   const response = await addEmpleado(data);
   return json(response);
 };
@@ -44,17 +46,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const equivalenciasNiveles = getEquivalenciasNiveles();
   const equivalenciasGrados = getEquivalenciasGrados('administrativo');
   const equivalenciasCargos = getEquivalenciasCargos('administrativo');
+  const titulos = getTitulos();
   const response = await Promise.all([
     equivalenciasNiveles,
     equivalenciasGrados,
     equivalenciasCargos,
+    titulos,
   ]);
   return response;
 }
 
 export default function CrearEmpleado() {
-  const [equivalenciasNiveles, equivalenciasGrados, equivalenciasCargos] =
-    useLoaderData<typeof loader>();
+  const [
+    equivalenciasNiveles,
+    equivalenciasGrados,
+    equivalenciasCargos,
+    titulos,
+  ] = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher<typeof action>();
 
@@ -81,6 +89,7 @@ export default function CrearEmpleado() {
         fetcher={fetcher}
         scrollToTop={scrollToTop}
         tipoEmpleado='empleados'
+        titulos={titulos}
         equivalenciasNiveles={equivalenciasNiveles}
         equivalenciasGrados={equivalenciasGrados}
         equivalenciasCargos={equivalenciasCargos}

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import {
@@ -42,6 +42,10 @@ import {
   EmpleadoPositionData,
   EmpleadoProfessionalData,
 } from '~/types/empleados.types';
+import { TituloSelect } from '~/types/titulos.types';
+import { NivelSelect } from '~/types/niveles.types';
+import { GradosSelect } from './grados.types';
+import { CargoSelect } from '~/types/cargos.types';
 
 interface EmpleadoFormProps {
   fetcher: FetcherWithComponents<{
@@ -50,6 +54,7 @@ interface EmpleadoFormProps {
   }>;
   scrollToTop: () => void;
   tipoEmpleado: 'empleados' | 'profesores';
+  titulos: TituloSelect[];
   equivalenciasNiveles: EquivalenciaNivel[];
   equivalenciasGrados: EquivalenciaGrado[];
   equivalenciasCargos: EquivalenciaCargo[];
@@ -59,10 +64,53 @@ export default function EmpleadoForm({
   fetcher,
   scrollToTop,
   tipoEmpleado,
+  titulos,
   equivalenciasNiveles,
   equivalenciasGrados,
   equivalenciasCargos,
 }: EmpleadoFormProps) {
+  const niveles: NivelSelect[] = useMemo(() => {
+    const nivelesExtraidos = equivalenciasNiveles
+      .map((equiv) => ({
+        id: equiv.nivelId,
+        nombre: equiv.nombreNivel,
+      }))
+      .filter(
+        (nivel, index, self) =>
+          index === self.findIndex((n) => n.id === nivel.id),
+      );
+    return nivelesExtraidos;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const grados: GradosSelect[] = useMemo(() => {
+    const gradosExtraidos = equivalenciasGrados
+      .map((equiv) => ({
+        id: equiv.gradoId,
+        codigo: equiv.nombreGrado,
+      }))
+      .filter(
+        (grado, index, self) =>
+          index === self.findIndex((g) => g.id === grado.id),
+      );
+    return gradosExtraidos;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [opcionesCargo, setOpcionesCargo] = useState<CargoSelect[]>(
+    equivalenciasCargos
+      .map((equiv) => ({
+        id: equiv.cargoId,
+        codigo: equiv.codigoCargo,
+        nombreCargo: equiv.nombreCargo,
+        nivelCargo: equiv.nombreNivel,
+      }))
+      .filter(
+        (cargo, index, self) =>
+          index === self.findIndex((c) => c.id === cargo.id),
+      ),
+  );
+
   const formStepOne = useForm<z.infer<typeof datosPersonalesEmpleado>>({
     resolver: zodResolver(datosPersonalesEmpleado),
     defaultValues: {
@@ -74,14 +122,14 @@ export default function EmpleadoForm({
   const formStepTwo = useForm<z.infer<typeof datosProfesionalesEmpleado>>({
     resolver: zodResolver(datosProfesionalesEmpleado),
     defaultValues: {
-      titulo: '',
+      titulo: undefined,
       carreraEstudiando: '',
       descripcionTitulo: '',
       mencionTitulo: '',
       postgrado: '',
       tipoLapsoEstudios: '',
-      numeroLapsosAprobados: undefined,
-      experienciaLaboral: undefined,
+      numeroLapsosAprobados: 0,
+      experienciaLaboral: 0,
     },
   });
 
@@ -111,6 +159,74 @@ export default function EmpleadoForm({
   };
 
   const goToPrevious = () => setStep(step - 1);
+
+  const updatePositionFormWithEquivalencias = (
+    titulo: number,
+    experienciaLaboral: number,
+    fechaIngresoAvec: string,
+    fetchaIngresoPlantel: string,
+  ) => {
+    // Nivel sistema calculado en base al tiempo de servicio en centros AVEC
+    const avecDate = new Date(fechaIngresoAvec);
+    const yearsSinceAvecDate =
+      new Date().getFullYear() - avecDate.getFullYear();
+    const nivelEquivalente = equivalenciasNiveles
+      .filter((eq) => eq.minTiempoServicio <= yearsSinceAvecDate)
+      .sort((a, b) => b.minTiempoServicio - a.minTiempoServicio);
+    if (nivelEquivalente.length === 0) {
+      toast.error(
+        'No se encontró un nivel equivalente para la experiencia laboral',
+      );
+      return;
+    }
+    const nivelSistema = nivelEquivalente[0].nivelId;
+    formStepThree.setValue('nivelSistema', nivelSistema);
+
+    // Nivel plantel calculado en base al tiempo de servicio en el plantel
+    const plantelDate = new Date(fetchaIngresoPlantel);
+    const yearsSincePlantelDate =
+      new Date().getFullYear() - plantelDate.getFullYear();
+    const nivelEquivalentePlantel = equivalenciasNiveles
+      .filter((eq) => eq.minTiempoServicio <= yearsSincePlantelDate)
+      .sort((a, b) => b.minTiempoServicio - a.minTiempoServicio);
+    if (nivelEquivalentePlantel.length === 0) {
+      toast.error(
+        'No se encontró un nivel equivalente para la experiencia laboral',
+      );
+      return;
+    }
+    const nivelCentro = nivelEquivalentePlantel[0].nivelId;
+
+    // Grado del empleado calculado en base al título y la experienciaLaboral
+    const gradoEquivalente = equivalenciasGrados
+      .filter(
+      (eq) =>
+        eq.tituloId === titulo && eq.experienciaLaboral <= experienciaLaboral,
+      )
+      .sort((a, b) => b.experienciaLaboral - a.experienciaLaboral);
+    if (gradoEquivalente.length === 0) {
+      toast.error(
+        'No se encontró un grado equivalente para la experiencia laboral',
+      );
+      return;
+    }
+    const gradoEmpleado = gradoEquivalente[0].gradoId;
+
+    // Cargo del empleado determinado en base a su nivel y grado
+    const cargosEquivalentes = equivalenciasCargos
+      .filter((eq) => eq.nivelId === nivelSistema)
+      .map((eq) => ({
+        id: eq.cargoId,
+        codigo: eq.codigoCargo,
+        nivelCargo: eq.nivelCargo,
+        nombreCargo: eq.nombreCargo,
+      }));
+    setOpcionesCargo(cargosEquivalentes);
+
+    formStepThree.setValue('nivelCentro', nivelCentro);
+    formStepThree.setValue('gradoCentro', gradoEmpleado);
+    formStepThree.setValue('gradoSistema', gradoEmpleado);
+  };
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data !== undefined) {
@@ -147,6 +263,8 @@ export default function EmpleadoForm({
         step={step}
         goToNext={goToNext}
         goToPrevious={goToPrevious}
+        titulos={titulos}
+        updateWithEquivalencias={updatePositionFormWithEquivalencias}
       />
 
       <StepThreeForm
@@ -155,6 +273,9 @@ export default function EmpleadoForm({
         goToPrevious={goToPrevious}
         step={step}
         submitFull={submitFull}
+        niveles={niveles}
+        grados={grados}
+        cargos={opcionesCargo}
       />
     </>
   );
@@ -341,16 +462,33 @@ function StepTwoForm({
   goToNext,
   goToPrevious,
   step,
+  titulos,
+  updateWithEquivalencias,
 }: {
   formStepTwo: UseFormReturn<EmpleadoProfessionalData, unknown, undefined>;
   goToNext: () => void;
   goToPrevious: () => void;
   step: number;
+  titulos: TituloSelect[];
+  updateWithEquivalencias: (
+    titulo: number,
+    experienciaLaboral: number,
+    fechaIngresoAvec: string,
+    fechaIngresoPlantel: string,
+  ) => void;
 }) {
   return (
     <Form {...formStepTwo}>
       <form
-        onSubmit={formStepTwo.handleSubmit(goToNext)}
+        onSubmit={formStepTwo.handleSubmit((values) => {
+          updateWithEquivalencias(
+            values.titulo,
+            values.experienciaLaboral,
+            values.fechaIngresoAvec,
+            values.fechaIngresoPlantel,
+          );
+          goToNext();
+        })}
         className={cn('w-1/2 pb-12 space-y-3 mt-2', step === 2 ? '' : 'hidden')}
       >
         <h2 className='text-lg font-semibold'>Datos profesionales</h2>
@@ -387,10 +525,24 @@ function StepTwoForm({
           name='titulo'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Título</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
+              <RequiredLabel>Título</RequiredLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={String(field.value)}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Seleccionar título' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {titulos.map((titulo) => (
+                    <SelectItem key={titulo.id} value={String(titulo.id)}>
+                      {titulo.nombre} ({titulo.codigo})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -485,7 +637,7 @@ function StepTwoForm({
           name='experienciaLaboral'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Años de experiencia laboral</FormLabel>
+              <RequiredLabel>Años de experiencia laboral</RequiredLabel>
               <FormControl>
                 <Input {...field} type='number' />
               </FormControl>
@@ -517,6 +669,9 @@ function StepThreeForm({
   step,
   goToPrevious,
   fetcher,
+  niveles,
+  grados,
+  cargos,
 }: {
   formStepThree: UseFormReturn<EmpleadoPositionData, unknown, undefined>;
   submitFull: (data: EmpleadoPositionData) => void;
@@ -526,6 +681,9 @@ function StepThreeForm({
     readonly type: 'success' | 'error';
     readonly message: string;
   }>;
+  niveles: NivelSelect[];
+  grados: GradosSelect[];
+  cargos: CargoSelect[];
 }) {
   return (
     <Form {...formStepThree}>
@@ -542,9 +700,26 @@ function StepThreeForm({
           render={({ field }) => (
             <FormItem>
               <RequiredLabel>Grado en el Sistema</RequiredLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={String(field.value)}
+                value={String(field.value)}
+                name={field.name}
+                disabled
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Seleccionar grado' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {grados.map((grado) => (
+                    <SelectItem key={grado.id} value={String(grado.id)}>
+                      {grado.codigo}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -556,9 +731,26 @@ function StepThreeForm({
           render={({ field }) => (
             <FormItem>
               <RequiredLabel>Nivel en el Sistema</RequiredLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={String(field.value)}
+                value={String(field.value)}
+                name={field.name}
+                disabled
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Seleccionar nivel' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {niveles.map((nivel) => (
+                    <SelectItem key={nivel.id} value={String(nivel.id)}>
+                      {nivel.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -570,9 +762,26 @@ function StepThreeForm({
           render={({ field }) => (
             <FormItem>
               <RequiredLabel>Grado en el centro</RequiredLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={String(field.value)}
+                value={String(field.value)}
+                name={field.name}
+                disabled
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Seleccionar grado' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {grados.map((grado) => (
+                    <SelectItem key={grado.id} value={String(grado.id)}>
+                      {grado.codigo}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -584,9 +793,26 @@ function StepThreeForm({
           render={({ field }) => (
             <FormItem>
               <RequiredLabel>Nivel en el centro</RequiredLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={String(field.value)}
+                value={String(field.value)}
+                name={field.name}
+                disabled
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Seleccionar nivel' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {niveles.map((nivel) => (
+                    <SelectItem key={nivel.id} value={String(nivel.id)}>
+                      {nivel.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -598,9 +824,23 @@ function StepThreeForm({
           render={({ field }) => (
             <FormItem>
               <RequiredLabel>Cargo</RequiredLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={String(field.value)}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Seleccionar cargo' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {cargos.map((cargo) => (
+                    <SelectItem key={cargo.id} value={String(cargo.id)}>
+                      {cargo.nombreCargo}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

@@ -28,7 +28,9 @@ export async function getEquivalenciasCargos(
     const equivalenciasQuery = await db
       .select({
         cargoId: equivCargos.cargo,
-        nombreCargo: cargos.codigo,
+        codigoCargo: cargos.codigo,
+        nivelCargo: cargos.nivelCargo,
+        nombreCargo: cargos.nombreCargo,
         nivelId: equivCargos.nivel,
         nombreNivel: niveles.nombre,
       })

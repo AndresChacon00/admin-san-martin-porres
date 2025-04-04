@@ -21,6 +21,7 @@ import {
   getEquivalenciasGrados,
   getEquivalenciasNiveles,
 } from '~/api/controllers/equivalencias.server';
+import { getTitulos } from '~/api/controllers/titulos.server';
 
 export const meta: MetaFunction = () => {
   return [
@@ -37,10 +38,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const equivalenciasNiveles = getEquivalenciasNiveles();
   const equivalenciasGrados = getEquivalenciasGrados('instructor');
   const equivalenciasCargos = getEquivalenciasCargos('instructor');
+  const titulos = getTitulos();
   const response = await Promise.all([
     equivalenciasNiveles,
     equivalenciasGrados,
     equivalenciasCargos,
+    titulos,
   ]);
   return response;
 }
@@ -53,8 +56,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function CrearProfesor() {
-  const [equivalenciasNiveles, equivalenciasGrados, equivalenciasCargos] =
-    useLoaderData<typeof loader>();
+  const [
+    equivalenciasNiveles,
+    equivalenciasGrados,
+    equivalenciasCargos,
+    titulos,
+  ] = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher<typeof action>();
 
@@ -81,6 +88,7 @@ export default function CrearProfesor() {
         fetcher={fetcher}
         scrollToTop={scrollToTop}
         tipoEmpleado='profesores'
+        titulos={titulos}
         equivalenciasNiveles={equivalenciasNiveles}
         equivalenciasGrados={equivalenciasGrados}
         equivalenciasCargos={equivalenciasCargos}

@@ -1,5 +1,7 @@
 export type EquivalenciaCargo = {
   cargoId: number;
+  codigoCargo: string;
+  nivelCargo: string;
   nombreCargo: string;
   nivelId: number;
   nombreNivel: string;

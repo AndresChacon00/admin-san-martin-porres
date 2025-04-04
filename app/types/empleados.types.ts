@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { empleados } from '~/api/tables/empleados';
-import { datosCargoEmpleado } from '~/lib/validators';
+import {
+  datosCargoEmpleado,
+  datosPersonalesEmpleado,
+  datosProfesionalesEmpleado,
+} from '~/lib/validators';
 
 export type Sexo = 'F' | 'M';
 
@@ -12,28 +16,11 @@ export type EmpleadoUpdate = Partial<EmpleadoInsert>;
 
 export type Empleado = typeof empleados.$inferSelect;
 
-export type EmpleadoPersonalData = {
-  cedula: string;
-  nombreCompleto: string;
-  fechaNacimiento: string;
-  sexo: 'F' | 'M';
-  estadoCivil: 'S' | 'C' | 'D' | 'V' | 'R';
-  religion: string;
-  cantidadHijos: number;
-  hijosMenoresSeis: number;
-};
+export interface EmpleadoPersonalData
+  extends z.infer<typeof datosPersonalesEmpleado> {}
 
-export type EmpleadoProfessionalData = {
-  fechaIngresoAvec: string;
-  fechaIngresoPlantel: string;
-  titulo: string;
-  descripcionTitulo: string;
-  mencionTitulo: string;
-  carreraEstudiando: string;
-  tipoLapsoEstudios: string;
-  numeroLapsosAprobados: number;
-  postgrado: string;
-  experienciaLaboral: number;
-};
+export interface EmpleadoProfessionalData
+  extends z.infer<typeof datosProfesionalesEmpleado> {}
 
-export interface EmpleadoPositionData extends z.infer<typeof datosCargoEmpleado> {}
+export interface EmpleadoPositionData
+  extends z.infer<typeof datosCargoEmpleado> {}

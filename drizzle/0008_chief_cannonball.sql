@@ -1,0 +1,1 @@
+ALTER TABLE `equivalencia_cargos` ADD `grado` integer NOT NULL REFERENCES grados(id);
