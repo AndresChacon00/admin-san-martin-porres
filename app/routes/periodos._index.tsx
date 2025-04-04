@@ -58,7 +58,7 @@ export default function PeriodosPage() {
       <div className='py-4 w-3/4'>
       <Dialog>
         <DialogTrigger>
-          <Button variant="outline">Agregar Periodo</Button>
+          <Button className="link-button">Agregar Periodo</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
