@@ -49,7 +49,7 @@ export default function CursosPeriodoPage() {
       <div className="py-4 w-3/4">
       <Dialog>
         <DialogTrigger>
-          <Button variant="outline">Inscribir Curso</Button>
+          <Button className="link-button">Inscribir Curso</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
