@@ -1,10 +1,14 @@
+export type TipoPersonal = 'administrativo' | 'instructor';
+
 export type EquivalenciaCargo = {
+  id: number;
   cargoId: number;
   codigoCargo: string;
   nivelCargo: string;
   nombreCargo: string;
   nivelId: number;
   nombreNivel: string;
+  tipoPersonal: TipoPersonal;
 };
 
 export type EquivalenciaNivel = {
@@ -15,6 +19,7 @@ export type EquivalenciaNivel = {
 };
 
 export type EquivalenciaGrado = {
+  id: number;
   gradoId: number;
   nombreGrado: string;
   tituloId: number;
@@ -22,4 +27,5 @@ export type EquivalenciaGrado = {
   nombreTitulo: string;
   experienciaLaboral: number;
   formacionTecnicoProfesional: string;
+  tipoPersonal: TipoPersonal;
 };

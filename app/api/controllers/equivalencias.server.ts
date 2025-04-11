@@ -11,9 +11,8 @@ import {
   EquivalenciaCargo,
   EquivalenciaGrado,
   EquivalenciaNivel,
+  TipoPersonal,
 } from '~/types/equivalencias.types';
-
-type TipoPersonal = 'administrativo' | 'instructor';
 
 /**
  * Equivalencias de cargos por tipo de personal
@@ -22,22 +21,28 @@ type TipoPersonal = 'administrativo' | 'instructor';
  * @throws
  */
 export async function getEquivalenciasCargos(
-  tipoPersonal: TipoPersonal,
+  tipoPersonal: TipoPersonal | 'todos',
 ): Promise<EquivalenciaCargo[]> {
   try {
     const equivalenciasQuery = await db
       .select({
+        id: equivCargos.id,
         cargoId: equivCargos.cargo,
         codigoCargo: cargos.codigo,
         nivelCargo: cargos.nivelCargo,
         nombreCargo: cargos.nombreCargo,
         nivelId: equivCargos.nivel,
         nombreNivel: niveles.nombre,
+        tipoPersonal: equivCargos.tipoPersonal,
       })
       .from(equivCargos)
       .innerJoin(cargos, eq(cargos.id, equivCargos.cargo))
       .innerJoin(niveles, eq(niveles.id, equivCargos.nivel))
-      .where(eq(equivCargos.tipoPersonal, tipoPersonal))
+      .where(
+        tipoPersonal !== 'todos'
+          ? eq(equivCargos.tipoPersonal, tipoPersonal)
+          : undefined,
+      )
       .orderBy(asc(equivCargos.id));
     return equivalenciasQuery;
   } catch (error) {
@@ -76,11 +81,12 @@ export async function getEquivalenciasNiveles(): Promise<EquivalenciaNivel[]> {
  * @throws
  */
 export async function getEquivalenciasGrados(
-  tipoPersonal: TipoPersonal,
+  tipoPersonal: TipoPersonal | 'todos',
 ): Promise<EquivalenciaGrado[]> {
   try {
     const equivalenciasQuery = await db
       .select({
+        id: equivGrados.id,
         gradoId: equivGrados.grado,
         nombreGrado: grados.codigo,
         tituloId: equivGrados.titulo,
@@ -88,11 +94,16 @@ export async function getEquivalenciasGrados(
         nombreTitulo: titulos.nombre,
         experienciaLaboral: equivGrados.experienciaLaboral,
         formacionTecnicoProfesional: equivGrados.formacionTecnicoProfesional,
+        tipoPersonal: equivGrados.tipoPersonal,
       })
       .from(equivGrados)
       .innerJoin(grados, eq(grados.id, equivGrados.grado))
       .innerJoin(titulos, eq(titulos.id, equivGrados.titulo))
-      .where(eq(equivGrados.tipoPersonal, tipoPersonal))
+      .where(
+        tipoPersonal !== 'todos'
+          ? eq(equivGrados.tipoPersonal, tipoPersonal)
+          : undefined,
+      )
       .orderBy(asc(equivGrados.id));
     return equivalenciasQuery;
   } catch (error) {

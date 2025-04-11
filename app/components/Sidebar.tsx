@@ -87,8 +87,8 @@ const itemGroups: SidebarItemGroupT[] = [
     roles: ['admin'],
     items: [
       {
-        title: 'Configuración',
-        url: '/configuracion',
+        title: 'Equivalencias',
+        url: '/equivalencias',
         icon: Settings,
         roles: ['admin'],
       },
