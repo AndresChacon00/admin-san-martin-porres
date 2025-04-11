@@ -1,4 +1,4 @@
-import { desc } from 'drizzle-orm';
+import { desc, eq, notExists } from 'drizzle-orm';
 import db from '../db';
 import { empleados } from '../tables/empleados';
 import type { EmpleadoInsert, EmpleadoUpdate } from '~/types/empleados.types';
@@ -8,6 +8,7 @@ import {
   getSingleEmpleado,
   updateEmpleadoInDb,
 } from '../services/empleados.server';
+import { profesores } from '../tables/profesores';
 
 /**
  * Get full list of employees
@@ -18,8 +19,12 @@ export async function getEmpleados() {
     const empleadosList = await db
       .select()
       .from(empleados)
+      .where(
+        notExists(
+          db.select().from(profesores).where(eq(profesores.id, empleados.id)),
+        ),
+      )
       .orderBy(desc(empleados.id));
-
     return empleadosList;
   } catch (error) {
     console.error('Error al obtener a los empleados: ', error);
