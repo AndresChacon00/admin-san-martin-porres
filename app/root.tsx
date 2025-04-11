@@ -47,18 +47,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <Toaster position='top-center' richColors />
         {data?.isLoggedIn ? (
           <SidebarProvider>
             <AppSidebar role={data.role} />
             <SidebarTrigger />
-            <Toaster position='top-center' />
             <div className='ps-4 pt-12 w-full'>{children}</div>
             <ScrollRestoration />
             <Scripts />
           </SidebarProvider>
         ) : (
           <>
-            <Toaster position='top-center' />
             {children}
             <ScrollRestoration />
             <Scripts />

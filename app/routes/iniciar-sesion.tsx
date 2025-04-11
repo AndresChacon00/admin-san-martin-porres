@@ -18,11 +18,12 @@ import {
   type MetaFunction,
   redirect,
 } from '@remix-run/node';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { EyeIcon, EyeOff } from 'lucide-react';
 import { commitSession, getSession } from '~/sessions';
-import { useSubmit } from '@remix-run/react';
+import { useFetcher } from '@remix-run/react';
 import { login } from '~/api/controllers/auth.server';
+import { toast } from 'sonner';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Iniciar Sesión | San Martín de Porres' }];
@@ -37,14 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const data = await login(String(email), String(password));
 
   if (data === null) {
-    session.flash('error', 'Correo o contraseña inválida');
-
-    // Redirect back to the login page with errors.
-    return redirect('/iniciar-sesion', {
-      headers: {
-        'Set-Cookie': await commitSession(session),
-      },
-    });
+    return { type: 'error', message: 'Correo o contraseña inválida' };
   }
 
   session.set('userId', String(data.userId));
@@ -65,7 +59,16 @@ export default function IniciarSesion() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const submit = useSubmit();
+  const fetcher = useFetcher<typeof action>();
+
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data) {
+      if (fetcher.data.type === 'error') {
+        toast.error(fetcher.data.message);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.state, fetcher.data]);
 
   return (
     <div className='bg-[#e3f5ff] min-h-screen flex items-center justify-center'>
@@ -84,7 +87,7 @@ export default function IniciarSesion() {
             <form
               className='space-y-3'
               onSubmit={loginForm.handleSubmit((values) =>
-                submit(
+                fetcher.submit(
                   { email: values.email, password: values.password },
                   { method: 'post' },
                 ),
