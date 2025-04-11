@@ -44,7 +44,7 @@ import {
 } from '~/types/empleados.types';
 import { TituloSelect } from '~/types/titulos.types';
 import { NivelSelect } from '~/types/niveles.types';
-import { GradosSelect } from './grados.types';
+import { GradosSelect } from '../../types/grados.types';
 import { CargoSelect } from '~/types/cargos.types';
 
 interface EmpleadoFormProps {
