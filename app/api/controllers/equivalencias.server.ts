@@ -14,6 +14,8 @@ import {
   TipoPersonal,
 } from '~/types/equivalencias.types';
 
+// #region Cargos
+
 /**
  * Equivalencias de cargos por tipo de personal
  * @author gabrielm
@@ -51,6 +53,10 @@ export async function getEquivalenciasCargos(
   }
 }
 
+// #endregion
+
+// #region Niveles
+
 /**
  * Equivalencias de niveles
  * @author gabrielm
@@ -60,6 +66,7 @@ export async function getEquivalenciasNiveles(): Promise<EquivalenciaNivel[]> {
   try {
     const equivalenciasQuery = await db
       .select({
+        id: equivNiveles.id,
         nivelId: equivNiveles.nivel,
         nombreNivel: niveles.nombre,
         minTiempoServicio: equivNiveles.minTiempoServicio,
@@ -67,13 +74,30 @@ export async function getEquivalenciasNiveles(): Promise<EquivalenciaNivel[]> {
       })
       .from(equivNiveles)
       .innerJoin(niveles, eq(niveles.id, equivNiveles.nivel))
-      .orderBy(asc(equivNiveles.id));
+      .orderBy(asc(equivNiveles.minTiempoServicio));
     return equivalenciasQuery;
   } catch (error) {
     console.error('Error al obtener las equivalencias de niveles: ', error);
     throw new Error('Error al obtener las equivalencias de niveles');
   }
 }
+
+export async function updateEquivalenciaNivel(
+  id: number,
+  data: Partial<EquivalenciaNivel>,
+) {
+  try {
+    await db.update(equivNiveles).set(data).where(eq(equivNiveles.id, id));
+    return { type: 'success', message: 'Equivalencia actualizada' };
+  } catch (error) {
+    console.error('Error al actualizar la equivalencia de nivel: ', error);
+    return { type: 'error', message: 'Ocurrió un error actualizando' };
+  }
+}
+
+// #endregion
+
+// #region Grados
 
 /**
  * Equivalencias de grados por tipo de personal
@@ -111,3 +135,5 @@ export async function getEquivalenciasGrados(
     throw new Error('Error al obtener las equivalencias de grados');
   }
 }
+
+// #endregion

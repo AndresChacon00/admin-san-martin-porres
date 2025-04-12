@@ -120,3 +120,13 @@ export const resetPasswordSchema = loginSchema.extend({
   }),
 });
 // #endregion
+
+// #region Equivalencias
+export const equivalenciasNivelesSchema = z.object({
+  minTiempoServicio: z.coerce
+    .number()
+    .int()
+    .min(0, 'Tiempo de servicio inválido'),
+  formacionCrecimientoPersonal: z.string().optional().default('NO REQUIERE'),
+});
+// #endregion

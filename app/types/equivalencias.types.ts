@@ -12,6 +12,7 @@ export type EquivalenciaCargo = {
 };
 
 export type EquivalenciaNivel = {
+  id: number;
   nivelId: number;
   nombreNivel: string;
   minTiempoServicio: number;
