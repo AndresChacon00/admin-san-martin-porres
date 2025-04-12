@@ -129,4 +129,13 @@ export const equivalenciasNivelesSchema = z.object({
     .min(0, 'Tiempo de servicio inválido'),
   formacionCrecimientoPersonal: z.string().optional().default('NO REQUIERE'),
 });
+
+export const editEquivalenciasGradosSchema = z.object({
+  titulo: z.coerce.number().int().min(1, 'Título requerido'),
+  experienciaLaboral: z.coerce
+    .number()
+    .int()
+    .min(0, 'Experiencia laboral inválida'),
+  formacionTecnicoProfesional: z.string().optional().default('NO REQUIERE'),
+});
 // #endregion

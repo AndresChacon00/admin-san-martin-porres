@@ -82,6 +82,12 @@ export async function getEquivalenciasNiveles(): Promise<EquivalenciaNivel[]> {
   }
 }
 
+/**
+ * Edita una equivalencia de nivel
+ * @author gabrielm
+ * @param id
+ * @param data Datos para actualizar
+ */
 export async function updateEquivalenciaNivel(
   id: number,
   data: Partial<EquivalenciaNivel>,
@@ -133,6 +139,40 @@ export async function getEquivalenciasGrados(
   } catch (error) {
     console.error('Error al obtener las equivalencias de grados: ', error);
     throw new Error('Error al obtener las equivalencias de grados');
+  }
+}
+
+/**
+ * Elimina una equivalencia de grado
+ * @author gabrielm
+ * @param id
+ */
+export async function deleteEquivalenciaGrado(id: number) {
+  try {
+    await db.delete(equivGrados).where(eq(equivGrados.id, id));
+    return { type: 'success', message: 'Equivalencia eliminada' };
+  } catch (error) {
+    console.error('Error al eliminar la equivalencia de grado: ', error);
+    return { type: 'error', message: 'Ocurrió un error eliminando' };
+  }
+}
+
+/**
+ * Editar una equivalencia de grado
+ * @author gabrielm
+ * @param id
+ * @param data Datos para actualizar
+ */
+export async function updateEquivalenciaGrado(
+  id: number,
+  data: Partial<typeof equivGrados.$inferInsert>,
+) {
+  try {
+    await db.update(equivGrados).set(data).where(eq(equivGrados.id, id));
+    return { type: 'success', message: 'Equivalencia actualizada' };
+  } catch (error) {
+    console.error('Error al actualizar la equivalencia de grado: ', error);
+    return { type: 'error', message: 'Ocurrió un error actualizando' };
   }
 }
 

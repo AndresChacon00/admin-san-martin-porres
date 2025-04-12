@@ -1,9 +1,11 @@
 import { ActionFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import {
+  deleteEquivalenciaGrado,
   getEquivalenciasCargos,
   getEquivalenciasGrados,
   getEquivalenciasNiveles,
+  updateEquivalenciaGrado,
   updateEquivalenciaNivel,
 } from '~/api/controllers/equivalencias.server';
 import { equivalenciasGradosColumns } from '~/components/columns/equivalencias-grados-columns';
@@ -46,6 +48,8 @@ import {
 } from '~/components/ui/form';
 import { Input } from '~/components/ui/input';
 import { toast } from 'sonner';
+import { getTitulos } from '~/api/controllers/titulos.server';
+import { TituloSelect } from '~/types/titulos.types';
 
 export const meta: MetaFunction = () => {
   return [
@@ -61,10 +65,12 @@ export async function loader() {
   const equivalenciasNiveles = getEquivalenciasNiveles();
   const equivalenciasGrados = getEquivalenciasGrados('todos');
   const equivalenciasCargos = getEquivalenciasCargos('todos');
+  const titulos = getTitulos();
   return await Promise.all([
     equivalenciasNiveles,
     equivalenciasGrados,
     equivalenciasCargos,
+    titulos,
   ]);
 }
 
@@ -90,13 +96,40 @@ export async function action({ request }: ActionFunctionArgs) {
       formacionCrecimientoPersonal: String(formacionCrecimientoPersonal),
     });
     return response;
+  } else if (action === 'delete-grado') {
+    const id = formData.get('id');
+    if (!id) {
+      return { type: 'error', message: 'Datos incompletos' };
+    }
+    const response = await deleteEquivalenciaGrado(Number(id));
+    return response;
+  } else if (action === 'update-grado') {
+    const id = formData.get('id');
+    const titulo = formData.get('titulo');
+    const experienciaLaboral = formData.get('experienciaLaboral');
+    const formacionTecnicoProfesional = formData.get(
+      'formacionTecnicoProfesional',
+    );
+    if (!id || !titulo || !experienciaLaboral || !formacionTecnicoProfesional) {
+      return { type: 'error', message: 'Datos incompletos' };
+    }
+    const response = await updateEquivalenciaGrado(Number(id), {
+      titulo: Number(titulo),
+      experienciaLaboral: Number(experienciaLaboral),
+      formacionTecnicoProfesional: String(formacionTecnicoProfesional),
+    });
+    return response;
   }
   return { type: 'error', message: 'Acción no válida' };
 }
 
 export default function EquivalenciasPage() {
-  const [equivalenciasNiveles, equivalenciasGrados, equivalenciasCargos] =
-    useLoaderData<typeof loader>();
+  const [
+    equivalenciasNiveles,
+    equivalenciasGrados,
+    equivalenciasCargos,
+    titulos,
+  ] = useLoaderData<typeof loader>();
 
   return (
     <div className='pb-8'>
@@ -109,7 +142,10 @@ export default function EquivalenciasPage() {
         </TabsList>
 
         <NivelesTab equivalenciasNiveles={equivalenciasNiveles} />
-        <GradosTab equivalenciasGrados={equivalenciasGrados} />
+        <GradosTab
+          equivalenciasGrados={equivalenciasGrados}
+          titulos={titulos}
+        />
         <CargosTab equivalenciasCargos={equivalenciasCargos} />
       </Tabs>
     </div>
@@ -126,7 +162,6 @@ function NivelesTab({
   );
 
   const fetcher = useFetcher<typeof action>();
-
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data !== undefined) {
       if (fetcher.data.type === 'success') {
@@ -257,9 +292,23 @@ function NivelesTab({
 
 function GradosTab({
   equivalenciasGrados,
+  titulos,
 }: {
   equivalenciasGrados: EquivalenciaGrado[];
+  titulos: TituloSelect[];
 }) {
+  const fetcher = useFetcher<typeof action>();
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data !== undefined) {
+      if (fetcher.data.type === 'success') {
+        toast.success(fetcher.data.message);
+      } else if (fetcher.data.type === 'error') {
+        toast.error(fetcher.data.message);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.state, fetcher.data]);
+
   return (
     <TabsContent value='grados'>
       <h2 className='font-bold mt-4'>Equivalencias de Grados</h2>
@@ -267,6 +316,16 @@ function GradosTab({
         <DataTableGrados
           columns={equivalenciasGradosColumns}
           data={equivalenciasGrados}
+          titulos={titulos}
+          deleteEquivalencia={(id) =>
+            fetcher.submit({ id, _action: 'delete-grado' }, { method: 'post' })
+          }
+          editEquivalencia={(id, data) =>
+            fetcher.submit(
+              { id, ...data, _action: 'update-grado' },
+              { method: 'post' },
+            )
+          }
         />
       </div>
     </TabsContent>
