@@ -7,8 +7,10 @@ Servicio Comunitario
 
 1. Crea el archivo de la base de datos `<nombre>.db` en la raíz del proyecto
 
-2. Crea un archivo `.env` en la raíz del proyecto con la variable de entorno
-   `DATABASE_URL` que contenga la URL de conexión a la base de datos. El formato es `file:<nombre>.db`
+2. Crea un archivo `.env` en la raíz del proyecto con las variables de entorno:
+- `DATABASE_URL` que contenga la URL de conexión a la base de datos. El formato es `file:<nombre>.db`
+- `AUTH_SECRET` que contenga una cadena secreta para la autenticación.
+- `ADMIN_PASS` que contenga la contraseña del administrador del sistema.
 
 3. Crea el esquema de la base de datos ejecutando
    `npx drizzle-kit push`
