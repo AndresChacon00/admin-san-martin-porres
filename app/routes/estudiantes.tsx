@@ -13,9 +13,9 @@ import {
 } from '~/api/controllers/estudiantes.server';
 import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
 import { DataTable } from '~/components/ui/data-table';
-import { ActionFunction } from '@remix-run/node';
+import { ActionFunction , json } from '@remix-run/node';
 import { AgregarEstudianteModal } from '~/components/crud/AgregarEstudianteModal';
-import { json } from '@remix-run/node';
+
 import { DataTableEstudiantes } from '~/components/data-tables/estudiantes-data-table';
 
 export const meta: MetaFunction = () => {
@@ -154,6 +154,7 @@ export default function EstudiantesPage() {
   return (
     <>
       <h1 className='text-xl font-bold'>Estudiantes</h1>
+      <div className="py-4 w-3/4">
       <AgregarEstudianteModal />
 
       <main className='py-4'>
@@ -164,6 +165,7 @@ export default function EstudiantesPage() {
           <DataTableEstudiantes columns={estudiantesColumns} data={data} />
         )}
       </main>
+      </div>
     </>
   );
 }

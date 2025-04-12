@@ -20,25 +20,24 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Ellipsis } from 'lucide-react';
-import { EditarEstudianteModal } from '../crud/EditarEstudianteModal';
-import { EliminarEstudianteModal } from '../crud/EliminarEstudianteModal';
-import { Estudiante } from '~/types/estudiantes.types';
+import { Curso } from '~/types/cursos.types';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { EditarCursoModal } from '../crud/EditarCursoModal';
 
 interface DataTableProps {
-  columns: ColumnDef<Estudiante>[];
-  data: Estudiante[];
+  columns: ColumnDef<Curso>[];
+  data: Curso[];
 }
 
-export function DataTableEstudiantes({ columns, data }: DataTableProps) {
+export function CursosPeriodosDataTable({ columns, data }: DataTableProps) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const [selectedEstudiante, setSelectedEstudiante] = useState<Estudiante | null>(null);
+  const [selectedCurso, setSelectedCurso] = useState<Curso | null>(null);
   const [action, setAction] = useState<'edit' | 'delete' | null>(null);
 
   return (
@@ -83,7 +82,7 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
                       <DropdownMenuItem
                         onClick={() => {
                           setAction('edit');
-                          setSelectedEstudiante(row.original);
+                          setSelectedCurso(row.original);
                         }}
                       >
                         Editar
@@ -91,7 +90,7 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
                       <DropdownMenuItem
                         onClick={() => {
                           setAction('delete');
-                          setSelectedEstudiante(row.original);
+                          setSelectedCurso(row.original);
                         }}
                       >
                         Eliminar
@@ -111,41 +110,46 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
         </TableBody>
       </Table>
 
-      {/* Editar Estudiante Modal */}
+      {/* Editar Curso Modal */}
       <Dialog
-  open={action === 'edit'}
-  onOpenChange={(open) => {
-    if (!open) {
-      setAction(null);
-      setSelectedEstudiante(null);
-    }
-  }}
->
-  {selectedEstudiante && (
-    <EditarEstudianteModal
-      estudiante={selectedEstudiante}
-      open={action === 'edit'} // Pass the open state
-      onClose={() => {
-        setAction(null); // Reset the action state
-        setSelectedEstudiante(null); // Clear the selected student
-      }}
-    />
-  )}
-</Dialog>
-
-      {/* Eliminar Estudiante Modal */}
-      <Dialog
-        open={action === 'delete'}
+        open={action === 'edit'}
         onOpenChange={(open) => {
           if (!open) {
             setAction(null);
-            setSelectedEstudiante(null);
+            setSelectedCurso(null);
           }
         }}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>¿Seguro que desea eliminar este estudiante?</DialogTitle>
+            <DialogTitle>Editar Curso</DialogTitle>
+          </DialogHeader>
+          {selectedCurso && (
+            <EditarCursoModal
+              curso={selectedCurso}
+              open={action === 'edit'}
+              onClose={() => {
+                setAction(null);
+                setSelectedCurso(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Eliminar Curso Modal */}
+      <Dialog
+        open={action === 'delete'}
+        onOpenChange={(open) => {
+          if (!open) {
+            setAction(null);
+            setSelectedCurso(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>¿Seguro que desea eliminar este curso?</DialogTitle>
           </DialogHeader>
           <>
             <p>Esta acción no se puede revertir.</p>
@@ -153,7 +157,7 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
               <button
                 className="bg-gray-200 px-4 py-2 rounded"
                 onClick={() => {
-                  setSelectedEstudiante(null);
+                  setSelectedCurso(null);
                   setAction(null);
                 }}
               >
@@ -162,9 +166,9 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded"
                 onClick={() => {
-                  if (selectedEstudiante) {
+                  if (selectedCurso) {
                     // Call the delete function here
-                    setSelectedEstudiante(null);
+                    setSelectedCurso(null);
                     setAction(null);
                   }
                 }}

@@ -1,1 +1,0 @@
-ALTER TABLE `equivalencia_cargos` ADD `nivel_cargo` text NOT NULL;

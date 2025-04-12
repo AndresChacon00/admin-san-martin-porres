@@ -25,6 +25,11 @@ export const estudiantesColumns: ColumnDef<Estudiante>[] = [
   {
     accessorKey: 'fechaNacimiento',
     header: 'Fecha de Nacimiento',
+    accessorFn: (row) => {
+      return row.fechaNacimiento
+        ? new Date(row.fechaNacimiento).toLocaleDateString()
+        : '';
+    },
   },
   {
     accessorKey: 'edad',

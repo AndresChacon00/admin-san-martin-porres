@@ -63,7 +63,7 @@ export function AgregarEstudianteModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={'outline'}>Agregar Estudiante</Button>
+        <Button className="link-button">Agregar Estudiante</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

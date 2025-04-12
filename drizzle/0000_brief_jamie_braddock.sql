@@ -9,7 +9,6 @@ CREATE TABLE `cursos` (
 	`codigo` text PRIMARY KEY NOT NULL,
 	`nombre_curso` text NOT NULL,
 	`descripcion` text,
-	`horario` text,
 	`estado` integer DEFAULT 1,
 	`precio_total` real
 );
@@ -17,6 +16,7 @@ CREATE TABLE `cursos` (
 CREATE TABLE `cursos_periodo` (
 	`id_periodo` integer NOT NULL,
 	`id_curso` integer NOT NULL,
+	`horario` text NOT NULL,
 	FOREIGN KEY (`id_periodo`) REFERENCES `periodo`(`id_periodo`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`id_curso`) REFERENCES `cursos`(`codigo`) ON UPDATE no action ON DELETE cascade
 );
@@ -33,7 +33,7 @@ CREATE TABLE `empleados` (
 	`montoMensualGuarderia` real DEFAULT 0 NOT NULL,
 	`fechaIngresoAvec` integer NOT NULL,
 	`fechaIngresoPlantel` integer NOT NULL,
-	`titulo` text NOT NULL,
+	`titulo` integer NOT NULL,
 	`descripcionTitulo` text,
 	`mencionTitulo` text,
 	`carreraEstudiando` text,
@@ -41,11 +41,11 @@ CREATE TABLE `empleados` (
 	`numeroLapsosAprobados` integer,
 	`postgrado` text,
 	`experienciaLaboral` integer DEFAULT 0 NOT NULL,
-	`gradoSistema` text NOT NULL,
-	`nivelSistema` text NOT NULL,
-	`gradoCentro` text NOT NULL,
-	`nivelCentro` text NOT NULL,
-	`cargo` text NOT NULL,
+	`gradoSistema` integer NOT NULL,
+	`nivelSistema` integer NOT NULL,
+	`gradoCentro` integer NOT NULL,
+	`nivelCentro` integer NOT NULL,
+	`cargo` integer NOT NULL,
 	`horasSemanales` real NOT NULL,
 	`sueldo` real NOT NULL,
 	`asignacionesMensual` real DEFAULT 0 NOT NULL,
@@ -65,37 +65,44 @@ CREATE TABLE `empleados` (
 	`cuentaBancaria` text NOT NULL,
 	`observaciones` text,
 	`fechaRegistro` integer DEFAULT (cast((julianday('now') - 2440587.5)*86400000 as integer)) NOT NULL,
-	`fechaActualizacion` integer DEFAULT (cast((julianday('now') - 2440587.5)*86400000 as integer)) NOT NULL
+	`fechaActualizacion` integer DEFAULT (cast((julianday('now') - 2440587.5)*86400000 as integer)) NOT NULL,
+	FOREIGN KEY (`titulo`) REFERENCES `titulos`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`gradoSistema`) REFERENCES `grados`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`nivelSistema`) REFERENCES `niveles`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`gradoCentro`) REFERENCES `grados`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`nivelCentro`) REFERENCES `niveles`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`cargo`) REFERENCES `cargos`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `empleados_cedula_unique` ON `empleados` (`cedula`);--> statement-breakpoint
 CREATE TABLE `equivalencia_cargos` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`cargo` integer NOT NULL,
-	`grado` integer NOT NULL,
 	`nivel` integer NOT NULL,
 	`tipo_personal` text NOT NULL,
 	FOREIGN KEY (`cargo`) REFERENCES `cargos`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`grado`) REFERENCES `grados`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`nivel`) REFERENCES `niveles`(`id`) ON UPDATE no action ON DELETE cascade,
 	CONSTRAINT "check_type_equiv_cargos" CHECK("equivalencia_cargos"."tipo_personal" IN ('administrativo', 'instructor'))
 );
 --> statement-breakpoint
 CREATE TABLE `equivalencia_grados` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`grado` text NOT NULL,
-	`titulo` text NOT NULL,
-	`experiencia_laboral` integer,
+	`grado` integer NOT NULL,
+	`titulo` integer NOT NULL,
+	`experiencia_laboral` integer DEFAULT 0 NOT NULL,
 	`formacion_tecnico_profesional` text NOT NULL,
 	`tipo_personal` text NOT NULL,
+	FOREIGN KEY (`grado`) REFERENCES `grados`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`titulo`) REFERENCES `titulos`(`id`) ON UPDATE no action ON DELETE cascade,
 	CONSTRAINT "check_type_equiv_grados" CHECK("equivalencia_grados"."tipo_personal" IN ('administrativo', 'instructor'))
 );
 --> statement-breakpoint
 CREATE TABLE `equivalencia_niveles` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`nivel` text NOT NULL,
+	`nivel` integer NOT NULL,
 	`min_tiempo_servicio` integer NOT NULL,
-	`formacion_crecimiento_personal` text NOT NULL
+	`formacion_crecimiento_personal` text NOT NULL,
+	FOREIGN KEY (`nivel`) REFERENCES `niveles`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `estudiantes` (
@@ -115,6 +122,16 @@ CREATE TABLE `estudiantes` (
 --> statement-breakpoint
 CREATE UNIQUE INDEX `estudiantes_cedula_unique` ON `estudiantes` (`cedula`);--> statement-breakpoint
 CREATE UNIQUE INDEX `estudiantes_correo_unique` ON `estudiantes` (`correo`);--> statement-breakpoint
+CREATE TABLE `estudiantes_curso_periodo` (
+	`id_periodo` integer NOT NULL,
+	`codigo_curso` text NOT NULL,
+	`id_estudiante` integer NOT NULL,
+	FOREIGN KEY (`id_periodo`) REFERENCES `periodo`(`id_periodo`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`codigo_curso`) REFERENCES `cursos`(`codigo`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`id_estudiante`) REFERENCES `estudiantes`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `estudiantes_curso_periodo_id_periodo_codigo_curso_id_estudiante_unique` ON `estudiantes_curso_periodo` (`id_periodo`,`codigo_curso`,`id_estudiante`);--> statement-breakpoint
 CREATE TABLE `grados` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`codigo` text NOT NULL
@@ -136,6 +153,12 @@ CREATE TABLE `periodo` (
 CREATE TABLE `profesores` (
 	`id` integer PRIMARY KEY NOT NULL,
 	FOREIGN KEY (`id`) REFERENCES `empleados`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `titulos` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`codigo` text NOT NULL,
+	`nombre` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `usuarios` (
