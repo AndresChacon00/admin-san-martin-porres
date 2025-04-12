@@ -138,4 +138,12 @@ export const editEquivalenciasGradosSchema = z.object({
     .min(0, 'Experiencia laboral inválida'),
   formacionTecnicoProfesional: z.string().optional().default('NO REQUIERE'),
 });
+
+export const editEquivalenciasCargosSchema = z.object({
+  tipoPersonal: z.enum(['administrativo', 'instructor'], {
+    required_error: 'Tipo de personal requerido',
+  }),
+  nivel: z.coerce.number().int().min(1, 'Nivel requerido'),
+  cargo: z.coerce.number().int().min(1, 'Cargo requerido'),
+});
 // #endregion

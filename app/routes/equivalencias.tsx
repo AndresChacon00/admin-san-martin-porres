@@ -1,10 +1,12 @@
 import { ActionFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import {
+  deleteEquivalenciaCargo,
   deleteEquivalenciaGrado,
   getEquivalenciasCargos,
   getEquivalenciasGrados,
   getEquivalenciasNiveles,
+  updateEquivalenciaCargo,
   updateEquivalenciaGrado,
   updateEquivalenciaNivel,
 } from '~/api/controllers/equivalencias.server';
@@ -50,6 +52,10 @@ import { Input } from '~/components/ui/input';
 import { toast } from 'sonner';
 import { getTitulos } from '~/api/controllers/titulos.server';
 import { TituloSelect } from '~/types/titulos.types';
+import { getNiveles } from '~/api/controllers/niveles.server';
+import { getCargos } from '~/api/controllers/cargos.server';
+import { NivelSelect } from '~/types/niveles.types';
+import { CargoSelect } from '~/types/cargos.types';
 
 export const meta: MetaFunction = () => {
   return [
@@ -66,11 +72,15 @@ export async function loader() {
   const equivalenciasGrados = getEquivalenciasGrados('todos');
   const equivalenciasCargos = getEquivalenciasCargos('todos');
   const titulos = getTitulos();
+  const niveles = getNiveles();
+  const cargos = getCargos();
   return await Promise.all([
     equivalenciasNiveles,
     equivalenciasGrados,
     equivalenciasCargos,
     titulos,
+    niveles,
+    cargos,
   ]);
 }
 
@@ -119,6 +129,27 @@ export async function action({ request }: ActionFunctionArgs) {
       formacionTecnicoProfesional: String(formacionTecnicoProfesional),
     });
     return response;
+  } else if (action === 'delete-cargo') {
+    const id = formData.get('id');
+    if (!id) {
+      return { type: 'error', message: 'Datos incompletos' };
+    }
+    const response = await deleteEquivalenciaCargo(Number(id));
+    return response;
+  } else if (action === 'update-cargo') {
+    const id = formData.get('id');
+    const tipoPersonal = formData.get('tipoPersonal');
+    const nivel = formData.get('nivel');
+    const cargo = formData.get('cargo');
+    if (!id || !tipoPersonal || !nivel || !cargo) {
+      return { type: 'error', message: 'Datos incompletos' };
+    }
+    const response = await updateEquivalenciaCargo(Number(id), {
+      tipoPersonal: String(tipoPersonal) as 'administrativo' | 'instructor',
+      nivel: Number(nivel),
+      cargo: Number(cargo),
+    });
+    return response;
   }
   return { type: 'error', message: 'Acción no válida' };
 }
@@ -129,6 +160,8 @@ export default function EquivalenciasPage() {
     equivalenciasGrados,
     equivalenciasCargos,
     titulos,
+    niveles,
+    cargos,
   ] = useLoaderData<typeof loader>();
 
   return (
@@ -146,7 +179,11 @@ export default function EquivalenciasPage() {
           equivalenciasGrados={equivalenciasGrados}
           titulos={titulos}
         />
-        <CargosTab equivalenciasCargos={equivalenciasCargos} />
+        <CargosTab
+          equivalenciasCargos={equivalenciasCargos}
+          niveles={niveles}
+          cargos={cargos}
+        />
       </Tabs>
     </div>
   );
@@ -334,9 +371,25 @@ function GradosTab({
 
 function CargosTab({
   equivalenciasCargos,
+  niveles,
+  cargos,
 }: {
   equivalenciasCargos: EquivalenciaCargo[];
+  niveles: NivelSelect[];
+  cargos: CargoSelect[];
 }) {
+  const fetcher = useFetcher<typeof action>();
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data !== undefined) {
+      if (fetcher.data.type === 'success') {
+        toast.success(fetcher.data.message);
+      } else if (fetcher.data.type === 'error') {
+        toast.error(fetcher.data.message);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.state, fetcher.data]);
+
   return (
     <TabsContent value='cargos'>
       <h2 className='font-bold mt-4'>Equivalencias de Cargos</h2>
@@ -344,6 +397,17 @@ function CargosTab({
         <DataTableCargos
           columns={equivalenciasCargosColumns}
           data={equivalenciasCargos}
+          deleteEquivalencia={(id) =>
+            fetcher.submit({ id, _action: 'delete-cargo' }, { method: 'post' })
+          }
+          editEquivalencia={(id, data) =>
+            fetcher.submit(
+              { id, ...data, _action: 'update-cargo' },
+              { method: 'post' },
+            )
+          }
+          niveles={niveles}
+          cargos={cargos}
         />
       </div>
     </TabsContent>

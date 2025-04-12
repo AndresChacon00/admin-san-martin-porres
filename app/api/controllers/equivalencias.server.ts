@@ -53,6 +53,40 @@ export async function getEquivalenciasCargos(
   }
 }
 
+/**
+ * Edita una equivalencia de cargo
+ * @author gabrielm
+ * @param id
+ */
+export async function deleteEquivalenciaCargo(id: number) {
+  try {
+    await db.delete(equivCargos).where(eq(equivCargos.id, id));
+    return { type: 'success', message: 'Equivalencia eliminada' };
+  } catch (error) {
+    console.error('Error al eliminar la equivalencia de cargo: ', error);
+    return { type: 'error', message: 'Ocurrió un error eliminando' };
+  }
+}
+
+/**
+ * Edita una equivalencia de cargo
+ * @author gabrielm
+ * @param id
+ * @param data Datos para actualizar
+ */
+export async function updateEquivalenciaCargo(
+  id: number,
+  data: Partial<typeof equivCargos.$inferInsert>,
+) {
+  try {
+    await db.update(equivCargos).set(data).where(eq(equivCargos.id, id));
+    return { type: 'success', message: 'Equivalencia actualizada' };
+  } catch (error) {
+    console.error('Error al actualizar la equivalencia de cargo: ', error);
+    return { type: 'error', message: 'Ocurrió un error actualizando' };
+  }
+}
+
 // #endregion
 
 // #region Niveles

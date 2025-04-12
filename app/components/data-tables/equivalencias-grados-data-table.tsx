@@ -226,7 +226,7 @@ export function DataTable({
       <Dialog
         open={action === 'delete'}
         onOpenChange={(open) => {
-          if (open) {
+          if (!open) {
             setAction(null);
             setSelected(null);
           }
@@ -270,7 +270,7 @@ export function DataTable({
       <Dialog
         open={action === 'edit'}
         onOpenChange={(open) => {
-          if (open) {
+          if (!open) {
             setAction(null);
             setSelected(null);
           }
