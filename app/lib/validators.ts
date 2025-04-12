@@ -37,7 +37,7 @@ export const datosProfesionalesEmpleado = z.object({
       required_error: 'Fecha de ingreso al plantel es requerida',
     })
     .date('Fecha inválida'),
-  titulo: z.string().optional().default(''),
+  titulo: z.coerce.number().int().min(1, 'Título requerido'),
   descripcionTitulo: z.string().optional().default(''),
   mencionTitulo: z.string().optional().default(''),
   carreraEstudiando: z.string().optional().default(''),
@@ -52,11 +52,19 @@ export const datosProfesionalesEmpleado = z.object({
 });
 
 export const datosCargoEmpleado = z.object({
-  gradoSistema: z.string({ required_error: 'Grado en el sistema requerido' }),
-  nivelSistema: z.string({ required_error: 'Nivel en el sistema requerido' }),
-  gradoCentro: z.string({ required_error: 'Grado en el centro requerido' }),
-  nivelCentro: z.string({ required_error: 'Nivel en el centro requerido' }),
-  cargo: z.string({ required_error: 'Cargo requerido' }),
+  gradoSistema: z.coerce.number({
+    required_error: 'Grado en el sistema requerido',
+  }),
+  nivelSistema: z.coerce.number({
+    required_error: 'Nivel en el sistema requerido',
+  }),
+  gradoCentro: z.coerce.number({
+    required_error: 'Grado en el centro requerido',
+  }),
+  nivelCentro: z.coerce.number({
+    required_error: 'Nivel en el centro requerido',
+  }),
+  cargo: z.coerce.number({ required_error: 'Cargo requerido' }),
   horasSemanales: z.coerce.number().int().min(0, 'Horas semanales inválidas'),
   sueldo: z.coerce.number().min(0, 'Sueldo inválido'),
   asignacionesMensual: z.coerce
@@ -110,5 +118,32 @@ export const resetPasswordSchema = loginSchema.extend({
   adminPassword: z.string({
     required_error: 'La clave de administrador es requerida',
   }),
+});
+// #endregion
+
+// #region Equivalencias
+export const equivalenciasNivelesSchema = z.object({
+  minTiempoServicio: z.coerce
+    .number()
+    .int()
+    .min(0, 'Tiempo de servicio inválido'),
+  formacionCrecimientoPersonal: z.string().optional().default('NO REQUIERE'),
+});
+
+export const editEquivalenciasGradosSchema = z.object({
+  titulo: z.coerce.number().int().min(1, 'Título requerido'),
+  experienciaLaboral: z.coerce
+    .number()
+    .int()
+    .min(0, 'Experiencia laboral inválida'),
+  formacionTecnicoProfesional: z.string().optional().default('NO REQUIERE'),
+});
+
+export const editEquivalenciasCargosSchema = z.object({
+  tipoPersonal: z.enum(['administrativo', 'instructor'], {
+    required_error: 'Tipo de personal requerido',
+  }),
+  nivel: z.coerce.number().int().min(1, 'Nivel requerido'),
+  cargo: z.coerce.number().int().min(1, 'Cargo requerido'),
 });
 // #endregion

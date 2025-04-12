@@ -23,6 +23,10 @@ import {
 import type { EmpleadoUpdate } from '~/types/empleados.types';
 import { isRole } from '~/lib/auth';
 import TabbedEmpleadoForm from '~/components/forms/tabbed-empleado-form';
+import { getTitulos } from '~/api/controllers/titulos.server';
+import { getNiveles } from '~/api/controllers/niveles.server';
+import { getGrados } from '~/api/controllers/grados.server';
+import { getCargos } from '~/api/controllers/cargos.server';
 
 export const meta: MetaFunction = () => {
   return [
@@ -37,11 +41,22 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     return redirect('/');
   }
 
-  const empleado = await getEmpleadoById(Number(params.id));
-  if ('type' in empleado) {
+  const empleado = getEmpleadoById(Number(params.id));
+  const titulos = getTitulos();
+  const niveles = getNiveles();
+  const cargos = getCargos();
+  const grados = getGrados();
+  const result = await Promise.all([
+    empleado,
+    titulos,
+    niveles,
+    cargos,
+    grados,
+  ]);
+  if ('type' in result[0]) {
     return redirect('/empleados');
   }
-  return empleado;
+  return result;
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -73,8 +88,11 @@ function getDateForDefaultValue(date: Date) {
 }
 
 export default function EditarEmpleado() {
-  const loaderData = useLoaderData<typeof loader>();
+  const [empleado, titulos, niveles, cargos, grados] =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+
+  if ('type' in empleado) return null;
 
   return (
     <>
@@ -89,56 +107,59 @@ export default function EditarEmpleado() {
       <span className='text-destructive text-sm'>(*) Obligatorio</span>
       <TabbedEmpleadoForm
         fetcher={fetcher}
-        empleadoId={loaderData.id}
+        empleadoId={empleado.id}
         formOneDefault={{
-          cedula: loaderData.cedula,
-          nombreCompleto: loaderData.nombreCompleto,
-          fechaNacimiento: getDateForDefaultValue(loaderData.fechaNacimiento),
-          sexo: loaderData.sexo,
-          estadoCivil: loaderData.estadoCivil,
-          religion: loaderData.religion,
-          cantidadHijos: loaderData.cantidadHijos,
-          hijosMenoresSeis: loaderData.hijosMenoresSeis,
+          cedula: empleado.cedula,
+          nombreCompleto: empleado.nombreCompleto,
+          fechaNacimiento: getDateForDefaultValue(empleado.fechaNacimiento),
+          sexo: empleado.sexo,
+          estadoCivil: empleado.estadoCivil,
+          religion: empleado.religion,
+          cantidadHijos: empleado.cantidadHijos,
+          hijosMenoresSeis: empleado.hijosMenoresSeis,
         }}
         formTwoDefault={{
-          fechaIngresoAvec: getDateForDefaultValue(loaderData.fechaIngresoAvec),
+          fechaIngresoAvec: getDateForDefaultValue(empleado.fechaIngresoAvec),
           fechaIngresoPlantel: getDateForDefaultValue(
-            loaderData.fechaIngresoPlantel,
+            empleado.fechaIngresoPlantel,
           ),
-          titulo: loaderData.titulo,
-          descripcionTitulo: loaderData.descripcionTitulo || '',
-          mencionTitulo: loaderData.mencionTitulo || '',
-          carreraEstudiando: loaderData.carreraEstudiando || '',
-          tipoLapsoEstudios: loaderData.tipoLapsoEstudios || '',
-          numeroLapsosAprobados: loaderData.numeroLapsosAprobados || 0,
-          postgrado: loaderData.postgrado || '',
-          experienciaLaboral: loaderData.experienciaLaboral,
+          titulo: empleado.titulo,
+          descripcionTitulo: empleado.descripcionTitulo || '',
+          mencionTitulo: empleado.mencionTitulo || '',
+          carreraEstudiando: empleado.carreraEstudiando || '',
+          tipoLapsoEstudios: empleado.tipoLapsoEstudios || '',
+          numeroLapsosAprobados: empleado.numeroLapsosAprobados || 0,
+          postgrado: empleado.postgrado || '',
+          experienciaLaboral: empleado.experienciaLaboral,
         }}
         formThreeDefault={{
-          gradoSistema: loaderData.gradoSistema,
-          nivelSistema: loaderData.nivelSistema,
-          gradoCentro: loaderData.gradoCentro,
-          nivelCentro: loaderData.nivelCentro,
-          cargo: loaderData.cargo,
-          horasSemanales: loaderData.horasSemanales,
-          sueldo: loaderData.sueldo,
-          asignacionesMensual: loaderData.asignacionesMensual,
-          deduccionesMensual: loaderData.deduccionesMensual,
-          primaAntiguedad: loaderData.primaAntiguedad,
-          primaGeografica: loaderData.primaGeografica,
-          primaCompensacionAcademica: loaderData.primaCompensacionAcademica,
-          primaAsistencial: loaderData.primaAsistencial,
-          contribucionDiscapacidad: loaderData.contribucionDiscapacidad,
-          contribucionDiscapacidadHijos:
-            loaderData.contribucionDiscapacidadHijos,
-          porcentajeSso: loaderData.porcentajeSso,
-          porcentajeRpe: loaderData.porcentajeRpe,
-          porcentajeFaov: loaderData.porcentajeFaov,
-          pagoDirecto: loaderData.pagoDirecto,
-          jubilado: loaderData.jubilado,
-          cuentaBancaria: loaderData.cuentaBancaria,
-          observaciones: loaderData.observaciones || '',
+          gradoSistema: empleado.gradoSistema,
+          nivelSistema: empleado.nivelSistema,
+          gradoCentro: empleado.gradoCentro,
+          nivelCentro: empleado.nivelCentro,
+          cargo: empleado.cargo,
+          horasSemanales: empleado.horasSemanales,
+          sueldo: empleado.sueldo,
+          asignacionesMensual: empleado.asignacionesMensual,
+          deduccionesMensual: empleado.deduccionesMensual,
+          primaAntiguedad: empleado.primaAntiguedad,
+          primaGeografica: empleado.primaGeografica,
+          primaCompensacionAcademica: empleado.primaCompensacionAcademica,
+          primaAsistencial: empleado.primaAsistencial,
+          contribucionDiscapacidad: empleado.contribucionDiscapacidad,
+          contribucionDiscapacidadHijos: empleado.contribucionDiscapacidadHijos,
+          porcentajeSso: empleado.porcentajeSso,
+          porcentajeRpe: empleado.porcentajeRpe,
+          porcentajeFaov: empleado.porcentajeFaov,
+          pagoDirecto: empleado.pagoDirecto,
+          jubilado: empleado.jubilado,
+          cuentaBancaria: empleado.cuentaBancaria,
+          observaciones: empleado.observaciones || '',
         }}
+        titulos={titulos}
+        cargos={cargos}
+        niveles={niveles}
+        grados={grados}
       />
     </>
   );

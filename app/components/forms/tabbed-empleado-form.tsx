@@ -32,6 +32,10 @@ import { Checkbox } from '../ui/checkbox';
 import RequiredLabel from './required-label';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { CircleHelp } from 'lucide-react';
+import { TituloSelect } from '~/types/titulos.types';
+import { NivelSelect } from '~/types/niveles.types';
+import { GradosSelect } from '~/types/grados.types';
+import { CargoSelect } from '~/types/cargos.types';
 
 interface TabbedEmpleadoFormProps {
   empleadoId: number;
@@ -52,7 +56,7 @@ interface TabbedEmpleadoFormProps {
   formTwoDefault: {
     fechaIngresoAvec?: string;
     fechaIngresoPlantel?: string;
-    titulo: string;
+    titulo: number;
     descripcionTitulo: string;
     mencionTitulo: string;
     carreraEstudiando: string;
@@ -62,11 +66,11 @@ interface TabbedEmpleadoFormProps {
     experienciaLaboral: number;
   };
   formThreeDefault: {
-    gradoSistema: string;
-    nivelSistema: string;
-    gradoCentro: string;
-    nivelCentro: string;
-    cargo: string;
+    gradoSistema: number;
+    nivelSistema: number;
+    gradoCentro: number;
+    nivelCentro: number;
+    cargo: number;
     horasSemanales: number;
     sueldo: number;
     asignacionesMensual: number;
@@ -85,6 +89,10 @@ interface TabbedEmpleadoFormProps {
     cuentaBancaria: string;
     observaciones: string;
   };
+  titulos: TituloSelect[];
+  niveles: NivelSelect[];
+  grados: GradosSelect[];
+  cargos: CargoSelect[];
 }
 
 export default function TabbedEmpleadoForm({
@@ -93,6 +101,10 @@ export default function TabbedEmpleadoForm({
   formOneDefault,
   formTwoDefault,
   formThreeDefault,
+  titulos,
+  niveles,
+  grados,
+  cargos,
 }: TabbedEmpleadoFormProps) {
   const formStepOne = useForm<z.infer<typeof datosPersonalesEmpleado>>({
     resolver: zodResolver(datosPersonalesEmpleado),
@@ -339,16 +351,29 @@ export default function TabbedEmpleadoForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={formStepTwo.control}
               name='titulo'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Título</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <RequiredLabel>Título</RequiredLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={String(field.value)}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Seleccionar título' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {titulos.map((titulo) => (
+                        <SelectItem key={titulo.id} value={String(titulo.id)}>
+                          {titulo.nombre} ({titulo.codigo})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -476,9 +501,25 @@ export default function TabbedEmpleadoForm({
               render={({ field }) => (
                 <FormItem>
                   <RequiredLabel>Grado en el Sistema</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={String(field.value)}
+                    value={String(field.value)}
+                    name={field.name}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Seleccionar grado' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {grados.map((grado) => (
+                        <SelectItem key={grado.id} value={String(grado.id)}>
+                          {grado.codigo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -490,9 +531,25 @@ export default function TabbedEmpleadoForm({
               render={({ field }) => (
                 <FormItem>
                   <RequiredLabel>Nivel en el Sistema</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={String(field.value)}
+                    value={String(field.value)}
+                    name={field.name}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Seleccionar nivel' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {niveles.map((nivel) => (
+                        <SelectItem key={nivel.id} value={String(nivel.id)}>
+                          {nivel.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -504,9 +561,25 @@ export default function TabbedEmpleadoForm({
               render={({ field }) => (
                 <FormItem>
                   <RequiredLabel>Grado en el centro</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={String(field.value)}
+                    value={String(field.value)}
+                    name={field.name}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Seleccionar grado' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {grados.map((grado) => (
+                        <SelectItem key={grado.id} value={String(grado.id)}>
+                          {grado.codigo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -518,9 +591,25 @@ export default function TabbedEmpleadoForm({
               render={({ field }) => (
                 <FormItem>
                   <RequiredLabel>Nivel en el centro</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={String(field.value)}
+                    value={String(field.value)}
+                    name={field.name}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Seleccionar nivel' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {niveles.map((nivel) => (
+                        <SelectItem key={nivel.id} value={String(nivel.id)}>
+                          {nivel.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -532,9 +621,23 @@ export default function TabbedEmpleadoForm({
               render={({ field }) => (
                 <FormItem>
                   <RequiredLabel>Cargo</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={String(field.value)}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Seleccionar cargo' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {cargos.map((cargo) => (
+                        <SelectItem key={cargo.id} value={String(cargo.id)}>
+                          {cargo.nombreCargo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

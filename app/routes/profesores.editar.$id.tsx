@@ -20,6 +20,10 @@ import { EmpleadoUpdate } from '~/types/empleados.types';
 import { getProfesorById, updateProfesor } from '~/api/controllers/profesores';
 import { isRole } from '~/lib/auth';
 import TabbedEmpleadoForm from '~/components/forms/tabbed-empleado-form';
+import { getTitulos } from '~/api/controllers/titulos.server';
+import { getNiveles } from '~/api/controllers/niveles.server';
+import { getCargos } from '~/api/controllers/cargos.server';
+import { getGrados } from '~/api/controllers/grados.server';
 
 export const meta: MetaFunction = () => {
   return [
@@ -34,11 +38,22 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     return redirect('/');
   }
 
-  const profesor = await getProfesorById(Number(params.id));
-  if ('type' in profesor) {
+  const profesor = getProfesorById(Number(params.id));
+  const titulos = getTitulos();
+  const niveles = getNiveles();
+  const cargos = getCargos();
+  const grados = getGrados();
+  const result = await Promise.all([
+    profesor,
+    titulos,
+    niveles,
+    cargos,
+    grados,
+  ]);
+  if ('type' in result[0]) {
     return redirect('/profesores');
   }
-  return profesor;
+  return result;
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -70,8 +85,11 @@ function getDateForDefaultValue(date: Date) {
 }
 
 export default function EditarProfesor() {
-  const loaderData = useLoaderData<typeof loader>();
+  const [profesor, titulos, niveles, cargos, grados] =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+
+  if ('type' in profesor) return null;
 
   return (
     <>
@@ -86,56 +104,59 @@ export default function EditarProfesor() {
       <span className='text-destructive text-sm'>(*) Obligatorio</span>
       <TabbedEmpleadoForm
         fetcher={fetcher}
-        empleadoId={loaderData.id}
+        empleadoId={profesor.id}
         formOneDefault={{
-          cedula: loaderData.cedula,
-          nombreCompleto: loaderData.nombreCompleto,
-          fechaNacimiento: getDateForDefaultValue(loaderData.fechaNacimiento),
-          sexo: loaderData.sexo,
-          estadoCivil: loaderData.estadoCivil,
-          religion: loaderData.religion,
-          cantidadHijos: loaderData.cantidadHijos,
-          hijosMenoresSeis: loaderData.hijosMenoresSeis,
+          cedula: profesor.cedula,
+          nombreCompleto: profesor.nombreCompleto,
+          fechaNacimiento: getDateForDefaultValue(profesor.fechaNacimiento),
+          sexo: profesor.sexo,
+          estadoCivil: profesor.estadoCivil,
+          religion: profesor.religion,
+          cantidadHijos: profesor.cantidadHijos,
+          hijosMenoresSeis: profesor.hijosMenoresSeis,
         }}
         formTwoDefault={{
-          fechaIngresoAvec: getDateForDefaultValue(loaderData.fechaIngresoAvec),
+          fechaIngresoAvec: getDateForDefaultValue(profesor.fechaIngresoAvec),
           fechaIngresoPlantel: getDateForDefaultValue(
-            loaderData.fechaIngresoPlantel,
+            profesor.fechaIngresoPlantel,
           ),
-          titulo: loaderData.titulo,
-          descripcionTitulo: loaderData.descripcionTitulo || '',
-          mencionTitulo: loaderData.mencionTitulo || '',
-          carreraEstudiando: loaderData.carreraEstudiando || '',
-          tipoLapsoEstudios: loaderData.tipoLapsoEstudios || '',
-          numeroLapsosAprobados: loaderData.numeroLapsosAprobados || 0,
-          postgrado: loaderData.postgrado || '',
-          experienciaLaboral: loaderData.experienciaLaboral,
+          titulo: profesor.titulo,
+          descripcionTitulo: profesor.descripcionTitulo || '',
+          mencionTitulo: profesor.mencionTitulo || '',
+          carreraEstudiando: profesor.carreraEstudiando || '',
+          tipoLapsoEstudios: profesor.tipoLapsoEstudios || '',
+          numeroLapsosAprobados: profesor.numeroLapsosAprobados || 0,
+          postgrado: profesor.postgrado || '',
+          experienciaLaboral: profesor.experienciaLaboral,
         }}
         formThreeDefault={{
-          gradoSistema: loaderData.gradoSistema,
-          nivelSistema: loaderData.nivelSistema,
-          gradoCentro: loaderData.gradoCentro,
-          nivelCentro: loaderData.nivelCentro,
-          cargo: loaderData.cargo,
-          horasSemanales: loaderData.horasSemanales,
-          sueldo: loaderData.sueldo,
-          asignacionesMensual: loaderData.asignacionesMensual,
-          deduccionesMensual: loaderData.deduccionesMensual,
-          primaAntiguedad: loaderData.primaAntiguedad,
-          primaGeografica: loaderData.primaGeografica,
-          primaCompensacionAcademica: loaderData.primaCompensacionAcademica,
-          primaAsistencial: loaderData.primaAsistencial,
-          contribucionDiscapacidad: loaderData.contribucionDiscapacidad,
-          contribucionDiscapacidadHijos:
-            loaderData.contribucionDiscapacidadHijos,
-          porcentajeSso: loaderData.porcentajeSso,
-          porcentajeRpe: loaderData.porcentajeRpe,
-          porcentajeFaov: loaderData.porcentajeFaov,
-          pagoDirecto: loaderData.pagoDirecto,
-          jubilado: loaderData.jubilado,
-          cuentaBancaria: loaderData.cuentaBancaria,
-          observaciones: loaderData.observaciones || '',
+          gradoSistema: profesor.gradoSistema,
+          nivelSistema: profesor.nivelSistema,
+          gradoCentro: profesor.gradoCentro,
+          nivelCentro: profesor.nivelCentro,
+          cargo: profesor.cargo,
+          horasSemanales: profesor.horasSemanales,
+          sueldo: profesor.sueldo,
+          asignacionesMensual: profesor.asignacionesMensual,
+          deduccionesMensual: profesor.deduccionesMensual,
+          primaAntiguedad: profesor.primaAntiguedad,
+          primaGeografica: profesor.primaGeografica,
+          primaCompensacionAcademica: profesor.primaCompensacionAcademica,
+          primaAsistencial: profesor.primaAsistencial,
+          contribucionDiscapacidad: profesor.contribucionDiscapacidad,
+          contribucionDiscapacidadHijos: profesor.contribucionDiscapacidadHijos,
+          porcentajeSso: profesor.porcentajeSso,
+          porcentajeRpe: profesor.porcentajeRpe,
+          porcentajeFaov: profesor.porcentajeFaov,
+          pagoDirecto: profesor.pagoDirecto,
+          jubilado: profesor.jubilado,
+          cuentaBancaria: profesor.cuentaBancaria,
+          observaciones: profesor.observaciones || '',
         }}
+        titulos={titulos}
+        niveles={niveles}
+        cargos={cargos}
+        grados={grados}
       />
     </>
   );

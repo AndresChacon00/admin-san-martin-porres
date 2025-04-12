@@ -1,4 +1,8 @@
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { titulos } from './titulos';
+import { grados } from './grados';
+import { niveles } from './niveles';
+import { cargos } from './cargos';
 
 export const empleados = sqliteTable('empleados', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
@@ -12,7 +16,9 @@ export const empleados = sqliteTable('empleados', {
   montoMensualGuarderia: real().default(0).notNull(),
   fechaIngresoAvec: integer({ mode: 'timestamp' }).notNull(),
   fechaIngresoPlantel: integer({ mode: 'timestamp' }).notNull(),
-  titulo: text().notNull(),
+  titulo: integer({ mode: 'number' })
+    .notNull()
+    .references(() => titulos.id, { onDelete: 'no action' }),
   descripcionTitulo: text(),
   mencionTitulo: text(),
   carreraEstudiando: text(),
@@ -20,11 +26,21 @@ export const empleados = sqliteTable('empleados', {
   numeroLapsosAprobados: integer({ mode: 'number' }),
   postgrado: text(),
   experienciaLaboral: integer({ mode: 'number' }).default(0).notNull(),
-  gradoSistema: text().notNull(),
-  nivelSistema: text().notNull(),
-  gradoCentro: text().notNull(),
-  nivelCentro: text().notNull(),
-  cargo: text().notNull(),
+  gradoSistema: integer({ mode: 'number' })
+    .notNull()
+    .references(() => grados.id, { onDelete: 'no action' }),
+  nivelSistema: integer({ mode: 'number' })
+    .notNull()
+    .references(() => niveles.id, { onDelete: 'no action' }),
+  gradoCentro: integer({ mode: 'number' })
+    .notNull()
+    .references(() => grados.id, { onDelete: 'no action' }),
+  nivelCentro: integer({ mode: 'number' })
+    .notNull()
+    .references(() => niveles.id, { onDelete: 'no action' }),
+  cargo: integer({ mode: 'number' })
+    .notNull()
+    .references(() => cargos.id, { onDelete: 'no action' }),
   horasSemanales: real().notNull(),
   sueldo: real().notNull(),
   asignacionesMensual: real().default(0).notNull(),

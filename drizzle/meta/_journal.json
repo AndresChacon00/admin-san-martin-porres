@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1738717344402,
-      "tag": "0000_hesitant_calypso",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1738792869613,
-      "tag": "0001_mature_nekra",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1738793561616,
-      "tag": "0002_warm_lifeguard",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1741224816513,
-      "tag": "0003_glamorous_hawkeye",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1742773620596,
-      "tag": "0004_natural_gargoyle",
+      "when": 1744464361513,
+      "tag": "0000_brief_jamie_braddock",
       "breakpoints": true
     }
   ]

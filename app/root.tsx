@@ -4,7 +4,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
+  useRouteLoaderData,
 } from '@remix-run/react';
 import type { LinksFunction, LoaderFunctionArgs } from '@remix-run/node';
 import styles from './tailwind.css?url';
@@ -36,7 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { isLoggedIn, role } = useLoaderData<typeof loader>();
+  const data = useRouteLoaderData<typeof loader>('root');
 
   return (
     <html lang='en'>
@@ -47,18 +47,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {isLoggedIn ? (
+        <Toaster position='top-center' richColors />
+        {data?.isLoggedIn ? (
           <SidebarProvider>
-            <AppSidebar role={role} />
+            <AppSidebar role={data.role} />
             <SidebarTrigger />
-            <Toaster position='top-center' />
             <div className='ps-4 pt-12 w-full'>{children}</div>
             <ScrollRestoration />
             <Scripts />
           </SidebarProvider>
         ) : (
           <>
-            <Toaster position='top-center' />
             {children}
             <ScrollRestoration />
             <Scripts />

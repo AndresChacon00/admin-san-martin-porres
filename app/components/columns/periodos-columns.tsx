@@ -23,12 +23,4 @@ export const periodosColumns: ColumnDef<Periodo>[] = [
     header: "Fecha de Fin",
     accessorFn: (row) => new Date(row.fechaFin).toLocaleDateString(),
   },
-   {
-  header: 'Acciones',
-  cell: ({ row }) => (
-    <Link to={`/periodos/${row.original.idPeriodo}`}>
-      <Button variant="outline">Ver Cursos</Button>
-    </Link>
-  ),
-}
 ];

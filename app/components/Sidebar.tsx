@@ -5,6 +5,7 @@ import {
   BookOpen,
   Calendar,
   LogOut,
+  Settings,
 } from 'lucide-react';
 
 import {
@@ -13,6 +14,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -22,6 +24,7 @@ import { Link, useFetcher, useLocation } from '@remix-run/react';
 import { cn } from '~/lib/utils';
 import { Button } from './ui/button';
 import { UserRole } from '~/types/usuarios.types';
+import { useMemo } from 'react';
 
 type SidebarItemT = {
   title: string;
@@ -30,37 +33,66 @@ type SidebarItemT = {
   roles: UserRole[];
 };
 
-// Menú de navegación
-const items: SidebarItemT[] = [
+type SidebarItemGroupT = {
+  label: string;
+  roles: UserRole[];
+  items: SidebarItemT[];
+};
+
+const itemGroups: SidebarItemGroupT[] = [
   {
-    title: 'Cursos',
-    url: '/cursos',
-    icon: BookOpen,
+    label: 'Cursos',
     roles: ['admin', 'secretaria'],
+    items: [
+      {
+        title: 'Cursos',
+        url: '/cursos',
+        icon: BookOpen,
+        roles: ['admin', 'secretaria'],
+      },
+      {
+        title: 'Estudiantes',
+        url: '/estudiantes',
+        icon: GraduationCap,
+        roles: ['admin', 'secretaria'],
+      },
+      {
+        title: 'Periodos',
+        url: '/periodos',
+        icon: Calendar,
+        roles: ['admin', 'secretaria'],
+      },
+    ],
   },
   {
-    title: 'Estudiantes',
-    url: '/estudiantes',
-    icon: GraduationCap,
-    roles: ['admin', 'secretaria'],
-  },
-  {
-    title: 'Empleados',
-    url: '/empleados',
-    icon: HardHat,
+    label: 'Administración',
     roles: ['admin'],
+    items: [
+      {
+        title: 'Empleados',
+        url: '/empleados',
+        icon: HardHat,
+        roles: ['admin'],
+      },
+      {
+        title: 'Profesores',
+        url: '/profesores',
+        icon: PencilRuler,
+        roles: ['admin'],
+      },
+    ],
   },
   {
-    title: 'Profesores',
-    url: '/profesores',
-    icon: PencilRuler,
+    label: 'Configuración',
     roles: ['admin'],
-  },
-  {
-    title: 'Periodos',
-    url: '/periodos',
-    icon: Calendar,
-    roles: ['admin', 'secretaria'],
+    items: [
+      {
+        title: 'Equivalencias',
+        url: '/equivalencias',
+        icon: Settings,
+        roles: ['admin'],
+      },
+    ],
   },
 ];
 
@@ -68,8 +100,9 @@ export function AppSidebar({ role }: { role: UserRole | undefined }) {
   const location = useLocation();
   const fetcher = useFetcher();
 
-  const filteredItems = items.filter(
-    (item) => role && item.roles.includes(role),
+  const filteredGroups = useMemo(
+    () => itemGroups.filter((group) => role && group.roles.includes(role)),
+    [role],
   );
 
   return (
@@ -88,28 +121,35 @@ export function AppSidebar({ role }: { role: UserRole | undefined }) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {filteredItems.map((item) => (
-                <SidebarMenuItem
-                  key={item.title}
-                  className={cn(
-                    'hover:bg-blue-800 rounded-md transition-all',
-                    location.pathname === item.url ? 'bg-blue-800' : '',
-                  )}
-                >
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url} className='text-neutral-200'>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {filteredGroups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel className='text-white'>
+              {group.label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items
+                  .filter((item) => role && item.roles.includes(role))
+                  .map((item) => (
+                    <SidebarMenuItem
+                      key={item.title}
+                      className={cn(
+                        'hover:bg-blue-800 rounded-md transition-all',
+                        location.pathname === item.url ? 'bg-blue-800' : '',
+                      )}
+                    >
+                      <SidebarMenuButton asChild>
+                        <Link to={item.url} className='text-neutral-200'>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter>

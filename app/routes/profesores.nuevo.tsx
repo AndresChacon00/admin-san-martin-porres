@@ -3,13 +3,25 @@ import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
 } from '@remix-run/node';
-import { json, Link, redirect, useFetcher } from '@remix-run/react';
+import {
+  json,
+  Link,
+  redirect,
+  useFetcher,
+  useLoaderData,
+} from '@remix-run/react';
 import { addProfesor } from '~/api/controllers/profesores';
 import { ChevronLeft } from 'lucide-react';
 import { extractEmpleadoFormData } from '~/lib/formData';
 import { isRole } from '~/lib/auth';
 import EmpleadoForm from '~/components/forms/empleado-form';
 import { useRef } from 'react';
+import {
+  getEquivalenciasCargos,
+  getEquivalenciasGrados,
+  getEquivalenciasNiveles,
+} from '~/api/controllers/equivalencias.server';
+import { getTitulos } from '~/api/controllers/titulos.server';
 
 export const meta: MetaFunction = () => {
   return [
@@ -23,6 +35,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!authorized) {
     return redirect('/');
   }
+  const equivalenciasNiveles = getEquivalenciasNiveles();
+  const equivalenciasGrados = getEquivalenciasGrados('instructor');
+  const equivalenciasCargos = getEquivalenciasCargos('instructor');
+  const titulos = getTitulos();
+  const response = await Promise.all([
+    equivalenciasNiveles,
+    equivalenciasGrados,
+    equivalenciasCargos,
+    titulos,
+  ]);
+  return response;
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -33,6 +56,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function CrearProfesor() {
+  const [
+    equivalenciasNiveles,
+    equivalenciasGrados,
+    equivalenciasCargos,
+    titulos,
+  ] = useLoaderData<typeof loader>();
+
   const fetcher = useFetcher<typeof action>();
 
   const ref = useRef<HTMLHeadingElement>(null);
@@ -54,7 +84,15 @@ export default function CrearProfesor() {
         Agregar Profesor
       </h1>
       <span className='text-destructive text-sm'>(*) Obligatorio</span>
-      <EmpleadoForm fetcher={fetcher} scrollToTop={scrollToTop} />
+      <EmpleadoForm
+        fetcher={fetcher}
+        scrollToTop={scrollToTop}
+        tipoEmpleado='profesores'
+        titulos={titulos}
+        equivalenciasNiveles={equivalenciasNiveles}
+        equivalenciasGrados={equivalenciasGrados}
+        equivalenciasCargos={equivalenciasCargos}
+      />
     </>
   );
 }

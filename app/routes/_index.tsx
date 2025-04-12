@@ -8,7 +8,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (session.has('userId')) {
     // Redirect based on role
     const role = session.get('role');
-    console.log({ role });
     if (role === 'admin') {
       return redirect('/empleados');
     } else {
