@@ -1,11 +1,6 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Link } from "@remix-run/react";
-
-import { Button } from "../ui/button";
-
-
 import { Periodo } from "~/types/periodos.types";
 
 export const periodosColumns: ColumnDef<Periodo>[] = [

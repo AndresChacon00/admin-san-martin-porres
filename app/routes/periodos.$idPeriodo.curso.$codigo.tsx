@@ -1,7 +1,7 @@
 import { useLoaderData, Form, useParams } from '@remix-run/react';
 import { obtenerEstudiantesDeCursoPeriodo, inscribirEstudianteCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
+import { calcularDeuda } from '~/api/controllers/pagosEstudiantesCursos';
 import { DataTable } from '~/components/ui/data-table';
-import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
 import { estudiantesCursoColumns } from '~/components/columns/estudiantesCurso-columns';
 import {
   Dialog,
@@ -25,7 +25,32 @@ export const loader: LoaderFunction = async ({ params }) => {
     throw new Response("Datos inválidos", { status: 400 });
   }
 
-  return await obtenerEstudiantesDeCursoPeriodo(idPeriodo, codigoCurso);
+   const estudiantes = await obtenerEstudiantesDeCursoPeriodo(idPeriodo, codigoCurso);
+
+   // Calcular la deuda para cada estudiante
+  const estudiantesConDeuda = await Promise.all(
+  estudiantes.map(async (estudiante) => {
+    if (!estudiante.id) {
+      console.error('El estudiante no tiene un ID válido:', estudiante);
+      return { ...estudiante, deuda: 0 };
+    }
+
+    const deudaResult = await calcularDeuda({
+      idPeriodo,
+      codigoCurso,
+      idEstudiante: estudiante.id,
+    });
+
+    const deuda = deudaResult.type === 'success' ? deudaResult.deuda : 0;
+
+    return {
+      ...estudiante,
+      deuda,
+    };
+  })
+);
+
+  return estudiantesConDeuda;
 };
 
 export const action: ActionFunction = async ({ request, params }) => {

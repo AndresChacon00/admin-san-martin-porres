@@ -3,20 +3,12 @@ import { Estudiante } from '~/types/estudiantes.types';
 
 export const estudiantesCursoColumns: ColumnDef<Estudiante>[] = [
   {
-    accessorKey: 'id',
-    header: 'Id',
-  },
-  {
     accessorKey: 'cedula',
     header: 'Cédula',
   },
   {
     accessorKey: 'nombre',
     header: 'Nombre',
-  },
-  {
-    accessorKey: 'apellido',
-    header: 'Apellido',
   },
   {
     accessorKey: 'apellido',

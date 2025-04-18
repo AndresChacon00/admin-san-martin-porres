@@ -107,6 +107,7 @@ export default function PeriodosPage() {
               </DialogDescription>
             </DialogHeader>
             <Form method="post">
+              <input type="hidden" name="actionType" value="agregar" />
               <div className="grid gap-4 py-4">
                 {/* ID del Periodo */}
                 <div className="grid grid-cols-4 items-center gap-4">
