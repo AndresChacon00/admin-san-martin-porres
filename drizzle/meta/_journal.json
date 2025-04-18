@@ -15,6 +15,13 @@
       "when": 1744992884365,
       "tag": "0001_spotty_famine",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1744995888486,
+      "tag": "0002_bumpy_cargill",
+      "breakpoints": true
     }
   ]
 }
