@@ -3,7 +3,7 @@ import { empleados } from './empleados';
 import { periodosNomina } from './periodoNomina';
 import { usuarios } from './usuarios';
 
-export const pagos = sqliteTable('pagos', {
+export const pagosNomina = sqliteTable('pagos_nomina', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
   empleadoId: integer({ mode: 'number' })
     .notNull()

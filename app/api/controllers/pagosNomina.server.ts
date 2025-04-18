@@ -1,10 +1,10 @@
 import { desc, eq } from 'drizzle-orm';
 import db from '../db';
 import { empleados } from '../tables/empleados';
-import { pagos } from '../tables/pagos';
+import { pagosNomina } from '../tables/pagosNomina';
 import { usuarios } from '../tables/usuarios';
 import { periodosNomina } from '../tables/periodoNomina';
-import { PagoInsert } from '~/types/pagos.types';
+import { PagoInsert } from '~/types/pagosNomina.types';
 
 /**
  * Get pagos with pagination, for table
@@ -12,22 +12,25 @@ import { PagoInsert } from '~/types/pagos.types';
  * @param page Current table page number
  * @param pageSize Number of records per page
  */
-export async function getPagos(page = 1, pageSize = 20) {
+export async function getPagosNomina(page = 1, pageSize = 20) {
   try {
     const pagosQuery = await db
       .select({
-        id: pagos.id,
+        id: pagosNomina.id,
         periodoNomina: periodosNomina.nombre,
-        fecha: pagos.fecha,
+        fecha: pagosNomina.fecha,
         nombreEmpleado: empleados.nombreCompleto,
-        totalNomina: pagos.totalNomina,
+        totalNomina: pagosNomina.totalNomina,
         nombreUsuario: usuarios.nombre,
       })
-      .from(pagos)
-      .innerJoin(periodosNomina, eq(pagos.periodoNominaId, periodosNomina.id))
-      .innerJoin(empleados, eq(pagos.empleadoId, empleados.id))
-      .innerJoin(usuarios, eq(pagos.registradoPorId, usuarios.id))
-      .orderBy(desc(pagos.id))
+      .from(pagosNomina)
+      .innerJoin(
+        periodosNomina,
+        eq(pagosNomina.periodoNominaId, periodosNomina.id),
+      )
+      .innerJoin(empleados, eq(pagosNomina.empleadoId, empleados.id))
+      .innerJoin(usuarios, eq(pagosNomina.registradoPorId, usuarios.id))
+      .orderBy(desc(pagosNomina.id))
       .limit(pageSize)
       .offset((page - 1) * pageSize);
     return pagosQuery;
@@ -63,7 +66,7 @@ export async function createPago(
     const totalDeducciones =
       data.leyPoliticaHabitacionalFaov + data.descuentoSso + data.descuentoSpf;
     const totalNomina = totalAsignaciones + totalAdicional - totalDeducciones;
-    await db.insert(pagos).values({
+    await db.insert(pagosNomina).values({
       ...data,
       totalAsignaciones,
       totalDeducciones,
