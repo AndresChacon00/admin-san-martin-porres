@@ -51,7 +51,7 @@ export default function EstudiantesCursoPage() {
     <div className="py-4 w-3/4">
       <Dialog>
         <DialogTrigger>
-          <Button variant="outline">Inscribir Estudiante</Button>
+          <Button className="link-button">Inscribir Estudiante</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -69,8 +69,9 @@ export default function EstudiantesCursoPage() {
           </Form>
         </DialogContent>
       </Dialog>
-
-      <DataTable columns={estudiantesCursoColumns} data={estudiantesInscritos} />
+      <main className="py-4">
+        <DataTable columns={estudiantesCursoColumns} data={estudiantesInscritos} />
+      </main>
       </div>
     </>
   );

@@ -115,7 +115,7 @@ export default function CursosPage() {
       <div className="py-4 w-3/4">
         <Dialog>
           <DialogTrigger>
-            <Button className='link-button'>Agregar Curso</Button>
+            <Button className='link-button'>Agregar Curso </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -125,6 +125,7 @@ export default function CursosPage() {
               </DialogDescription>
             </DialogHeader>
             <Form method="post">
+              <input type="hidden" name="actionType" value="agregar" />
               <div className="grid gap-4 py-4">
                 {/* Código */}
                 <div className="grid grid-cols-4 items-center gap-4">
