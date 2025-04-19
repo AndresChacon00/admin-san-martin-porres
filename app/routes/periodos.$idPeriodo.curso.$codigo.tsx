@@ -69,7 +69,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function EstudiantesCursoPage() {
   const estudiantesInscritos = useLoaderData<typeof loader>();
   const { idPeriodo, codigo } = useParams();
-
+  console.log('Estudiantes inscritos:', estudiantesInscritos);
   return (
     <>
       <h1 className="text-xl font-bold">Estudiantes en el Curso {codigo} - Periodo {idPeriodo}</h1>

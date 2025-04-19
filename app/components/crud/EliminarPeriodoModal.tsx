@@ -45,7 +45,7 @@ export function EliminarPeriodoModal({
         <DialogHeader>
           <DialogTitle>Eliminar Periodo</DialogTitle>
           <DialogDescription>
-            ¿Estás seguro que deseas eliminar el periodo {values.nombre}?
+            ¿Estás seguro que deseas eliminar el periodo {values.idPeriodo}?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
