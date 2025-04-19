@@ -112,3 +112,27 @@ export async function deleteEmpleado(id: number) {
     } as const;
   }
 }
+
+/**
+ * Get employees for payroll
+ * @author Gabriel
+ */
+export async function getEmpleadosForNomina() {
+  try {
+    return await db
+      .select({
+        id: empleados.id,
+        cedula: empleados.cedula,
+        nombre: empleados.nombreCompleto,
+        sueldo: empleados.sueldo,
+        primaAntiguedad: empleados.primaAntiguedad,
+        primaAcademica: empleados.primaCompensacionAcademica,
+        primaPorHijo: empleados.primaAsistencial,
+        primaCompensatoria: empleados.primaGeografica,
+      })
+      .from(empleados);
+  } catch (error) {
+    console.error('Error al obtener a los empleados para nómina: ', error);
+    throw new Error('Error al obtener a los empleados para nómina');
+  }
+}

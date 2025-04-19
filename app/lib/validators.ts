@@ -147,3 +147,58 @@ export const editEquivalenciasCargosSchema = z.object({
   cargo: z.coerce.number().int().min(1, 'Cargo requerido'),
 });
 // #endregion
+
+// #region Pagos
+export const pagoNominaSchema = z.object({
+  empleadoId: z.coerce.number().int().min(1, 'Empleado requerido'),
+  periodoNominaId: z.coerce
+    .number()
+    .int()
+    .min(1, 'Periodo de nómina requerido'),
+  sueldoBaseMensual: z.coerce
+    .number({ required_error: 'Este campo es requerido' })
+    .min(0, 'Sueldo base mensual inválido'),
+  cargoEmpleado: z.string().min(1, 'Cargo requerido'),
+  primaAntiguedad: z.coerce
+    .number({ required_error: 'Este campo es requerido' })
+    .min(0, 'Prima de antigüedad inválida'),
+  primaAcademica: z.coerce
+    .number({ required_error: 'Este campo es requerido' })
+    .min(0, 'Prima académica inválida'),
+  primaPorHijo: z.coerce
+    .number({ required_error: 'Este campo es requerido' })
+    .min(0, 'Prima por hijo inválida'),
+  primaCompensatoria: z.coerce
+    .number({ required_error: 'Este campo es requerido' })
+    .min(0, 'Prima compensatoria inválida'),
+  bonoNocturno: z.coerce.number().min(0, 'Bono nocturno inválido').optional(),
+  horasExtrasNocturnas: z.coerce
+    .number()
+    .min(0, 'Monto por horas extras nocturnas inválida')
+    .optional(),
+  horasExtrasDiurnas: z.coerce
+    .number()
+    .min(0, 'Monto por horas extras diurnas inválida')
+    .optional(),
+  feriadosTrabajados: z.coerce
+    .number()
+    .min(0, 'Monto por feriados trabajados inválido')
+    .optional(),
+  retroactivos: z.coerce.number().min(0, 'Retroactivos inválidos').optional(),
+  leyPoliticaHabitacionalFaov: z.coerce
+    .number({ required_error: 'Este campo es requerido' })
+    .min(0, 'Descuento por ley política habitacional FAOV inválida'),
+  descuentoSso: z.coerce
+    .number({ required_error: 'Este campo es requerido' })
+    .min(0, 'Descuento SSO inválido'),
+  descuentoSpf: z.coerce
+    .number({ required_error: 'Este campo es requerido' })
+    .min(0, 'Descuento SPF inválido'),
+});
+
+export const periodoNominaSchema = z.object({
+  nombre: z
+    .string({ required_error: 'Nombre requerido' })
+    .min(3, 'Nombre muy corto'),
+});
+// #endregion
