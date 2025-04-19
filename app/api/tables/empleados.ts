@@ -24,7 +24,9 @@ export const empleados = sqliteTable('empleados', {
   carreraEstudiando: text(),
   tipoLapsoEstudios: text(),
   numeroLapsosAprobados: integer({ mode: 'number' }),
-  postgrado: text(),
+  postgrado: text({
+    enum: ['POSTGRADO EN ESPECIALIDAD', 'MAESTRIA', 'DOCTORADO'],
+  }),
   experienciaLaboral: integer({ mode: 'number' }).default(0).notNull(),
   gradoSistema: integer({ mode: 'number' })
     .notNull()

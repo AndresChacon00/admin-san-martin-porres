@@ -1,0 +1,1 @@
+ALTER TABLE `primas` ADD `nombre` text NOT NULL;

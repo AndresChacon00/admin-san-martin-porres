@@ -29,6 +29,48 @@
       "when": 1744998701365,
       "tag": "0003_romantic_victor_mancha",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1745080566637,
+      "tag": "0004_free_king_cobra",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1745081119898,
+      "tag": "0005_moaning_green_goblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1745087821015,
+      "tag": "0006_high_stellaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1745087986131,
+      "tag": "0007_premium_omega_flight",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1745088386423,
+      "tag": "0008_broad_switch",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1745088478764,
+      "tag": "0009_unique_norrin_radd",
+      "breakpoints": true
     }
   ]
 }

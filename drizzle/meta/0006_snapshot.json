@@ -1,0 +1,1567 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "a1231327-4175-4a32-818e-0e16cd5843e9",
+  "prevId": "4023702b-0f32-4226-9332-814aad271863",
+  "tables": {
+    "cargos": {
+      "name": "cargos",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nivel_cargo": {
+          "name": "nivel_cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nombre_cargo": {
+          "name": "nombre_cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "cursos": {
+      "name": "cursos",
+      "columns": {
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nombre_curso": {
+          "name": "nombre_curso",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "descripcion": {
+          "name": "descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "precio_total": {
+          "name": "precio_total",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "cursos_periodo": {
+      "name": "cursos_periodo",
+      "columns": {
+        "id_periodo": {
+          "name": "id_periodo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_curso": {
+          "name": "id_curso",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "horario": {
+          "name": "horario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cursos_periodo_id_periodo_periodo_id_periodo_fk": {
+          "name": "cursos_periodo_id_periodo_periodo_id_periodo_fk",
+          "tableFrom": "cursos_periodo",
+          "tableTo": "periodo",
+          "columnsFrom": [
+            "id_periodo"
+          ],
+          "columnsTo": [
+            "id_periodo"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "cursos_periodo_id_curso_cursos_codigo_fk": {
+          "name": "cursos_periodo_id_curso_cursos_codigo_fk",
+          "tableFrom": "cursos_periodo",
+          "tableTo": "cursos",
+          "columnsFrom": [
+            "id_curso"
+          ],
+          "columnsTo": [
+            "codigo"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "empleados": {
+      "name": "empleados",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "cedula": {
+          "name": "cedula",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nombreCompleto": {
+          "name": "nombreCompleto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fechaNacimiento": {
+          "name": "fechaNacimiento",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sexo": {
+          "name": "sexo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "estadoCivil": {
+          "name": "estadoCivil",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "religion": {
+          "name": "religion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "hijosMenoresSeis": {
+          "name": "hijosMenoresSeis",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "montoMensualGuarderia": {
+          "name": "montoMensualGuarderia",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "fechaIngresoAvec": {
+          "name": "fechaIngresoAvec",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fechaIngresoPlantel": {
+          "name": "fechaIngresoPlantel",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "descripcionTitulo": {
+          "name": "descripcionTitulo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "mencionTitulo": {
+          "name": "mencionTitulo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "carreraEstudiando": {
+          "name": "carreraEstudiando",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "tipoLapsoEstudios": {
+          "name": "tipoLapsoEstudios",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "numeroLapsosAprobados": {
+          "name": "numeroLapsosAprobados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "postgrado": {
+          "name": "postgrado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "experienciaLaboral": {
+          "name": "experienciaLaboral",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "gradoSistema": {
+          "name": "gradoSistema",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nivelSistema": {
+          "name": "nivelSistema",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "gradoCentro": {
+          "name": "gradoCentro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nivelCentro": {
+          "name": "nivelCentro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cargo": {
+          "name": "cargo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "horasSemanales": {
+          "name": "horasSemanales",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sueldo": {
+          "name": "sueldo",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "asignacionesMensual": {
+          "name": "asignacionesMensual",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "deduccionesMensual": {
+          "name": "deduccionesMensual",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "primaAntiguedad": {
+          "name": "primaAntiguedad",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "primaGeografica": {
+          "name": "primaGeografica",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "primaCompensacionAcademica": {
+          "name": "primaCompensacionAcademica",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "cantidadHijos": {
+          "name": "cantidadHijos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "primaAsistencial": {
+          "name": "primaAsistencial",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "contribucionDiscapacidad": {
+          "name": "contribucionDiscapacidad",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "contribucionDiscapacidadHijos": {
+          "name": "contribucionDiscapacidadHijos",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "porcentajeSso": {
+          "name": "porcentajeSso",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "porcentajeRpe": {
+          "name": "porcentajeRpe",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "porcentajeFaov": {
+          "name": "porcentajeFaov",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "pagoDirecto": {
+          "name": "pagoDirecto",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "jubilado": {
+          "name": "jubilado",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cuentaBancaria": {
+          "name": "cuentaBancaria",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "observaciones": {
+          "name": "observaciones",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fechaRegistro": {
+          "name": "fechaRegistro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(cast((julianday('now') - 2440587.5)*86400000 as integer))"
+        },
+        "fechaActualizacion": {
+          "name": "fechaActualizacion",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(cast((julianday('now') - 2440587.5)*86400000 as integer))"
+        }
+      },
+      "indexes": {
+        "empleados_cedula_unique": {
+          "name": "empleados_cedula_unique",
+          "columns": [
+            "cedula"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "empleados_titulo_titulos_id_fk": {
+          "name": "empleados_titulo_titulos_id_fk",
+          "tableFrom": "empleados",
+          "tableTo": "titulos",
+          "columnsFrom": [
+            "titulo"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "empleados_gradoSistema_grados_id_fk": {
+          "name": "empleados_gradoSistema_grados_id_fk",
+          "tableFrom": "empleados",
+          "tableTo": "grados",
+          "columnsFrom": [
+            "gradoSistema"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "empleados_nivelSistema_niveles_id_fk": {
+          "name": "empleados_nivelSistema_niveles_id_fk",
+          "tableFrom": "empleados",
+          "tableTo": "niveles",
+          "columnsFrom": [
+            "nivelSistema"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "empleados_gradoCentro_grados_id_fk": {
+          "name": "empleados_gradoCentro_grados_id_fk",
+          "tableFrom": "empleados",
+          "tableTo": "grados",
+          "columnsFrom": [
+            "gradoCentro"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "empleados_nivelCentro_niveles_id_fk": {
+          "name": "empleados_nivelCentro_niveles_id_fk",
+          "tableFrom": "empleados",
+          "tableTo": "niveles",
+          "columnsFrom": [
+            "nivelCentro"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "empleados_cargo_cargos_id_fk": {
+          "name": "empleados_cargo_cargos_id_fk",
+          "tableFrom": "empleados",
+          "tableTo": "cargos",
+          "columnsFrom": [
+            "cargo"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "equivalencia_cargos": {
+      "name": "equivalencia_cargos",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "cargo": {
+          "name": "cargo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nivel": {
+          "name": "nivel",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tipo_personal": {
+          "name": "tipo_personal",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "equivalencia_cargos_cargo_cargos_id_fk": {
+          "name": "equivalencia_cargos_cargo_cargos_id_fk",
+          "tableFrom": "equivalencia_cargos",
+          "tableTo": "cargos",
+          "columnsFrom": [
+            "cargo"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "equivalencia_cargos_nivel_niveles_id_fk": {
+          "name": "equivalencia_cargos_nivel_niveles_id_fk",
+          "tableFrom": "equivalencia_cargos",
+          "tableTo": "niveles",
+          "columnsFrom": [
+            "nivel"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "check_type_equiv_cargos": {
+          "name": "check_type_equiv_cargos",
+          "value": "\"equivalencia_cargos\".\"tipo_personal\" IN ('administrativo', 'instructor')"
+        }
+      }
+    },
+    "equivalencia_grados": {
+      "name": "equivalencia_grados",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "grado": {
+          "name": "grado",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "experiencia_laboral": {
+          "name": "experiencia_laboral",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "formacion_tecnico_profesional": {
+          "name": "formacion_tecnico_profesional",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tipo_personal": {
+          "name": "tipo_personal",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "equivalencia_grados_grado_grados_id_fk": {
+          "name": "equivalencia_grados_grado_grados_id_fk",
+          "tableFrom": "equivalencia_grados",
+          "tableTo": "grados",
+          "columnsFrom": [
+            "grado"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "equivalencia_grados_titulo_titulos_id_fk": {
+          "name": "equivalencia_grados_titulo_titulos_id_fk",
+          "tableFrom": "equivalencia_grados",
+          "tableTo": "titulos",
+          "columnsFrom": [
+            "titulo"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "check_type_equiv_grados": {
+          "name": "check_type_equiv_grados",
+          "value": "\"equivalencia_grados\".\"tipo_personal\" IN ('administrativo', 'instructor')"
+        }
+      }
+    },
+    "equivalencia_niveles": {
+      "name": "equivalencia_niveles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nivel": {
+          "name": "nivel",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "min_tiempo_servicio": {
+          "name": "min_tiempo_servicio",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "formacion_crecimiento_personal": {
+          "name": "formacion_crecimiento_personal",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "equivalencia_niveles_nivel_niveles_id_fk": {
+          "name": "equivalencia_niveles_nivel_niveles_id_fk",
+          "tableFrom": "equivalencia_niveles",
+          "tableTo": "niveles",
+          "columnsFrom": [
+            "nivel"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "estudiantes": {
+      "name": "estudiantes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "apellido": {
+          "name": "apellido",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cedula": {
+          "name": "cedula",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sexo": {
+          "name": "sexo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fechaNacimiento": {
+          "name": "fechaNacimiento",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "edad": {
+          "name": "edad",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "religion": {
+          "name": "religion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "telefono": {
+          "name": "telefono",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "correo": {
+          "name": "correo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "direccion": {
+          "name": "direccion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ultimoAñoCursado": {
+          "name": "ultimoAñoCursado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "estudiantes_cedula_unique": {
+          "name": "estudiantes_cedula_unique",
+          "columns": [
+            "cedula"
+          ],
+          "isUnique": true
+        },
+        "estudiantes_correo_unique": {
+          "name": "estudiantes_correo_unique",
+          "columns": [
+            "correo"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "estudiantes_curso_periodo": {
+      "name": "estudiantes_curso_periodo",
+      "columns": {
+        "id_periodo": {
+          "name": "id_periodo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "codigo_curso": {
+          "name": "codigo_curso",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "id_estudiante": {
+          "name": "id_estudiante",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "estudiantes_curso_periodo_id_periodo_codigo_curso_id_estudiante_unique": {
+          "name": "estudiantes_curso_periodo_id_periodo_codigo_curso_id_estudiante_unique",
+          "columns": [
+            "id_periodo",
+            "codigo_curso",
+            "id_estudiante"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "estudiantes_curso_periodo_id_periodo_periodo_id_periodo_fk": {
+          "name": "estudiantes_curso_periodo_id_periodo_periodo_id_periodo_fk",
+          "tableFrom": "estudiantes_curso_periodo",
+          "tableTo": "periodo",
+          "columnsFrom": [
+            "id_periodo"
+          ],
+          "columnsTo": [
+            "id_periodo"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "estudiantes_curso_periodo_codigo_curso_cursos_codigo_fk": {
+          "name": "estudiantes_curso_periodo_codigo_curso_cursos_codigo_fk",
+          "tableFrom": "estudiantes_curso_periodo",
+          "tableTo": "cursos",
+          "columnsFrom": [
+            "codigo_curso"
+          ],
+          "columnsTo": [
+            "codigo"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "estudiantes_curso_periodo_id_estudiante_estudiantes_id_fk": {
+          "name": "estudiantes_curso_periodo_id_estudiante_estudiantes_id_fk",
+          "tableFrom": "estudiantes_curso_periodo",
+          "tableTo": "estudiantes",
+          "columnsFrom": [
+            "id_estudiante"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "grados": {
+      "name": "grados",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "grados_codigo_unique": {
+          "name": "grados_codigo_unique",
+          "columns": [
+            "codigo"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "niveles": {
+      "name": "niveles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "niveles_nombre_unique": {
+          "name": "niveles_nombre_unique",
+          "columns": [
+            "nombre"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "pagos_nomina": {
+      "name": "pagos_nomina",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "empleadoId": {
+          "name": "empleadoId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "periodoNominaId": {
+          "name": "periodoNominaId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "registradoPorId": {
+          "name": "registradoPorId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fecha": {
+          "name": "fecha",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(cast((julianday('now') - 2440587.5)*86400000 as integer))"
+        },
+        "cargo_empleado": {
+          "name": "cargo_empleado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sueldo_base_mensual": {
+          "name": "sueldo_base_mensual",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prima_antiguedad": {
+          "name": "prima_antiguedad",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prima_academica": {
+          "name": "prima_academica",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prima_por_hijo": {
+          "name": "prima_por_hijo",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prima_compensatoria": {
+          "name": "prima_compensatoria",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "total_asignaciones": {
+          "name": "total_asignaciones",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "bono_nocturno": {
+          "name": "bono_nocturno",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "horas_extras_nocturnas": {
+          "name": "horas_extras_nocturnas",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "horas_extras_diurnas": {
+          "name": "horas_extras_diurnas",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "feriados_trabajados": {
+          "name": "feriados_trabajados",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "retroactivos": {
+          "name": "retroactivos",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "total_adicional": {
+          "name": "total_adicional",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ley_politica_habitacional_faov": {
+          "name": "ley_politica_habitacional_faov",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "descuento_sso": {
+          "name": "descuento_sso",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "descuento_spf": {
+          "name": "descuento_spf",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "total_deducciones": {
+          "name": "total_deducciones",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "total_nomina": {
+          "name": "total_nomina",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "pagos_nomina_empleadoId_empleados_id_fk": {
+          "name": "pagos_nomina_empleadoId_empleados_id_fk",
+          "tableFrom": "pagos_nomina",
+          "tableTo": "empleados",
+          "columnsFrom": [
+            "empleadoId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "pagos_nomina_periodoNominaId_periodos_nomina_id_fk": {
+          "name": "pagos_nomina_periodoNominaId_periodos_nomina_id_fk",
+          "tableFrom": "pagos_nomina",
+          "tableTo": "periodos_nomina",
+          "columnsFrom": [
+            "periodoNominaId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "pagos_nomina_registradoPorId_usuarios_id_fk": {
+          "name": "pagos_nomina_registradoPorId_usuarios_id_fk",
+          "tableFrom": "pagos_nomina",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "registradoPorId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "periodos_nomina": {
+      "name": "periodos_nomina",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "periodos_nomina_nombre_unique": {
+          "name": "periodos_nomina_nombre_unique",
+          "columns": [
+            "nombre"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "periodo": {
+      "name": "periodo",
+      "columns": {
+        "id_periodo": {
+          "name": "id_periodo",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fechaInicio": {
+          "name": "fechaInicio",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fechaFin": {
+          "name": "fechaFin",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "primas": {
+      "name": "primas",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tipoFactor": {
+          "name": "tipoFactor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "factor": {
+          "name": "factor",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "campoBase": {
+          "name": "campoBase",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "frecuencia": {
+          "name": "frecuencia",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "check_tipoFactor": {
+          "name": "check_tipoFactor",
+          "value": "\"primas\".\"tipoFactor\" IN ('porcentaje', 'dias', 'factor')"
+        },
+        "check_campoBase": {
+          "name": "check_campoBase",
+          "value": "\"primas\".\"campoBase\" IN ('Salario Base', 'Salario Integral', 'Sueldo Base Mínimo', 'Hijos')"
+        },
+        "check_frecuencia": {
+          "name": "check_frecuencia",
+          "value": "\"primas\".\"frecuencia\" IN ('mensual', 'anual')"
+        }
+      }
+    },
+    "primas_academicas": {
+      "name": "primas_academicas",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nivelAcademico": {
+          "name": "nivelAcademico",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "porcentaje": {
+          "name": "porcentaje",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "check_nivelAcademico": {
+          "name": "check_nivelAcademico",
+          "value": "\"primas_academicas\".\"nivelAcademico\" IN ('TSU', 'LICENCIADO', 'POSTGRADO EN ESPECIALIDAD', 'MAESTRIA', 'DOCTORADO')"
+        }
+      }
+    },
+    "primas_antiguedad": {
+      "name": "primas_antiguedad",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "tiempoServicio": {
+          "name": "tiempoServicio",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "porcentaje": {
+          "name": "porcentaje",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "profesores": {
+      "name": "profesores",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profesores_id_empleados_id_fk": {
+          "name": "profesores_id_empleados_id_fk",
+          "tableFrom": "profesores",
+          "tableTo": "empleados",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "titulos": {
+      "name": "titulos",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "usuarios": {
+      "name": "usuarios",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'admin'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "check_role": {
+          "name": "check_role",
+          "value": "\"usuarios\".\"role\" IN ('admin', 'secretaria')"
+        }
+      }
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}
