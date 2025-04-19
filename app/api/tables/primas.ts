@@ -28,7 +28,7 @@ export const primas = sqliteTable(
     ),
     check(
       'check_campoBase',
-      sql`${table.campoBase} IN ('Salario Base', 'Salario Integral', 'Sueldo Base Mínimo', 'Hijos')`,
+      sql`${table.campoBase} IN ('Salario Base', 'Salario Integral', 'Sueldo Base Mínimo', 'Hijos') OR ${table.campoBase} IS NULL`,
     ),
     check('check_frecuencia', sql`${table.frecuencia} IN ('mensual', 'anual')`),
   ],

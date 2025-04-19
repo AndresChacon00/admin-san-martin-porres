@@ -67,27 +67,12 @@ export const datosCargoEmpleado = z.object({
   cargo: z.coerce.number({ required_error: 'Cargo requerido' }),
   horasSemanales: z.coerce.number().int().min(0, 'Horas semanales inválidas'),
   sueldo: z.coerce.number().min(0, 'Sueldo inválido'),
-  asignacionesMensual: z.coerce
-    .number()
-    .min(0, 'Asignaciones mensuales inválidas'),
-  deduccionesMensual: z.coerce
-    .number()
-    .min(0, 'Deducciones mensuales inválidas'),
-  primaAntiguedad: z.coerce.number().min(0, 'Prima de antigüedad inválida'),
-  primaGeografica: z.coerce.number().min(0, 'Prima geográfica inválida'),
-  primaCompensacionAcademica: z.coerce
-    .number()
-    .min(0, 'Prima de compensación académica inválida'),
-  primaAsistencial: z.coerce.number().min(0, 'Prima asistencial inválida'),
   contribucionDiscapacidad: z.coerce
     .number()
     .min(0, 'Contribución por discapacidad inválida'),
   contribucionDiscapacidadHijos: z.coerce
     .number()
     .min(0, 'Contribución por discapacidad de hijos inválida'),
-  porcentajeSso: z.coerce.number().min(0, 'Porcentaje SSO inválido'),
-  porcentajeRpe: z.coerce.number().min(0, 'Porcentaje RPE inválido'),
-  porcentajeFaov: z.coerce.number().min(0, 'Porcentaje FAOV inválido'),
   pagoDirecto: z.boolean().default(false),
   jubilado: z.boolean().default(false),
   cuentaBancaria: z.string().optional().default(''),
