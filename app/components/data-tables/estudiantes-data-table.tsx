@@ -38,11 +38,12 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const [selectedEstudiante, setSelectedEstudiante] = useState<Estudiante | null>(null);
+  const [selectedEstudiante, setSelectedEstudiante] =
+    useState<Estudiante | null>(null);
   const [action, setAction] = useState<'edit' | 'delete' | null>(null);
 
   return (
-    <div className="rounded-md border">
+    <div className='rounded-md border'>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -54,7 +55,7 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 );
@@ -77,7 +78,7 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger>
-                      <Ellipsis color="gray" aria-label="Opciones" />
+                      <Ellipsis color='gray' aria-label='Opciones' />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem
@@ -103,7 +104,7 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length} className='h-24 text-center'>
                 Sin resultados.
               </TableCell>
             </TableRow>
@@ -113,25 +114,25 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
 
       {/* Editar Estudiante Modal */}
       <Dialog
-  open={action === 'edit'}
-  onOpenChange={(open) => {
-    if (!open) {
-      setAction(null);
-      setSelectedEstudiante(null);
-    }
-  }}
->
-  {selectedEstudiante && (
-    <EditarEstudianteModal
-      estudiante={selectedEstudiante}
-      open={action === 'edit'} // Pass the open state
-      onClose={() => {
-        setAction(null); // Reset the action state
-        setSelectedEstudiante(null); // Clear the selected student
-      }}
-    />
-  )}
-</Dialog>
+        open={action === 'edit'}
+        onOpenChange={(open) => {
+          if (!open) {
+            setAction(null);
+            setSelectedEstudiante(null);
+          }
+        }}
+      >
+        {selectedEstudiante && (
+          <EditarEstudianteModal
+            estudiante={selectedEstudiante}
+            open={action === 'edit'} // Pass the open state
+            onClose={() => {
+              setAction(null); // Reset the action state
+              setSelectedEstudiante(null); // Clear the selected student
+            }}
+          />
+        )}
+      </Dialog>
 
       {/* Eliminar Estudiante Modal */}
       {selectedEstudiante && action === 'delete' && (

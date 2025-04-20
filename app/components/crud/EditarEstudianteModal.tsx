@@ -13,7 +13,6 @@ import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 
 interface FormValues {
-  id: number;
   nombre: string;
   apellido: string;
   cedula: string;
@@ -44,22 +43,22 @@ export function EditarEstudianteModal({
   }));
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  setValues((prev) => {
-    // Handle fechaNacimiento specifically
-    if (name === 'fechaNacimiento') {
-      const parsedDate = new Date(value);
-      if (isNaN(parsedDate.getTime())) {
-        console.error('Invalid date format:', value);
-        return prev; // Do not update if the date is invalid
+    setValues((prev) => {
+      // Handle fechaNacimiento specifically
+      if (name === 'fechaNacimiento') {
+        const parsedDate = new Date(value);
+        if (isNaN(parsedDate.getTime())) {
+          console.error('Invalid date format:', value);
+          return prev; // Do not update if the date is invalid
+        }
+        return { ...prev, [name]: parsedDate };
       }
-      return { ...prev, [name]: parsedDate };
-    }
 
-    return { ...prev, [name]: value };
-  });
-};
+      return { ...prev, [name]: value };
+    });
+  };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -81,183 +80,170 @@ export function EditarEstudianteModal({
             Modifica los datos del estudiante
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          {/* ID (non-editable) */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="id" className="text-right">
-              ID
+        <form onSubmit={handleSubmit} className='grid gap-4 py-4'>
+          {/* Cedula (non-editable) */}
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='cedula' className='text-right'>
+              Cédula
             </Label>
             <Input
-              id="id"
-              name="id"
-              value={values.id}
+              id='cedula'
+              name='cedula'
+              value={values.cedula}
               readOnly
-              className="col-span-3"
+              className='col-span-3'
             />
           </div>
           {/* Nombre */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="nombre" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='nombre' className='text-right'>
               Nombre
             </Label>
             <Input
-              id="nombre"
-              name="nombre"
+              id='nombre'
+              name='nombre'
               value={values.nombre}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
           {/* Apellido */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="apellido" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='apellido' className='text-right'>
               Apellido
             </Label>
             <Input
-              id="apellido"
-              name="apellido"
+              id='apellido'
+              name='apellido'
               value={values.apellido}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
-          {/* Cédula */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="cedula" className="text-right">
-              Cédula
-            </Label>
-            <Input
-              id="cedula"
-              name="cedula"
-              value={values.cedula}
-              onChange={handleChange}
-              className="col-span-3"
-              required
-            />
-          </div>
+
           {/* Sexo */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="sexo" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='sexo' className='text-right'>
               Sexo
             </Label>
             <Input
-              id="sexo"
-              name="sexo"
+              id='sexo'
+              name='sexo'
               value={values.sexo}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
           {/* Fecha de Nacimiento */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="fechaNacimiento" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='fechaNacimiento' className='text-right'>
               Fecha de Nacimiento
             </Label>
             <Input
-              id="fechaNacimiento"
-              name="fechaNacimiento"
-              type="date"
+              id='fechaNacimiento'
+              name='fechaNacimiento'
+              type='date'
               value={
                 values.fechaNacimiento
                   ? values.fechaNacimiento.toISOString().split('T')[0]
                   : ''
               }
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
           {/* Edad */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edad" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='edad' className='text-right'>
               Edad
             </Label>
             <Input
-              id="edad"
-              name="edad"
-              type="number"
+              id='edad'
+              name='edad'
+              type='number'
               value={values.edad}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
           {/* Religión */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="religion" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='religion' className='text-right'>
               Religión
             </Label>
             <Input
-              id="religion"
-              name="religion"
+              id='religion'
+              name='religion'
               value={values.religion}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
           {/* Teléfono */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="telefono" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='telefono' className='text-right'>
               Teléfono
             </Label>
             <Input
-              id="telefono"
-              name="telefono"
+              id='telefono'
+              name='telefono'
               value={values.telefono}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
           {/* Correo */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="correo" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='correo' className='text-right'>
               Correo
             </Label>
             <Input
-              id="correo"
-              name="correo"
-              type="email"
+              id='correo'
+              name='correo'
+              type='email'
               value={values.correo}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
           {/* Dirección */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="direccion" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='direccion' className='text-right'>
               Dirección
             </Label>
             <Input
-              id="direccion"
-              name="direccion"
+              id='direccion'
+              name='direccion'
               value={values.direccion}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
           {/* Último Año Cursado */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="ultimoAñoCursado" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='ultimoAñoCursado' className='text-right'>
               Último Año Cursado
             </Label>
             <Input
-              id="ultimoAñoCursado"
-              name="ultimoAñoCursado"
+              id='ultimoAñoCursado'
+              name='ultimoAñoCursado'
               value={values.ultimoAñoCursado}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
           <DialogFooter>
-            <Button type="submit">Confirmar cambios</Button>
+            <Button type='submit'>Confirmar cambios</Button>
           </DialogFooter>
         </form>
       </DialogContent>
