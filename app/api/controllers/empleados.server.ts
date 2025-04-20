@@ -9,6 +9,7 @@ import {
   updateEmpleadoInDb,
 } from '../services/empleados.server';
 import { profesores } from '../tables/profesores';
+import { titulos } from '../tables/titulos';
 
 /**
  * Get full list of employees
@@ -125,12 +126,13 @@ export async function getEmpleadosForNomina() {
         cedula: empleados.cedula,
         nombre: empleados.nombreCompleto,
         sueldo: empleados.sueldo,
-        primaAntiguedad: empleados.primaAntiguedad,
-        primaAcademica: empleados.primaCompensacionAcademica,
-        primaPorHijo: empleados.primaAsistencial,
-        primaCompensatoria: empleados.primaGeografica,
+        fechaIngresoAvec: empleados.fechaIngresoAvec,
+        titulo: titulos.nombre,
+        nivelAcademico: empleados.postgrado,
+        hijos: empleados.cantidadHijos,
       })
-      .from(empleados);
+      .from(empleados)
+      .innerJoin(titulos, eq(titulos.id, empleados.titulo));
   } catch (error) {
     console.error('Error al obtener a los empleados para nómina: ', error);
     throw new Error('Error al obtener a los empleados para nómina');
