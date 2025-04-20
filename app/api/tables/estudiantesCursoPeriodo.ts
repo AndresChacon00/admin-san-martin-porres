@@ -14,7 +14,7 @@ export const estudiantesCursoPeriodo = sqliteTable(
       .references(() => cursos.codigo),
     idEstudiante: integer('id_estudiante')
       .notNull()
-      .references(() => estudiantes.id),
+      .references(() => estudiantes.cedula),
 
     // ✅ Prevent duplicate enrollments (Unique Constraint)
   },
