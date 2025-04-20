@@ -24,6 +24,7 @@ import { EditarCursoModal } from '../crud/EditarCursoModal';
 import { EliminarCursoModal } from '../crud/EliminarCursoModal';
 import { Curso } from '~/types/cursos.types';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Button } from '../ui/button';
 
@@ -43,7 +44,7 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
   const [action, setAction] = useState<'edit' | 'delete' | null>(null);
 
   return (
-    <div className="rounded-md border">
+    <div className='rounded-md border'>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -55,7 +56,7 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 );
@@ -78,7 +79,7 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger>
-                      <Ellipsis color="gray" aria-label="Opciones" />
+                      <Ellipsis color='gray' aria-label='Opciones' />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem
@@ -97,6 +98,11 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
                       >
                         Eliminar
                       </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link to={`/cursos/detalle/${row.original.codigo}`}>
+                          Ver Detalles
+                        </Link>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -104,7 +110,7 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length} className='h-24 text-center'>
                 Sin resultados.
               </TableCell>
             </TableRow>
@@ -114,25 +120,25 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
 
       {/* Editar Curso Modal */}
       <Dialog
-  open={action === 'edit'}
-  onOpenChange={(open) => {
-    if (!open) {
-      setAction(null);
-      setSelectedCurso(null);
-    }
-  }}
->
-  {selectedCurso && (
-    <EditarCursoModal
-      curso={selectedCurso}
-      open={action === 'edit'}
-      onClose={() => {
-        setAction(null);
-        setSelectedCurso(null);
-      }}
-    />
-  )}
-</Dialog>
+        open={action === 'edit'}
+        onOpenChange={(open) => {
+          if (!open) {
+            setAction(null);
+            setSelectedCurso(null);
+          }
+        }}
+      >
+        {selectedCurso && (
+          <EditarCursoModal
+            curso={selectedCurso}
+            open={action === 'edit'}
+            onClose={() => {
+              setAction(null);
+              setSelectedCurso(null);
+            }}
+          />
+        )}
+      </Dialog>
 
       {/* Eliminar Curso Modal */}
       {selectedCurso && action === 'delete' && (
