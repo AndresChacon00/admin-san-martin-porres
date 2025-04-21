@@ -3,6 +3,7 @@ import {
   obtenerHistorialPagosEstudiante,
   calcularDeudaEstudiante,
   eliminarPagoEstudiante,
+  editarPagoEstudiante,
 } from '../services/pagosEstudiantesCurso';
 import type {
   PagoEstudianteInsert,
@@ -11,6 +12,7 @@ import type {
 
 /**
  * Registers a payment for a student in a course
+ * @author Roberth
  * @param data - Payment data
  * @returns A success or error message
  */
@@ -27,7 +29,28 @@ export async function registrarPago(
 }
 
 /**
+ * Edits an existing payment for a student in a course
+ * @author Roberth
+ * @param idPago - The ID of the payment
+ * @param data - Updated payment data
+ * @returns A success or error message
+ */
+export async function editarPago(
+  idPago: number,
+  data: Partial<PagoEstudianteInsert>,
+): Promise<{ type: 'success' | 'error'; message: string }> {
+  try {
+    await editarPagoEstudiante(idPago, data);
+    return { type: 'success', message: 'Pago editado exitosamente' };
+  } catch (error) {
+    console.error('Error al editar el pago:', error);
+    return { type: 'error', message: 'No se pudo editar el pago' };
+  }
+}
+
+/**
  * Retrieves the payment history for a student in a course
+ * @author Roberth
  * @param idPeriodo - The ID of the period
  * @param codigoCurso - The course code
  * @param idEstudiante - The ID of the student
@@ -60,6 +83,7 @@ export async function obtenerHistorialPagos({
 
 /**
  * Calculates the remaining debt for a student in a course
+ * @author Roberth
  * @param idPeriodo - The ID of the period
  * @param codigoCurso - The course code
  * @param idEstudiante - The ID of the student
@@ -91,6 +115,7 @@ export async function calcularDeuda({
 
 /**
  * Deletes a specific payment from the database
+ * @author Roberth
  * @param idPago - The ID of the payment
  * @returns A success or error message
  */

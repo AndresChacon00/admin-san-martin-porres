@@ -1,3 +1,4 @@
+
 import { ColumnDef } from '@tanstack/react-table';
 import { Estudiante } from '~/types/estudiantes.types';
 
@@ -32,6 +33,10 @@ export const estudiantesCursoColumns: ColumnDef<Estudiante>[] = [
       }
       return age;
     },
+  },
+  {
+    accessorKey: 'deuda',
+    header: 'Deuda',
   },
   {
     accessorKey: 'correo',

@@ -1,4 +1,9 @@
-import { sqliteTable, integer, text, unique } from 'drizzle-orm/sqlite-core';
+import {
+  sqliteTable,
+  integer,
+  text,
+  primaryKey,
+} from 'drizzle-orm/sqlite-core';
 import { periodos } from './periodos';
 import { cursos } from './cursos';
 import { estudiantes } from './estudiantes';
@@ -19,7 +24,7 @@ export const estudiantesCursoPeriodo = sqliteTable(
     // ✅ Prevent duplicate enrollments (Unique Constraint)
   },
   (table) => ({
-    uniqueEnrollment: unique().on(
+    primaryKey: primaryKey(
       table.idPeriodo,
       table.codigoCurso,
       table.idEstudiante,

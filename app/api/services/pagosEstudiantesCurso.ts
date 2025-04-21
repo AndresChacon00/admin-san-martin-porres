@@ -17,6 +17,21 @@ export async function registrarPagoEstudiante(data: PagoEstudianteInsert) {
 }
 
 /**
+ * Editar un pago existente en la base de datos.
+ * @param idPago - ID del pago
+ * @param data - Datos actualizados del pago
+ */
+export async function editarPagoEstudiante(
+  idPago: number,
+  data: Partial<PagoEstudianteInsert>,
+) {
+  await db
+    .update(pagosEstudiantesCurso)
+    .set(data)
+    .where(eq(pagosEstudiantesCurso.idPago, idPago));
+}
+
+/**
  * Obtener el historial de pagos de un estudiante en un curso específico.
  * @param idPeriodo - ID del periodo
  * @param codigoCurso - Código del curso
