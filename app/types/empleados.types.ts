@@ -16,7 +16,7 @@ export type EmpleadoUpdate = Partial<EmpleadoInsert>;
 
 export type Empleado = typeof empleados.$inferSelect;
 
-type NivelAcademico =
+export type NivelAcademico =
   | 'POSTGRADO EN ESPECIALIDAD'
   | 'MAESTRIA'
   | 'DOCTORADO'

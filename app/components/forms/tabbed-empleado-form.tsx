@@ -73,17 +73,8 @@ interface TabbedEmpleadoFormProps {
     cargo: number;
     horasSemanales: number;
     sueldo: number;
-    asignacionesMensual: number;
-    deduccionesMensual: number;
-    primaAntiguedad: number;
-    primaGeografica: number;
-    primaCompensacionAcademica: number;
-    primaAsistencial: number;
     contribucionDiscapacidad: number;
     contribucionDiscapacidadHijos: number;
-    porcentajeSso: number;
-    porcentajeRpe: number;
-    porcentajeFaov: number;
     pagoDirecto: boolean;
     jubilado: boolean;
     cuentaBancaria: string;

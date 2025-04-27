@@ -1,4 +1,4 @@
-import { EstadoCivil, Sexo } from '~/types/empleados.types';
+import { EstadoCivil, NivelAcademico, Sexo } from '~/types/empleados.types';
 
 /**
  * Extract personal data section from empleado form data
@@ -45,7 +45,7 @@ export function extractEmpleadoProfessionalData(formData: FormData) {
   const numeroLapsosAprobados = Number(
     formData.get('numeroLapsosAprobados') ?? 0,
   );
-  const postgrado = String(formData.get('postgrado') ?? '');
+  const postgrado = String(formData.get('postgrado') ?? '') as NivelAcademico;
   const experienciaLaboral = Number(formData.get('experienciaLaboral'));
 
   return {
