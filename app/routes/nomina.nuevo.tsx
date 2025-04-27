@@ -1,29 +1,24 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
   redirect,
 } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { Form, useFetcher, useLoaderData } from '@remix-run/react';
+import { useState, useEffect } from 'react';
 import { getEmpleadosForNomina } from '~/api/controllers/empleados.server';
 import { createPago } from '~/api/controllers/pagosNomina.server';
 import { getPeriodosNomina } from '~/api/controllers/periodosNomina.server';
+import {
+  getAllPrimas,
+  getAllPrimasForEmpleado,
+} from '~/api/controllers/primas.server';
 import CreatePeriodoNominaDialog from '~/components/dialogs/create-periodo-nomina';
 import RequiredLabel from '~/components/forms/required-label';
+import HelpTooltip from '~/components/tooltips/help-tooltip';
 import { Button } from '~/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/components/ui/form';
 import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -32,7 +27,6 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { isRole } from '~/lib/auth';
-import { pagoNominaSchema } from '~/lib/validators';
 import { getSession } from '~/sessions';
 
 export const meta: MetaFunction = () => {
@@ -53,8 +47,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const periodos = getPeriodosNomina();
   const empleados = getEmpleadosForNomina();
-  const result = await Promise.all([periodos, empleados]);
-  return { periodos: result[0], empleados: result[1] };
+  const primas = getAllPrimas();
+  const result = await Promise.all([periodos, empleados, primas]);
+  return {
+    periodos: result[0],
+    empleados: result[1],
+    primasDisponibles: result[2],
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -106,364 +105,266 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NuevoPagoNominaPage() {
-  const { periodos, empleados } = useLoaderData<typeof loader>();
-
-  const form = useForm<z.infer<typeof pagoNominaSchema>>({
-    resolver: zodResolver(pagoNominaSchema),
-    defaultValues: {
-      periodoNominaId: undefined,
-      empleadoId: undefined,
-    },
-  });
+  const { periodos, empleados, primasDisponibles } =
+    useLoaderData<typeof loader>();
+  const primasEmpleadoFetcher =
+    useFetcher<Awaited<ReturnType<typeof getAllPrimasForEmpleado>>>();
 
   const [showDialog, setShowDialog] = useState(false);
+
+  const handleEmpleadoChange = (empleadoId: string) => {
+    if (empleadoId) {
+      primasEmpleadoFetcher.load(`/primas-empleado/${empleadoId}`);
+    }
+  };
+
+  useEffect(() => {
+    if (primasEmpleadoFetcher.data) {
+      const { primaAcademica, primaAntiguedad, otrasPrimas } =
+        primasEmpleadoFetcher.data;
+      const fields = [
+        { id: 'primaAcademica', value: primaAcademica },
+        { id: 'primaAntiguedad', value: primaAntiguedad },
+        ...otrasPrimas.map((prima) => ({
+          id: prima.nombre,
+          value: prima.monto,
+        })),
+      ];
+      fields.forEach(({ id, value }) => {
+        const input = document.getElementById(id) as HTMLInputElement;
+        if (input) {
+          input.value = value.toString();
+        }
+      });
+    }
+  }, [primasEmpleadoFetcher.data]);
 
   return (
     <div className='pb-8'>
       <h1 className='text-xl font-bold mb-4'>Cargar Pago de Nómina</h1>
-      <Form {...form}>
-        <form className='space-y-2 w-1/2'>
-          <FormField
-            name='periodoNominaId'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Seleccione un periodo de nómina</RequiredLabel>
-                <div className='flex gap-3'>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={String(field.value)}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Ejemplo: Enero 2024' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {periodos.map((periodo) => (
-                        <SelectItem key={periodo.id} value={String(periodo.id)}>
-                          {periodo.nombre}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type='button'
-                    className='link-button'
-                    onMouseDown={() => setShowDialog(true)}
-                  >
-                    Crear periodo nuevo
-                  </Button>
-                </div>
-              </FormItem>
-            )}
-          />
-          <CreatePeriodoNominaDialog
-            open={showDialog}
-            onClose={() => setShowDialog(false)}
-          />
+      <CreatePeriodoNominaDialog
+        open={showDialog}
+        onClose={() => setShowDialog(false)}
+      />
+      <Form method='post' className='space-y-3 w-1/2'>
+        <div className='space-y-1'>
+          <RequiredLabel htmlFor='periodoNominaId'>
+            Seleccione un periodo de nómina
+          </RequiredLabel>
+          <div className='flex gap-3'>
+            <Select name='periodoNominaId' required>
+              <SelectTrigger id='periodoNominaId'>
+                <SelectValue placeholder='Ejemplo: Enero 2024' />
+              </SelectTrigger>
+              <SelectContent>
+                {periodos.map((periodo) => (
+                  <SelectItem key={periodo.id} value={String(periodo.id)}>
+                    {periodo.nombre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type='button'
+              className='link-button'
+              onMouseDown={() => setShowDialog(true)}
+            >
+              Crear periodo nuevo
+            </Button>
+          </div>
+        </div>
 
-          <FormField
+        <div className='space-y-1'>
+          <RequiredLabel htmlFor='empleadoId'>
+            Seleccione un empleado
+          </RequiredLabel>
+          <Select
             name='empleadoId'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Seleccione un empleado</RequiredLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={String(field.value)}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder='Seleccionar empleado' />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {empleados.map((empleado) => (
-                      <SelectItem key={empleado.id} value={String(empleado.id)}>
-                        {empleado.nombre} - {empleado.cedula}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            required
+            onValueChange={handleEmpleadoChange}
+          >
+            <SelectTrigger id='empleadoId'>
+              <SelectValue placeholder='Seleccionar empleado' />
+            </SelectTrigger>
+            <SelectContent>
+              {empleados.map((empleado) => (
+                <SelectItem key={empleado.id} value={String(empleado.id)}>
+                  {empleado.nombre} - {empleado.cedula}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          <FormField
+        <div className='space-y-1'>
+          <RequiredLabel htmlFor='cargoEmpleado'>
+            Tipo de empleado
+          </RequiredLabel>
+          <Input
+            id='cargoEmpleado'
             name='cargoEmpleado'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Tipo de empleado</RequiredLabel>
-                <FormControl>
-                  <Input
-                    placeholder='Instructor, Obrero, Administrativo...'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            placeholder='Instructor, Obrero, Administrativo...'
+            required
           />
+        </div>
 
-          <FormField
+        <div className='space-y-1'>
+          <RequiredLabel htmlFor='sueldoBaseMensual'>
+            Sueldo base mensual
+          </RequiredLabel>
+          <Input
+            id='sueldoBaseMensual'
             name='sueldoBaseMensual'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Sueldo base mensual</RequiredLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar sueldo'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type='number'
+            step='0.01'
+            placeholder='Ingresar sueldo'
+            required
           />
+        </div>
 
-          <p className='text-lg font-semibold pt-2'>Asignaciones</p>
-
-          <FormField
+        <p className='text-lg font-semibold pt-2'>
+          Asignaciones{' '}
+          <HelpTooltip text='Montos generados en base al registro del empleado' />
+        </p>
+        <div className='space-y-1'>
+          <RequiredLabel htmlFor='primaAntiguedad'>
+            Prima de antigüedad
+          </RequiredLabel>
+          <Input
+            id='primaAntiguedad'
             name='primaAntiguedad'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Prima de antigüedad</RequiredLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar prima'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type='number'
+            step='0.01'
+            placeholder='Ingresar prima'
+            required
+            disabled={primasEmpleadoFetcher.state === 'loading'}
           />
+        </div>
 
-          <FormField
+        <div className='space-y-1'>
+          <RequiredLabel htmlFor='primaAcademica'>
+            Prima académica
+          </RequiredLabel>
+          <Input
+            id='primaAcademica'
             name='primaAcademica'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Prima académica</RequiredLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar prima'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type='number'
+            step='0.01'
+            placeholder='Ingresar prima'
+            required
+            disabled={primasEmpleadoFetcher.state === 'loading'}
           />
+        </div>
 
-          <FormField
-            name='primaPorHijo'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Prima por hijo</RequiredLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar prima'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name='primaCompensatoria'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Prima compensatoria</RequiredLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar prima'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <p className='text-lg font-semibold pt-2'>Bonos adicionales</p>
-          <FormField
-            name='bonoNocturno'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bono nocturno</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar bono'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name='horasExtrasNocturnas'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bono por horas extras nocturnas</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar bono'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name='horasExtrasDiurnas'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bono por horas extras diurnas</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar bono'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name='feriadosTrabajados'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bono por feriados trabajados</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar bono'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name='retroactivos'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Retroactivos</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar retroactivos'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <p className='text-lg font-semibold pt-2'>Deducciones</p>
-          <FormField
-            name='leyPoliticaHabitacionalFaov'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>
-                  Deducción Ley Política Habitacional FAOV
+        {primasDisponibles
+          .filter((prima) => prima.nombre.startsWith('Prima'))
+          .sort((a, b) => {
+            if (a.frecuencia === b.frecuencia) {
+              return a.id - b.id;
+            }
+            return a.frecuencia === 'mensual' ? -1 : 1;
+          })
+          .map((prima) => (
+            <div className='space-y-1' key={prima.id}>
+              {prima.frecuencia === 'mensual' ? (
+                <RequiredLabel htmlFor={prima.nombre}>
+                  {prima.nombre}
                 </RequiredLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar deducción'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              ) : (
+                <Label htmlFor={prima.nombre}>{prima.nombre}</Label>
+              )}
+              <Input
+                id={prima.nombre}
+                name={prima.nombre}
+                type='number'
+                step='0.01'
+                placeholder='Ingresar prima'
+                required={prima.frecuencia === 'mensual'}
+                disabled={primasEmpleadoFetcher.state === 'loading'}
+              />
+            </div>
+          ))}
 
-          <FormField
+        <p className='text-lg font-semibold pt-2'>
+          Bonos adicionales{' '}
+          <HelpTooltip text='Montos generados en base al registro del empleado' />
+        </p>
+        {primasDisponibles
+          .sort((a, b) => {
+            if (a.frecuencia === b.frecuencia) {
+              return a.id - b.id;
+            }
+            return a.frecuencia === 'mensual' ? -1 : 1;
+          })
+          .filter((prima) => !prima.nombre.startsWith('Prima'))
+          .map((prima) => (
+            <div className='space-y-1' key={prima.nombre}>
+              {prima.frecuencia === 'mensual' ? (
+                <RequiredLabel htmlFor={prima.nombre}>
+                  {prima.nombre}
+                </RequiredLabel>
+              ) : (
+                <Label htmlFor={prima.nombre}>
+                  {prima.nombre} (opcional, frecuencia anual)
+                </Label>
+              )}
+              <Input
+                id={prima.nombre}
+                name={prima.nombre}
+                type='number'
+                step='0.01'
+                placeholder='Ingresar prima'
+                required={prima.frecuencia === 'mensual'}
+                disabled={primasEmpleadoFetcher.state === 'loading'}
+              />
+            </div>
+          ))}
+
+        <p className='text-lg font-semibold pt-2'>
+          Deducciones{' '}
+          <HelpTooltip text='Montos generados en base al registro del empleado' />
+        </p>
+        <div className='space-y-1'>
+          <RequiredLabel htmlFor='leyPoliticaHabitacionalFaov'>
+            Deducción Ley Política Habitacional FAOV
+          </RequiredLabel>
+          <Input
+            id='leyPoliticaHabitacionalFaov'
+            name='leyPoliticaHabitacionalFaov'
+            type='number'
+            step='0.01'
+            placeholder='Ingresar deducción'
+            required
+          />
+        </div>
+
+        <div className='space-y-1'>
+          <RequiredLabel htmlFor='descuentoSso'>Deducción SSO</RequiredLabel>
+          <Input
+            id='descuentoSso'
             name='descuentoSso'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Deducción SSO</RequiredLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar deducción'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type='number'
+            step='0.01'
+            placeholder='Ingresar deducción'
+            required
           />
+        </div>
 
-          <FormField
+        <div className='space-y-1'>
+          <RequiredLabel htmlFor='descuentoSpf'>Deducción SPF</RequiredLabel>
+          <Input
+            id='descuentoSpf'
             name='descuentoSpf'
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <RequiredLabel>Deducción SPF</RequiredLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='Ingresar deducción'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type='number'
+            step='0.01'
+            placeholder='Ingresar deducción'
+            required
           />
-          <Button className='link-button w-full' type='submit'>
-            Guardar pago
-          </Button>
-        </form>
+        </div>
+
+        <Button className='link-button w-full' type='submit'>
+          Guardar pago
+        </Button>
       </Form>
     </div>
   );
