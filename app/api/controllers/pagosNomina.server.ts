@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { count, desc, eq } from 'drizzle-orm';
 import db from '../db';
 import { empleados } from '../tables/empleados';
 import { pagosNomina } from '../tables/pagosNomina';
@@ -15,7 +15,7 @@ import { primasPagoNomina } from '../tables/primasPagoNomina';
  */
 export async function getPagosNomina(page = 1, pageSize = 20) {
   try {
-    const pagosQuery = await db
+    const pagosQuery = db
       .select({
         id: pagosNomina.id,
         periodoNomina: periodosNomina.nombre,
@@ -34,7 +34,20 @@ export async function getPagosNomina(page = 1, pageSize = 20) {
       .orderBy(desc(pagosNomina.id))
       .limit(pageSize)
       .offset((page - 1) * pageSize);
-    return pagosQuery;
+
+    const totalRecords = db
+      .select({ count: count(pagosNomina.id) })
+      .from(pagosNomina)
+      .then((res) => Number(res[0].count));
+
+    const [pagosResult, total] = await Promise.all([pagosQuery, totalRecords]);
+
+    const hasMorePages = page * pageSize < total;
+
+    return {
+      data: pagosResult,
+      hasMorePages,
+    };
   } catch (error) {
     console.error('Error fetching pagos:', error);
     throw new Error('Error obteniendo pagos');
