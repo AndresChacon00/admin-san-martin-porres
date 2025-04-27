@@ -1,6 +1,6 @@
 import type { EmpleadoForNomina } from '~/types/empleados.types';
 import db from '../db';
-import { asc } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import { primasAntiguedad } from '../tables/primasAntiguedad';
 import { primasAcademicas } from '../tables/primasAcademicas';
 import { primas } from '../tables/primas';
@@ -140,13 +140,11 @@ export async function getPrimasForEmpleado(empleado: EmpleadoForNomina) {
           tipo: prima.frecuencia,
         });
       } else if (prima.campoBase === 'Hijos') {
-        if (empleado.hijos) {
-          primasEmpleado.push({
-            nombre: prima.nombre,
-            monto: prima.factor * empleado.hijos,
-            tipo: prima.frecuencia,
-          });
-        }
+        primasEmpleado.push({
+          nombre: prima.nombre,
+          monto: prima.factor * empleado.hijos,
+          tipo: prima.frecuencia,
+        });
       }
     } else if (prima.tipoFactor === 'constante') {
       primasEmpleado.push({
@@ -163,4 +161,26 @@ export async function getPrimasForEmpleado(empleado: EmpleadoForNomina) {
     }
   }
   return primasEmpleado;
+}
+
+/**
+ * Busca una prima disponible por nombre
+ * @author gabrielm
+ * @param name
+ */
+export async function getPrimaByName(name: string) {
+  try {
+    const primasQuery = await db
+      .select()
+      .from(primas)
+      .where(eq(primas.nombre, name))
+      .limit(1);
+    if (primasQuery.length) {
+      return primasQuery[0];
+    }
+    return null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }

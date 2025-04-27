@@ -4,8 +4,9 @@ import {
   MetaFunction,
   redirect,
 } from '@remix-run/node';
-import { Form, useFetcher, useLoaderData } from '@remix-run/react';
-import { useState, useEffect } from 'react';
+import { useFetcher, useLoaderData } from '@remix-run/react';
+import { useState, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { getEmpleadosForNomina } from '~/api/controllers/empleados.server';
 import { createPago } from '~/api/controllers/pagosNomina.server';
 import { getPeriodosNomina } from '~/api/controllers/periodosNomina.server';
@@ -64,44 +65,16 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const formData = await request.formData();
-  const periodoId = Number(formData.get('periodoNominaId'));
-  const empleadoId = Number(formData.get('empleadoId'));
-  const cargoEmpleado = String(formData.get('cargoEmpleado'));
-  const sueldoBaseMensual = Number(formData.get('sueldoBaseMensual'));
-  const primaAntiguedad = Number(formData.get('primaAntiguedad'));
-  const primaAcademica = Number(formData.get('primaAcademica'));
-  const primaPorHijo = Number(formData.get('primaPorHijo'));
-  const primaCompensatoria = Number(formData.get('primaCompensatoria'));
-  const bonoNocturno = Number(formData.get('bonoNocturno'));
-  const horasExtrasNocturnas = Number(formData.get('horasExtrasNocturnas'));
-  const horasExtrasDiurnas = Number(formData.get('horasExtrasDiurnas'));
-  const feriadosTrabajados = Number(formData.get('feriadosTrabajados'));
-  const retroactivos = Number(formData.get('retroactivos'));
-  const leyPoliticaHabitacionalFaov = Number(
-    formData.get('leyPoliticaHabitacionalFaov'),
+  const formValues: Record<string, string | number> = Object.fromEntries(
+    Array.from(formData.entries()).map((value) => {
+      if (value[0] === 'cargoEmpleado') {
+        return [value[0], String(value[1])];
+      }
+      return [value[0], Number(value[1])];
+    }),
   );
-  const descuentoSso = Number(formData.get('descuentoSso'));
-  const descuentoSpf = Number(formData.get('descuentoSpf'));
-  const result = await createPago({
-    registradoPorId: Number(userId),
-    periodoNominaId: periodoId,
-    empleadoId,
-    cargoEmpleado,
-    sueldoBaseMensual,
-    primaAntiguedad,
-    primaAcademica,
-    primaPorHijo,
-    primaCompensatoria,
-    bonoNocturno,
-    horasExtrasNocturnas,
-    horasExtrasDiurnas,
-    feriadosTrabajados,
-    retroactivos,
-    leyPoliticaHabitacionalFaov,
-    descuentoSso,
-    descuentoSpf,
-  });
-  return result;
+  formValues.registradoPorId = Number(userId);
+  return await createPago(formValues);
 }
 
 export default function NuevoPagoNominaPage() {
@@ -109,11 +82,23 @@ export default function NuevoPagoNominaPage() {
     useLoaderData<typeof loader>();
   const primasEmpleadoFetcher =
     useFetcher<Awaited<ReturnType<typeof getAllPrimasForEmpleado>>>();
+  const pagoFetcher = useFetcher<typeof action>();
+
+  const formRef = useRef<HTMLFormElement>(null);
 
   const [showDialog, setShowDialog] = useState(false);
 
   const handleEmpleadoChange = (empleadoId: string) => {
     if (empleadoId) {
+      const empleado = empleados.find((e) => e.id === Number(empleadoId));
+      if (empleado) {
+        const input = document.getElementById(
+          'sueldoBaseMensual',
+        ) as HTMLInputElement;
+        if (input) {
+          input.value = String(empleado.sueldo);
+        }
+      }
       primasEmpleadoFetcher.load(`/primas-empleado/${empleadoId}`);
     }
   };
@@ -139,6 +124,18 @@ export default function NuevoPagoNominaPage() {
     }
   }, [primasEmpleadoFetcher.data]);
 
+  useEffect(() => {
+    if (pagoFetcher.state === 'idle' && pagoFetcher.data !== undefined) {
+      if (pagoFetcher.data.type === 'success') {
+        toast.success('Pago registrado con éxito');
+        formRef.current?.reset();
+      } else if (pagoFetcher.data.type === 'error') {
+        toast.error(pagoFetcher.data.message);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagoFetcher.state, pagoFetcher.data]);
+
   return (
     <div className='pb-8'>
       <h1 className='text-xl font-bold mb-4'>Cargar Pago de Nómina</h1>
@@ -146,7 +143,7 @@ export default function NuevoPagoNominaPage() {
         open={showDialog}
         onClose={() => setShowDialog(false)}
       />
-      <Form method='post' className='space-y-3 w-1/2'>
+      <pagoFetcher.Form method='post' className='space-y-3 w-1/2' ref={formRef}>
         <div className='space-y-1'>
           <RequiredLabel htmlFor='periodoNominaId'>
             Seleccione un periodo de nómina
@@ -362,10 +359,14 @@ export default function NuevoPagoNominaPage() {
           />
         </div>
 
-        <Button className='link-button w-full' type='submit'>
+        <Button
+          className='link-button w-full'
+          type='submit'
+          disabled={pagoFetcher.state === 'submitting'}
+        >
           Guardar pago
         </Button>
-      </Form>
+      </pagoFetcher.Form>
     </div>
   );
 }

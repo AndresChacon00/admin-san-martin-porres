@@ -4,7 +4,8 @@ import { empleados } from '../tables/empleados';
 import { pagosNomina } from '../tables/pagosNomina';
 import { usuarios } from '../tables/usuarios';
 import { periodosNomina } from '../tables/periodoNomina';
-import { PagoInsert } from '~/types/pagosNomina.types';
+import { getPrimaByName } from '../services/primas.server';
+import { primasPagoNomina } from '../tables/primasPagoNomina';
 
 /**
  * Get pagos with pagination, for table
@@ -45,34 +46,78 @@ export async function getPagosNomina(page = 1, pageSize = 20) {
  * @author gabrielm
  * @param data
  */
-export async function createPago(
-  data: Omit<
-    PagoInsert,
-    'totalNomina' | 'totalAsignaciones' | 'totalDeducciones' | 'totalAdicional'
-  >,
-) {
+export async function createPago(data: Record<string, string | number>) {
   try {
-    const totalAsignaciones =
-      data.primaAcademica +
-      data.primaAntiguedad +
-      data.primaPorHijo +
-      data.primaCompensatoria;
-    const totalAdicional =
-      (data.bonoNocturno || 0) +
-      (data.horasExtrasNocturnas || 0) +
-      (data.horasExtrasDiurnas || 0) +
-      (data.feriadosTrabajados || 0) +
-      (data.retroactivos || 0);
+    const primaAntiguedad = Number(data.primaAntiguedad);
+    const primaAcademica = Number(data.primaAcademica);
+    const leyPoliticaHabitacionalFaov = Number(
+      data.leyPoliticaHabitacionalFaov,
+    );
+    const descuentoSso = Number(data.descuentoSso);
+    const descuentoSpf = Number(data.descuentoSpf);
+
+    let totalAsignaciones = primaAntiguedad + primaAcademica;
+    let totalAdicional = 0;
     const totalDeducciones =
-      data.leyPoliticaHabitacionalFaov + data.descuentoSso + data.descuentoSpf;
+      leyPoliticaHabitacionalFaov + descuentoSso + descuentoSpf;
+
+    const primasAdicionales = [];
+    for (const [name, value] of Object.entries(data)) {
+      if (
+        ![
+          'periodoNominaId',
+          'empleadoId',
+          'cargoEmpleado',
+          'sueldoBaseMensual',
+          'registradoPorId',
+        ].includes(name)
+      ) {
+        // Acumular primas
+        if (name.startsWith('Prima')) {
+          totalAsignaciones += Number(value);
+        } else {
+          totalAdicional += Number(value);
+        }
+        // Obtener de la bd para asociar
+        const primaFromDB = await getPrimaByName(name);
+        if (primaFromDB && Number(value) > 0) {
+          primasAdicionales.push({ id: primaFromDB.id, monto: Number(value) });
+        }
+      }
+    }
+
     const totalNomina = totalAsignaciones + totalAdicional - totalDeducciones;
-    await db.insert(pagosNomina).values({
-      ...data,
-      totalAsignaciones,
-      totalDeducciones,
-      totalAdicional,
-      totalNomina,
-    });
+
+    // Registrar pago
+    const inserted = await db
+      .insert(pagosNomina)
+      .values({
+        empleadoId: Number(data.empleadoId),
+        periodoNominaId: Number(data.periodoNominaId),
+        registradoPorId: Number(data.registradoPorId),
+        cargoEmpleado: String(data.cargoEmpleado),
+        sueldoBaseMensual: Number(data.sueldoBaseMensual),
+        primaAcademica,
+        primaAntiguedad,
+        leyPoliticaHabitacionalFaov,
+        descuentoSpf,
+        descuentoSso,
+        totalAsignaciones,
+        totalDeducciones,
+        totalAdicional,
+        totalNomina,
+      })
+      .returning({ id: pagosNomina.id });
+
+    // Registrar primas del pago
+    const pagoId = inserted[0].id;
+    const primasPago = primasAdicionales.map((p) => ({
+      idPago: pagoId,
+      idPrima: p.id,
+      monto: p.monto,
+    }));
+    await db.insert(primasPagoNomina).values(primasPago);
+
     return {
       type: 'success',
       message: 'Pago creado exitosamente',
