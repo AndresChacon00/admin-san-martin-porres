@@ -70,6 +70,11 @@ export async function createPago(data: Record<string, string | number>) {
           'cargoEmpleado',
           'sueldoBaseMensual',
           'registradoPorId',
+          'primaAntiguedad',
+          'primaAcademica',
+          'leyPoliticaHabitacionalFaov',
+          'descuentoSso',
+          'descuentoSpf',
         ].includes(name)
       ) {
         // Acumular primas
@@ -86,7 +91,9 @@ export async function createPago(data: Record<string, string | number>) {
       }
     }
 
-    const totalNomina = totalAsignaciones + totalAdicional - totalDeducciones;
+    const sueldo = Number(data.sueldoBaseMensual);
+    const totalNomina =
+      sueldo + totalAsignaciones + totalAdicional - totalDeducciones;
 
     // Registrar pago
     const inserted = await db
@@ -96,7 +103,7 @@ export async function createPago(data: Record<string, string | number>) {
         periodoNominaId: Number(data.periodoNominaId),
         registradoPorId: Number(data.registradoPorId),
         cargoEmpleado: String(data.cargoEmpleado),
-        sueldoBaseMensual: Number(data.sueldoBaseMensual),
+        sueldoBaseMensual: sueldo,
         primaAcademica,
         primaAntiguedad,
         leyPoliticaHabitacionalFaov,
