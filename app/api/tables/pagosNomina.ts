@@ -2,6 +2,7 @@ import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { empleados } from './empleados';
 import { periodosNomina } from './periodoNomina';
 import { usuarios } from './usuarios';
+import { sql } from 'drizzle-orm';
 
 export const pagosNomina = sqliteTable('pagos_nomina', {
   id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
@@ -14,7 +15,9 @@ export const pagosNomina = sqliteTable('pagos_nomina', {
   registradoPorId: integer({ mode: 'number' })
     .notNull()
     .references(() => usuarios.id, { onDelete: 'restrict' }),
-  fecha: integer({ mode: 'timestamp' }).notNull().defaultNow(),
+  fecha: integer({ mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
   cargoEmpleado: text('cargo_empleado').notNull(),
   sueldoBaseMensual: real('sueldo_base_mensual').notNull(),
   primaAntiguedad: real('prima_antiguedad').notNull(),
