@@ -1,9 +1,17 @@
 import { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import { Link, useLoaderData, useSearchParams } from '@remix-run/react';
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from '@remix-run/react';
+import { useMemo, useEffect } from 'react';
 import { getPagosNomina } from '~/api/controllers/pagosNomina.server';
-import { pagosColumns } from '~/components/columns/pagos-nomina-columns';
+import { createPagosColumns } from '~/components/columns/pagos-nomina-columns';
 import { Button } from '~/components/ui/button';
 import { DataTable } from '~/components/ui/data-table';
+import { generarReciboNomina } from '~/lib/exporters';
+import { PagoNominaExportar } from '~/types/pagosNomina.types';
 
 export const meta: MetaFunction = () => {
   return [
@@ -35,8 +43,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function NominaPage() {
   const { pagos, hasMorePages } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const exportFetcher = useFetcher();
 
   const currentPage = searchParams.get('page');
+
+  const columns = useMemo(
+    () =>
+      createPagosColumns((row) => {
+        exportFetcher.load(`/exportar/nomina/${row.id}`);
+      }),
+    [],
+  );
+
+  useEffect(() => {
+    if (exportFetcher.state === 'idle' && exportFetcher.data) {
+      generarReciboNomina(exportFetcher.data as PagoNominaExportar);
+    }
+  }, [exportFetcher.state, exportFetcher.data]);
 
   return (
     <div className='pb-8'>
@@ -44,11 +67,12 @@ export default function NominaPage() {
       <Link to='nuevo' className='link-button'>
         Cargar nuevo pago
       </Link>
-      <div className='w-4/5 mt-4 flex flex-col'>
-        <DataTable data={pagos} columns={pagosColumns} />
+      <div className='lg:w-4/5 mt-4 flex flex-col'>
+        <DataTable data={pagos} columns={columns} />
         <div className='flex gap-2 mt-3 place-self-end'>
           <Button
             variant='outline'
+            size='sm'
             disabled={currentPage === '1' || currentPage === null}
             onClick={() =>
               setSearchParams((prev) => {
@@ -61,6 +85,7 @@ export default function NominaPage() {
           </Button>
           <Button
             variant='outline'
+            size='sm'
             disabled={!hasMorePages}
             onClick={() =>
               setSearchParams((prev) => {
