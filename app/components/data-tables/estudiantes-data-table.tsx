@@ -134,47 +134,16 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
 </Dialog>
 
       {/* Eliminar Estudiante Modal */}
-      <Dialog
-        open={action === 'delete'}
-        onOpenChange={(open) => {
-          if (!open) {
+      {selectedEstudiante && action === 'delete' && (
+        <EliminarEstudianteModal
+          estudiante={selectedEstudiante}
+          open={action === 'delete'}
+          onClose={() => {
             setAction(null);
             setSelectedEstudiante(null);
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>¿Seguro que desea eliminar este estudiante?</DialogTitle>
-          </DialogHeader>
-          <>
-            <p>Esta acción no se puede revertir.</p>
-            <div className="flex flex-1 justify-end gap-4">
-              <button
-                className="bg-gray-200 px-4 py-2 rounded"
-                onClick={() => {
-                  setSelectedEstudiante(null);
-                  setAction(null);
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded"
-                onClick={() => {
-                  if (selectedEstudiante) {
-                    // Call the delete function here
-                    setSelectedEstudiante(null);
-                    setAction(null);
-                  }
-                }}
-              >
-                Eliminar
-              </button>
-            </div>
-          </>
-        </DialogContent>
-      </Dialog>
+          }}
+        />
+      )}
     </div>
   );
 }

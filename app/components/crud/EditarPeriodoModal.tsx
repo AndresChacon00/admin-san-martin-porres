@@ -14,9 +14,8 @@ import { Input } from '~/components/ui/input';
 
 interface FormValues {
   idPeriodo: number;
-  nombre: string;
-  fechaInicio: string; // Assuming it's a date in string format
-  fechaFin: string; // Assuming it's a date in string format
+  fechaInicio: Date; // Assuming it's a date in string format
+  fechaFin: Date; // Assuming it's a date in string format
 }
 
 interface EditarPeriodoModalProps {
@@ -72,20 +71,6 @@ export function EditarPeriodoModal({
               value={values.idPeriodo}
               readOnly
               className="col-span-3"
-            />
-          </div>
-          {/* Nombre */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="nombre" className="text-right">
-              Nombre
-            </Label>
-            <Input
-              id="nombre"
-              name="nombre"
-              value={values.nombre}
-              onChange={handleChange}
-              className="col-span-3"
-              required
             />
           </div>
           {/* Fecha Inicio */}

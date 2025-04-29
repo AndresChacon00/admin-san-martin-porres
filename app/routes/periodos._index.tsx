@@ -1,5 +1,5 @@
 import { useLoaderData, MetaFunction, Form } from '@remix-run/react';
-import { addPeriodo, getPeriodos } from '~/api/controllers/periodos';
+import { addPeriodo, getPeriodos, updatePeriodo, deletePeriodo } from '~/api/controllers/periodos';
 import { periodosColumns } from '~/components/columns/periodos-columns';
 import { PeriodosDataTable } from '~/components/data-tables/periodos-data-table';
 import {
@@ -27,26 +27,64 @@ export async function loader() {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
+  const actionType = formData.get('actionType');
 
-  const idPeriodo = Number(formData.get('idPeriodo'));
-  const fechaInicio = formData.get('fechaInicio');
-  const fechaFin = formData.get('fechaFin');
+  if (actionType === 'agregar') {
+    const idPeriodo = Number(formData.get('idPeriodo'));
+    const fechaInicio = formData.get('fechaInicio');
+    const fechaFin = formData.get('fechaFin');
 
-  if (
-    isNaN(idPeriodo) ||
-    typeof fechaInicio !== 'string' ||
-    typeof fechaFin !== 'string'
-  ) {
-    return { error: 'Datos inválidos' };
+    if (
+      isNaN(idPeriodo) ||
+      typeof fechaInicio !== 'string' ||
+      typeof fechaFin !== 'string'
+    ) {
+      return { error: 'Datos inválidos' };
+    }
+
+    await addPeriodo({
+      idPeriodo,
+      fechaInicio: new Date(fechaInicio),
+      fechaFin: new Date(fechaFin),
+    });
+
+    return null;
   }
 
-  await addPeriodo({
-    idPeriodo,
-    fechaInicio: new Date(fechaInicio),
-    fechaFin: new Date(fechaFin),
-  });
+  if (actionType === 'editar') {
+    const idPeriodo = Number(formData.get('idPeriodo'));
+    const fechaInicio = formData.get('fechaInicio');
+    const fechaFin = formData.get('fechaFin');
 
-  return null;
+    if (
+      isNaN(idPeriodo) ||
+      typeof fechaInicio !== 'string' ||
+      typeof fechaFin !== 'string'
+    ) {
+      return { error: 'Datos inválidos' };
+    }
+
+    await updatePeriodo(idPeriodo, {
+      fechaInicio: new Date(fechaInicio),
+      fechaFin: new Date(fechaFin),
+    });
+
+    return null;
+  }
+
+  if (actionType === 'eliminar') {
+    const idPeriodo = Number(formData.get('idPeriodo'));
+
+    if (isNaN(idPeriodo)) {
+      return { error: 'ID inválido' };
+    }
+
+    await deletePeriodo(idPeriodo);
+
+    return null;
+  }
+
+  return { error: 'Acción no válida' };
 };
 
 export default function PeriodosPage() {
@@ -69,6 +107,7 @@ export default function PeriodosPage() {
               </DialogDescription>
             </DialogHeader>
             <Form method="post">
+              <input type="hidden" name="actionType" value="agregar" />
               <div className="grid gap-4 py-4">
                 {/* ID del Periodo */}
                 <div className="grid grid-cols-4 items-center gap-4">

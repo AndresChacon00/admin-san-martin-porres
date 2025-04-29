@@ -5,12 +5,10 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from '~/components/ui/dialog';
 import { Button } from '~/components/ui/button';
 import { useFetcher } from '@remix-run/react';
 import { useState } from 'react';
-import { DialogClose } from '@radix-ui/react-dialog';
 
 interface FormValues {
   codigo: string;
@@ -19,9 +17,11 @@ interface FormValues {
 
 interface EliminarCursoModalProps {
   curso: FormValues;
+  open: boolean;
+  onClose: () => void;
 }
 
-export function EliminarCursoModal({ curso }: EliminarCursoModalProps) {
+export function EliminarCursoModal({ curso, open, onClose }: EliminarCursoModalProps) {
   const fetcher = useFetcher();
   const [values] = useState<FormValues>(() => ({
     ...curso,
@@ -32,13 +32,11 @@ export function EliminarCursoModal({ curso }: EliminarCursoModalProps) {
     formData.append('actionType', 'eliminar');
     formData.append('codigo', values.codigo);
     fetcher.submit(formData, { method: 'post' });
+    onClose(); // Close the modal after submission
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="destructive">Eliminar</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Eliminar Curso</DialogTitle>
@@ -47,9 +45,9 @@ export function EliminarCursoModal({ curso }: EliminarCursoModalProps) {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="ghost">Cancelar</Button>
-          </DialogClose>
+          <Button variant="ghost" onClick={onClose}>
+            Cancelar
+          </Button>
           <Button variant="destructive" onClick={handleDelete}>
             Sí, eliminar
           </Button>

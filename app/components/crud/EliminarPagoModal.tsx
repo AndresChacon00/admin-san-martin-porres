@@ -8,33 +8,24 @@ import {
 } from '~/components/ui/dialog';
 import { Button } from '~/components/ui/button';
 import { useFetcher } from '@remix-run/react';
-import { useState } from 'react';
 
-interface FormValues {
-  idPeriodo: number;
-  nombre: string;
-}
-
-interface EliminarPeriodoModalProps {
-  periodo: FormValues;
+interface EliminarPagoModalProps {
+  idPago: number;
   open: boolean;
   onClose: () => void;
 }
 
-export function EliminarPeriodoModal({
-  periodo,
+export function EliminarPagoModal({
+  idPago,
   open,
   onClose,
-}: EliminarPeriodoModalProps) {
+}: EliminarPagoModalProps) {
   const fetcher = useFetcher();
-  const [values] = useState<FormValues>(() => ({
-    ...periodo,
-  }));
 
   function handleDelete() {
     const formData = new FormData();
     formData.append('actionType', 'eliminar');
-    formData.append('idPeriodo', values.idPeriodo.toString());
+    formData.append('idPago', idPago.toString());
     fetcher.submit(formData, { method: 'post' });
     onClose(); // Close the modal after submission
   }
@@ -43,9 +34,9 @@ export function EliminarPeriodoModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Eliminar Periodo</DialogTitle>
+          <DialogTitle>Eliminar Pago</DialogTitle>
           <DialogDescription>
-            ¿Estás seguro que deseas eliminar el periodo {values.idPeriodo}?
+            ¿Estás seguro que deseas eliminar el pago con ID {idPago}?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
