@@ -1,5 +1,7 @@
 import { type Empleado } from '~/types/empleados.types';
-import { utils as SheetUtils } from 'xlsx';
+import { utils as SheetUtils, writeFile } from 'xlsx';
+import { PagoNominaExportar } from '~/types/pagosNomina.types';
+import { ADDRESS, EXCEL_COLS, FOUNDATION_NAME, RIF } from '~/constants';
 
 /**
  * Exports a list of employees into an Excel file
@@ -22,7 +24,7 @@ export function exportEmpleados(empleados: Empleado[]) {
       'Fecha de ingreso en Centros AVEC',
       'Fecha de ingreso al Plantel',
       'Título',
-      'Descripción del Título Acadéimco Obtenido',
+      'Descripción del Título Académico Obtenido',
       'Mención del Título Académico Obtenido',
       'Carrera que está estudiando',
       'Número de Lapso Académico Aprobado',
@@ -103,28 +105,13 @@ export function exportEmpleados(empleados: Empleado[]) {
       empleado.sueldo,
       empleado.sueldo,
       empleado.sueldo,
-      empleado.asignacionesMensual,
-      empleado.deduccionesMensual,
-      empleado.primaAntiguedad,
-      empleado.primaAntiguedad,
-      empleado.primaGeografica ? 'SI' : 'NO',
-      empleado.primaGeografica,
-      empleado.primaGeografica,
-      empleado.primaCompensacionAcademica,
-      empleado.primaCompensacionAcademica,
       empleado.cantidadHijos ? 'SI' : 'NO',
       empleado.cantidadHijos,
       empleado.cantidadHijos * 12.5,
       empleado.cantidadHijos * 12.5,
-      empleado.primaAsistencial,
       0,
       empleado.contribucionDiscapacidad,
       empleado.contribucionDiscapacidadHijos,
-      empleado.porcentajeSso ? 'SI' : 'NO',
-      empleado.porcentajeSso,
-      empleado.porcentajeRpe,
-      empleado.porcentajeFaov ? 'SI' : 'NO',
-      empleado.porcentajeFaov,
       empleado.pagoDirecto ? 'SI' : 'NO',
       empleado.jubilado ? 'SI' : 'NO',
       empleado.cuentaBancaria,
@@ -138,4 +125,161 @@ export function exportEmpleados(empleados: Empleado[]) {
   const workbook = SheetUtils.book_new();
   SheetUtils.book_append_sheet(workbook, worksheet, 'Empleados');
   return workbook;
+}
+
+export function generarReciboNomina(pago: PagoNominaExportar) {
+  const excelContent = [
+    [FOUNDATION_NAME, '', '', `RIF: ${RIF}`],
+    [
+      `DIRECCION: ${ADDRESS}`,
+      '',
+      '',
+      '',
+      '',
+      `FECHA: ${pago.fecha.toLocaleDateString()}`,
+    ],
+    ['APELLIDO Y NOMBRE:', '', pago.nombreEmpleado, '', pago.cedulaEmpleado],
+    [`CARGO: ${pago.cargoEmpleado}`],
+    [
+      'FECHA DE INGRESO:',
+      '',
+      pago.fechaIngreso.toLocaleDateString(),
+      '',
+      'SUELDO BASE MENSUAL:',
+      '',
+      pago.sueldoBase,
+    ],
+    ['CONCEPTO', '', '', '', 'CANTIDAD', '', 'MONTO'],
+    [`NOMINA ${pago.nombrePeriodo.toUpperCase()}`],
+    ...pago.asignaciones.map((asig) => [
+      asig.nombre,
+      '',
+      '',
+      '',
+      '',
+      '',
+      asig.monto,
+    ]),
+    ['TOTAL ASIGNACIONES', '', '', '', '', '', pago.totalAsignaciones],
+    ...pago.adicionales.map((adic) => [
+      adic.nombre,
+      '',
+      '',
+      '',
+      '',
+      '',
+      adic.monto,
+    ]),
+    ['TOTAL BONOS', '', '', '', '', '', pago.totalAdicionales],
+    ['DEDUCCIONES'],
+    ...pago.deducciones.map((dedu) => [
+      dedu.nombre,
+      '',
+      '',
+      '',
+      '',
+      '',
+      dedu.monto,
+    ]),
+    ['', '', '', '', 'TOTAL DEDUCCIONES', '', pago.totalDeducciones],
+    [],
+    ['', '', '', '', 'TOTAL NOMINA', '', pago.totalNomina],
+    ['RECIBE CONFORME'],
+    [`RESPONSABLE DE PAGO: ${pago.nombreCreador}`],
+  ];
+  const worksheet = SheetUtils.aoa_to_sheet(excelContent);
+  const itemRows =
+    pago.asignaciones.length +
+    pago.adicionales.length +
+    pago.deducciones.length +
+    4;
+  worksheet['!merges'] = [
+    // Fila 1
+    { s: { c: EXCEL_COLS.A, r: 0 }, e: { c: EXCEL_COLS.C, r: 0 } },
+    { s: { c: EXCEL_COLS.D, r: 0 }, e: { c: EXCEL_COLS.E, r: 0 } },
+    { s: { c: EXCEL_COLS.F, r: 0 }, e: { c: EXCEL_COLS.H, r: 0 } },
+    // Fila 2
+    { s: { c: EXCEL_COLS.A, r: 1 }, e: { c: EXCEL_COLS.E, r: 1 } },
+    { s: { c: EXCEL_COLS.F, r: 1 }, e: { c: EXCEL_COLS.H, r: 1 } },
+    // Fila 3
+    { s: { c: EXCEL_COLS.A, r: 2 }, e: { c: EXCEL_COLS.B, r: 2 } },
+    { s: { c: EXCEL_COLS.C, r: 2 }, e: { c: EXCEL_COLS.D, r: 2 } },
+    { s: { c: EXCEL_COLS.E, r: 2 }, e: { c: EXCEL_COLS.F, r: 2 } },
+    { s: { c: EXCEL_COLS.G, r: 2 }, e: { c: EXCEL_COLS.H, r: 2 } },
+    // Fila 4
+    { s: { c: EXCEL_COLS.A, r: 3 }, e: { c: EXCEL_COLS.H, r: 3 } },
+    // Fila 5
+    { s: { c: EXCEL_COLS.A, r: 4 }, e: { c: EXCEL_COLS.B, r: 4 } },
+    { s: { c: EXCEL_COLS.C, r: 4 }, e: { c: EXCEL_COLS.D, r: 4 } },
+    { s: { c: EXCEL_COLS.E, r: 4 }, e: { c: EXCEL_COLS.F, r: 4 } },
+    { s: { c: EXCEL_COLS.G, r: 4 }, e: { c: EXCEL_COLS.H, r: 4 } },
+    // Fila 6
+    { s: { c: EXCEL_COLS.A, r: 5 }, e: { c: EXCEL_COLS.D, r: 5 } },
+    { s: { c: EXCEL_COLS.E, r: 5 }, e: { c: EXCEL_COLS.F, r: 5 } },
+    { s: { c: EXCEL_COLS.G, r: 5 }, e: { c: EXCEL_COLS.H, r: 5 } },
+    // Fila 7
+    { s: { c: EXCEL_COLS.A, r: 6 }, e: { c: EXCEL_COLS.D, r: 6 } },
+    { s: { c: EXCEL_COLS.E, r: 6 }, e: { c: EXCEL_COLS.F, r: 6 } },
+    { s: { c: EXCEL_COLS.G, r: 6 }, e: { c: EXCEL_COLS.H, r: 6 } },
+    // Primas
+    ...Array.from({ length: itemRows }, (_, i) => ({
+      s: { c: EXCEL_COLS.A, r: 7 + i },
+      e: { c: EXCEL_COLS.D, r: 7 + i },
+    })),
+    ...Array.from({ length: itemRows }, (_, i) => ({
+      s: { c: EXCEL_COLS.E, r: 7 + i },
+      e: { c: EXCEL_COLS.F, r: 7 + i },
+    })),
+    ...Array.from({ length: itemRows }, (_, i) => ({
+      s: { c: EXCEL_COLS.G, r: 7 + i },
+      e: { c: EXCEL_COLS.H, r: 7 + i },
+    })),
+    {
+      s: { c: EXCEL_COLS.A, r: itemRows + 7 },
+      e: { c: EXCEL_COLS.D, r: itemRows + 7 },
+    },
+    {
+      s: { c: EXCEL_COLS.E, r: itemRows + 7 },
+      e: { c: EXCEL_COLS.H, r: itemRows + 7 },
+    },
+    {
+      s: { c: EXCEL_COLS.A, r: itemRows + 8 },
+      e: { c: EXCEL_COLS.D, r: itemRows + 8 },
+    },
+    {
+      s: { c: EXCEL_COLS.E, r: itemRows + 8 },
+      e: { c: EXCEL_COLS.F, r: itemRows + 8 },
+    },
+    {
+      s: { c: EXCEL_COLS.G, r: itemRows + 8 },
+      e: { c: EXCEL_COLS.H, r: itemRows + 8 },
+    },
+    {
+      s: { c: EXCEL_COLS.A, r: itemRows + 9 },
+      e: { c: EXCEL_COLS.D, r: itemRows + 9 },
+    },
+    {
+      s: { c: EXCEL_COLS.E, r: itemRows + 9 },
+      e: { c: EXCEL_COLS.H, r: itemRows + 9 },
+    },
+    {
+      s: { c: EXCEL_COLS.A, r: itemRows + 10 },
+      e: { c: EXCEL_COLS.D, r: itemRows + 10 },
+    },
+    {
+      s: { c: EXCEL_COLS.E, r: itemRows + 10 },
+      e: { c: EXCEL_COLS.H, r: itemRows + 10 },
+    },
+    {
+      s: { c: EXCEL_COLS.A, r: itemRows + 11 },
+      e: { c: EXCEL_COLS.D, r: itemRows + 11 },
+    },
+    {
+      s: { c: EXCEL_COLS.E, r: itemRows + 11 },
+      e: { c: EXCEL_COLS.H, r: itemRows + 11 },
+    },
+  ];
+  const workbook = SheetUtils.book_new();
+  SheetUtils.book_append_sheet(workbook, worksheet, 'Recibo');
+  writeFile(workbook, `Recibo-${pago.nombreEmpleado}.xlsx`);
 }

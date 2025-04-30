@@ -5,12 +5,10 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from '~/components/ui/dialog';
 import { Button } from '~/components/ui/button';
 import { useFetcher } from '@remix-run/react';
 import { useState } from 'react';
-import { DialogClose } from '@radix-ui/react-dialog';
 
 interface FormValues {
   id: number;
@@ -29,13 +27,17 @@ interface FormValues {
 
 interface EliminarEstudianteModalProps {
   estudiante: FormValues;
+  open: boolean;
+  onClose: () => void;
 }
 
 export function EliminarEstudianteModal({
   estudiante,
+  open,
+  onClose,
 }: EliminarEstudianteModalProps) {
   const fetcher = useFetcher();
-  const [values, setValues] = useState<FormValues>(() => ({
+  const [values] = useState<FormValues>(() => ({
     ...estudiante,
   }));
 
@@ -44,26 +46,23 @@ export function EliminarEstudianteModal({
     formData.append('actionType', 'eliminar');
     formData.append('id', values.id.toString());
     fetcher.submit(formData, { method: 'post' });
+    onClose(); // Close the modal after submission
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant='destructive'>Eliminar</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Eliminar estudiante</DialogTitle>
           <DialogDescription>
-            ¿Estás seguro que deseas eliminar a {values.nombre}{' '}
-            {values.apellido}?
+            ¿Estás seguro que deseas eliminar a {values.nombre} {values.apellido}?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant='ghost'>Cancelar</Button>
-          </DialogClose>
-          <Button variant='destructive' onClick={handleDelete}>
+          <Button variant="ghost" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="destructive" onClick={handleDelete}>
             Sí, eliminar
           </Button>
         </DialogFooter>

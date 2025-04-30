@@ -136,18 +136,10 @@ export default function EmpleadoForm({
   const formStepThree = useForm<z.infer<typeof datosCargoEmpleado>>({
     resolver: zodResolver(datosCargoEmpleado),
     defaultValues: {
-      asignacionesMensual: 0,
       contribucionDiscapacidad: 0,
       contribucionDiscapacidadHijos: 0,
-      deduccionesMensual: 0,
       horasSemanales: 0,
-      porcentajeSso: 0,
-      porcentajeFaov: 0,
-      porcentajeRpe: 0,
-      primaAntiguedad: 0,
-      primaAsistencial: 0,
-      primaCompensacionAcademica: 0,
-      primaGeografica: 0,
+      sueldo: 0,
     },
   });
 
@@ -200,8 +192,8 @@ export default function EmpleadoForm({
     // Grado del empleado calculado en base al título y la experienciaLaboral
     const gradoEquivalente = equivalenciasGrados
       .filter(
-      (eq) =>
-        eq.tituloId === titulo && eq.experienciaLaboral <= experienciaLaboral,
+        (eq) =>
+          eq.tituloId === titulo && eq.experienciaLaboral <= experienciaLaboral,
       )
       .sort((a, b) => b.experienciaLaboral - a.experienciaLaboral);
     if (gradoEquivalente.length === 0) {
@@ -876,90 +868,6 @@ function StepThreeForm({
 
         <FormField
           control={formStepThree.control}
-          name='asignacionesMensual'
-          render={({ field }) => (
-            <FormItem>
-              <RequiredLabel>Asignaciones Mensuales</RequiredLabel>
-              <FormControl>
-                <Input {...field} type='number' step='0.01' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={formStepThree.control}
-          name='deduccionesMensual'
-          render={({ field }) => (
-            <FormItem>
-              <RequiredLabel>Deducciones Mensuales</RequiredLabel>
-              <FormControl>
-                <Input {...field} type='number' step='0.01' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={formStepThree.control}
-          name='primaAntiguedad'
-          render={({ field }) => (
-            <FormItem>
-              <RequiredLabel>Prima de Antigüedad</RequiredLabel>
-              <FormControl>
-                <Input {...field} type='number' step='0.01' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={formStepThree.control}
-          name='primaGeografica'
-          render={({ field }) => (
-            <FormItem>
-              <RequiredLabel>Prima Geográfica</RequiredLabel>
-              <FormControl>
-                <Input {...field} type='number' step='0.01' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={formStepThree.control}
-          name='primaCompensacionAcademica'
-          render={({ field }) => (
-            <FormItem>
-              <RequiredLabel>Prima de Compensación Académica</RequiredLabel>
-              <FormControl>
-                <Input {...field} type='number' step='0.01' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={formStepThree.control}
-          name='primaAsistencial'
-          render={({ field }) => (
-            <FormItem>
-              <RequiredLabel>Prima Asistencial</RequiredLabel>
-              <FormControl>
-                <Input {...field} type='number' step='0.01' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={formStepThree.control}
           name='contribucionDiscapacidad'
           render={({ field }) => (
             <FormItem>
@@ -980,48 +888,6 @@ function StepThreeForm({
               <RequiredLabel>
                 Contribución por Discapacidad de Hijos
               </RequiredLabel>
-              <FormControl>
-                <Input {...field} type='number' step='0.01' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={formStepThree.control}
-          name='porcentajeSso'
-          render={({ field }) => (
-            <FormItem>
-              <RequiredLabel>Porcentaje SSO</RequiredLabel>
-              <FormControl>
-                <Input {...field} type='number' step='0.01' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={formStepThree.control}
-          name='porcentajeRpe'
-          render={({ field }) => (
-            <FormItem>
-              <RequiredLabel>Porcentaje RPE</RequiredLabel>
-              <FormControl>
-                <Input {...field} type='number' step='0.01' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={formStepThree.control}
-          name='porcentajeFaov'
-          render={({ field }) => (
-            <FormItem>
-              <RequiredLabel>Porcentaje FAOV</RequiredLabel>
               <FormControl>
                 <Input {...field} type='number' step='0.01' />
               </FormControl>

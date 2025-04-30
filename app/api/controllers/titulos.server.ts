@@ -1,4 +1,4 @@
-import { asc } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import db from '../db';
 import { titulos } from '../tables/titulos';
 
@@ -16,5 +16,24 @@ export async function getTitulos() {
   } catch (error) {
     console.error('Error al obtener los títulos: ', error);
     throw new Error('Error al obtener los títulos');
+  }
+}
+
+/**
+ * Get single titulo by id
+ * @author gabrielm
+ * @param id
+ */
+export async function getTituloById(id: number) {
+  try {
+    const tituloQuery = await db
+      .select()
+      .from(titulos)
+      .where(eq(titulos.id, id))
+      .limit(1);
+    return tituloQuery[0];
+  } catch (error) {
+    console.error('Error al obtener el título: ', error);
+    throw new Error('Error al obtener el título');
   }
 }

@@ -20,6 +20,7 @@ export async function getEstudiantesByCursoPeriodo(
       nombre: estudiantes.nombre,
       apellido: estudiantes.apellido,
       cedula: estudiantes.cedula,
+      fechaNacimiento: estudiantes.fechaNacimiento,
       telefono: estudiantes.telefono,
       correo: estudiantes.correo,
       direccion: estudiantes.direccion,

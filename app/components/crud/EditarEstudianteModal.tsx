@@ -44,9 +44,22 @@ export function EditarEstudianteModal({
   }));
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
-  };
+  const { name, value } = e.target;
+
+  setValues((prev) => {
+    // Handle fechaNacimiento specifically
+    if (name === 'fechaNacimiento') {
+      const parsedDate = new Date(value);
+      if (isNaN(parsedDate.getTime())) {
+        console.error('Invalid date format:', value);
+        return prev; // Do not update if the date is invalid
+      }
+      return { ...prev, [name]: parsedDate };
+    }
+
+    return { ...prev, [name]: value };
+  });
+};
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

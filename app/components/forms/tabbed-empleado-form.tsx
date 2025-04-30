@@ -73,17 +73,8 @@ interface TabbedEmpleadoFormProps {
     cargo: number;
     horasSemanales: number;
     sueldo: number;
-    asignacionesMensual: number;
-    deduccionesMensual: number;
-    primaAntiguedad: number;
-    primaGeografica: number;
-    primaCompensacionAcademica: number;
-    primaAsistencial: number;
     contribucionDiscapacidad: number;
     contribucionDiscapacidadHijos: number;
-    porcentajeSso: number;
-    porcentajeRpe: number;
-    porcentajeFaov: number;
     pagoDirecto: boolean;
     jubilado: boolean;
     cuentaBancaria: string;
@@ -673,90 +664,6 @@ export default function TabbedEmpleadoForm({
 
             <FormField
               control={formStepThree.control}
-              name='asignacionesMensual'
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredLabel>Asignaciones Mensuales</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} type='number' step='0.01' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={formStepThree.control}
-              name='deduccionesMensual'
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredLabel>Deducciones Mensuales</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} type='number' step='0.01' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={formStepThree.control}
-              name='primaAntiguedad'
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredLabel>Prima de Antigüedad</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} type='number' step='0.01' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={formStepThree.control}
-              name='primaGeografica'
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredLabel>Prima Geográfica</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} type='number' step='0.01' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={formStepThree.control}
-              name='primaCompensacionAcademica'
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredLabel>Prima de Compensación Académica</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} type='number' step='0.01' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={formStepThree.control}
-              name='primaAsistencial'
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredLabel>Prima Asistencial</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} type='number' step='0.01' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={formStepThree.control}
               name='contribucionDiscapacidad'
               render={({ field }) => (
                 <FormItem>
@@ -777,48 +684,6 @@ export default function TabbedEmpleadoForm({
                   <RequiredLabel>
                     Contribución por Discapacidad de Hijos
                   </RequiredLabel>
-                  <FormControl>
-                    <Input {...field} type='number' step='0.01' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={formStepThree.control}
-              name='porcentajeSso'
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredLabel>Porcentaje SSO</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} type='number' step='0.01' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={formStepThree.control}
-              name='porcentajeRpe'
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredLabel>Porcentaje RPE</RequiredLabel>
-                  <FormControl>
-                    <Input {...field} type='number' step='0.01' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={formStepThree.control}
-              name='porcentajeFaov'
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredLabel>Porcentaje FAOV</RequiredLabel>
                   <FormControl>
                     <Input {...field} type='number' step='0.01' />
                   </FormControl>

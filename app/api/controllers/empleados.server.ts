@@ -9,6 +9,7 @@ import {
   updateEmpleadoInDb,
 } from '../services/empleados.server';
 import { profesores } from '../tables/profesores';
+import { titulos } from '../tables/titulos';
 
 /**
  * Get full list of employees
@@ -110,5 +111,30 @@ export async function deleteEmpleado(id: number) {
       type: 'error',
       message: 'Error al eliminar un empleado',
     } as const;
+  }
+}
+
+/**
+ * Get employees for payroll
+ * @author Gabriel
+ */
+export async function getEmpleadosForNomina() {
+  try {
+    return await db
+      .select({
+        id: empleados.id,
+        cedula: empleados.cedula,
+        nombre: empleados.nombreCompleto,
+        sueldo: empleados.sueldo,
+        fechaIngresoAvec: empleados.fechaIngresoAvec,
+        titulo: titulos.nombre,
+        nivelAcademico: empleados.postgrado,
+        hijos: empleados.cantidadHijos,
+      })
+      .from(empleados)
+      .innerJoin(titulos, eq(titulos.id, empleados.titulo));
+  } catch (error) {
+    console.error('Error al obtener a los empleados para nómina: ', error);
+    throw new Error('Error al obtener a los empleados para nómina');
   }
 }

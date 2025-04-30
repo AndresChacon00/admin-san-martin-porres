@@ -21,6 +21,7 @@ import {
 } from '../ui/dropdown-menu';
 import { Ellipsis } from 'lucide-react';
 import { EditarCursoModal } from '../crud/EditarCursoModal';
+import { EliminarCursoModal } from '../crud/EliminarCursoModal';
 import { Curso } from '~/types/cursos.types';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
@@ -134,48 +135,16 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
 </Dialog>
 
       {/* Eliminar Curso Modal */}
-      <Dialog
-        open={action === 'delete'}
-        onOpenChange={(open) => {
-          if (!open) {
+      {selectedCurso && action === 'delete' && (
+        <EliminarCursoModal
+          curso={selectedCurso}
+          open={action === 'delete'}
+          onClose={() => {
             setAction(null);
             setSelectedCurso(null);
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>¿Seguro que desea eliminar este curso?</DialogTitle>
-          </DialogHeader>
-          <>
-            <p>Esta acción no se puede revertir.</p>
-            <div className="flex flex-1 justify-end gap-4">
-              <Button
-                variant="outline"
-                className="bg-gray-200"
-                onClick={() => {
-                  setSelectedCurso(null);
-                  setAction(null);
-                }}
-              >
-                Cancelar
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  if (selectedCurso) {
-                    // Call the delete function here
-                    setSelectedCurso(null);
-                    setAction(null);
-                  }
-                }}
-              >
-                Eliminar
-              </Button>
-            </div>
-          </>
-        </DialogContent>
-      </Dialog>
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
   Calendar,
   LogOut,
   Settings,
+  Banknote,
 } from 'lucide-react';
 
 import {
@@ -78,6 +79,12 @@ const itemGroups: SidebarItemGroupT[] = [
         title: 'Profesores',
         url: '/profesores',
         icon: PencilRuler,
+        roles: ['admin'],
+      },
+      {
+        title: 'Nomina',
+        url: '/nomina',
+        icon: Banknote,
         roles: ['admin'],
       },
     ],
