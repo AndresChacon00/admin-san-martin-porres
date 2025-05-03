@@ -87,6 +87,12 @@ const itemGroups: SidebarItemGroupT[] = [
         icon: Banknote,
         roles: ['admin'],
       },
+      {
+        title: 'Programa Alimentario',
+        url: '/programa-alimentario',
+        icon: Banknote,
+        roles: ['admin'],
+      },
     ],
   },
   {

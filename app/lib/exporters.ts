@@ -2,6 +2,7 @@ import { type Empleado } from '~/types/empleados.types';
 import { utils as SheetUtils, writeFile } from 'xlsx';
 import { PagoNominaExportar } from '~/types/pagosNomina.types';
 import { ADDRESS, EXCEL_COLS, FOUNDATION_NAME, RIF } from '~/constants';
+import { PagoAlimentarioExportar } from '~/types/pagosAlimentario.types';
 
 /**
  * Exports a list of employees into an Excel file
@@ -127,6 +128,11 @@ export function exportEmpleados(empleados: Empleado[]) {
   return workbook;
 }
 
+/**
+ * Genera el recibo en excel para un pago de nómina
+ * @author gabrielm
+ * @param pago
+ */
 export function generarReciboNomina(pago: PagoNominaExportar) {
   const excelContent = [
     [FOUNDATION_NAME, '', '', `RIF: ${RIF}`],
@@ -282,4 +288,8 @@ export function generarReciboNomina(pago: PagoNominaExportar) {
   const workbook = SheetUtils.book_new();
   SheetUtils.book_append_sheet(workbook, worksheet, 'Recibo');
   writeFile(workbook, `Recibo-${pago.nombreEmpleado}.xlsx`);
+}
+
+export function generarReciboAlimentario(pago: PagoAlimentarioExportar) {
+  // @todo
 }
