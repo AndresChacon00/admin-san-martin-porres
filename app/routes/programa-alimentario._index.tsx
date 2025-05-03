@@ -1,19 +1,19 @@
 import { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { Link, useFetcher, useLoaderData } from '@remix-run/react';
 import { useMemo, useEffect } from 'react';
-import { getPagosNomina } from '~/api/controllers/pagosNomina.server';
-import { createPagosColumns } from '~/components/columns/pagos-nomina-columns';
+import { getPagosAlimentario } from '~/api/controllers/pagosAlimentario.server';
+import { createPagosAlimentarioColumns } from '~/components/columns/pagos-alimentario-columns';
 import Paginator from '~/components/Paginator';
 import { DataTable } from '~/components/ui/data-table';
-import { generarReciboNomina } from '~/lib/exporters';
-import { PagoNominaExportar } from '~/types/pagosNomina.types';
+import { generarReciboAlimentario } from '~/lib/exporters';
+import { PagoAlimentarioExportar } from '~/types/pagosAlimentario.types';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Nómina | San Martín de Porres' },
+    { title: 'Programa Alimentario | San Martín de Porres' },
     {
       name: 'description',
-      content: 'Nómina de empleados',
+      content: 'Pagos por Programa Alimentario',
     },
   ];
 };
@@ -22,7 +22,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const page = url.searchParams.get('page') || '1';
   const pageSize = url.searchParams.get('pageSize') || '20';
-  const { data, hasMorePages } = await getPagosNomina(
+  const { data, hasMorePages } = await getPagosAlimentario(
     Number(page),
     Number(pageSize),
   );
@@ -35,27 +35,27 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
-export default function NominaPage() {
+export default function ProgramaAlimentarioPage() {
   const { pagos, hasMorePages } = useLoaderData<typeof loader>();
   const exportFetcher = useFetcher();
 
   const columns = useMemo(
     () =>
-      createPagosColumns((row) => {
-        exportFetcher.load(`/exportar/nomina/${row.id}`);
+      createPagosAlimentarioColumns((row) => {
+        exportFetcher.load(`/exportar/alimentario/${row.id}`);
       }),
     [],
   );
 
   useEffect(() => {
     if (exportFetcher.state === 'idle' && exportFetcher.data) {
-      generarReciboNomina(exportFetcher.data as PagoNominaExportar);
+      generarReciboAlimentario(exportFetcher.data as PagoAlimentarioExportar);
     }
   }, [exportFetcher.state, exportFetcher.data]);
 
   return (
     <div className='pb-8'>
-      <h1 className='text-xl font-bold mb-4'>Pagos de Nómina</h1>
+      <h1 className='text-xl font-bold mb-4'>Pagos del Programa Alimentario</h1>
       <Link to='nuevo' className='link-button'>
         Cargar nuevo pago
       </Link>
