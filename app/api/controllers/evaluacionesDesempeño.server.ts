@@ -51,8 +51,8 @@ export async function getEvaluacionesDesempeño(page = 1, pageSize = 20) {
       hasMorePages,
     };
   } catch (error) {
-    console.error('Error fetching pagos de programa alimentario:', error);
-    throw new Error('Error obteniendo pagos de programa alimentario');
+    console.error('Error fetching pagos de evaluación de desempeño:', error);
+    throw new Error('Error obteniendo pagos de evaluación de desempeño');
   }
 }
 
