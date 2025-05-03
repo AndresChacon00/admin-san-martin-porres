@@ -163,3 +163,28 @@ export async function getEmpleadosForProgramaAlimentario() {
     );
   }
 }
+
+/**
+ * Gets empleado data for evaluacion de desempeño
+ * @author gabrielm
+ */
+export async function getEmpleadosForEvaluacionDesempeño() {
+  try {
+    return await db
+      .select({
+        id: empleados.id,
+        cedula: empleados.cedula,
+        nombre: empleados.nombreCompleto,
+        sueldoMensual: empleados.sueldo,
+      })
+      .from(empleados);
+  } catch (error) {
+    console.error(
+      'Error al obtener a los empleados para evaluación de desempeño: ',
+      error,
+    );
+    throw new Error(
+      'Error al obtener a los empleados para evaluación de desempeño',
+    );
+  }
+}

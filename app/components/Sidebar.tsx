@@ -93,6 +93,12 @@ const itemGroups: SidebarItemGroupT[] = [
         icon: Banknote,
         roles: ['admin'],
       },
+      {
+        title: 'Evaluación de Desempeño',
+        url: '/evaluacion-desempeño',
+        icon: Banknote,
+        roles: ['admin'],
+      },
     ],
   },
   {
