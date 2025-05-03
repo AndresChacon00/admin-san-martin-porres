@@ -197,7 +197,7 @@ export const pagoAlimentarioSchema = z.object({
   empleadoId: z.coerce
     .number({
       required_error: 'Seleccione un empleado',
-      invalid_type_error: 'Seleccione un periodo',
+      invalid_type_error: 'Seleccione un empleado',
     })
     .int(),
   cargoEmpleado: z.string({ required_error: 'Ingrese el cargo del empleado' }),
