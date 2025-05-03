@@ -5,8 +5,8 @@ import { getEvaluacionesDesempeño } from '~/api/controllers/evaluacionesDesempe
 import { createEvaluacionesDesempeñoColumns } from '~/components/columns/evaluaciones-desempeño-columns';
 import Paginator from '~/components/Paginator';
 import { DataTable } from '~/components/ui/data-table';
-import { generarReciboAlimentario } from '~/lib/exporters';
-import { PagoAlimentarioExportar } from '~/types/pagosAlimentario.types';
+import { generarReciboDesempeño } from '~/lib/exporters';
+import { EvaluacionDesempeñoExportar } from '~/types/pagosEvaluacionDesempeño.types';
 
 export const meta: MetaFunction = () => {
   return [
@@ -42,14 +42,14 @@ export default function EvaluacionDesempeñoPage() {
   const columns = useMemo(
     () =>
       createEvaluacionesDesempeñoColumns((row) => {
-        exportFetcher.load(`/exportar/alimentario/${row.id}`);
+        exportFetcher.load(`/exportar/evaluacion-desempeño/${row.id}`);
       }),
     [],
   );
 
   useEffect(() => {
     if (exportFetcher.state === 'idle' && exportFetcher.data) {
-      generarReciboAlimentario(exportFetcher.data as PagoAlimentarioExportar);
+      generarReciboDesempeño(exportFetcher.data as EvaluacionDesempeñoExportar);
     }
   }, [exportFetcher.state, exportFetcher.data]);
 

@@ -3,6 +3,7 @@ import { utils as SheetUtils, writeFile } from 'xlsx';
 import { PagoNominaExportar } from '~/types/pagosNomina.types';
 import { ADDRESS, EXCEL_COLS, FOUNDATION_NAME, RIF } from '~/constants';
 import { PagoAlimentarioExportar } from '~/types/pagosAlimentario.types';
+import { EvaluacionDesempeñoExportar } from '~/types/pagosEvaluacionDesempeño.types';
 
 /**
  * Exports a list of employees into an Excel file
@@ -144,8 +145,14 @@ export function generarReciboNomina(pago: PagoNominaExportar) {
       '',
       `FECHA: ${pago.fecha.toLocaleDateString()}`,
     ],
-    ['APELLIDO Y NOMBRE:', '', pago.nombreEmpleado, '', pago.cedulaEmpleado],
-    [`CARGO: ${pago.cargoEmpleado}`],
+    [
+      'APELLIDO Y NOMBRE:',
+      '',
+      pago.nombreEmpleado.toUpperCase(),
+      '',
+      pago.cedulaEmpleado,
+    ],
+    [`CARGO: ${pago.cargoEmpleado.toUpperCase()}`],
     [
       'FECHA DE INGRESO:',
       '',
@@ -191,7 +198,7 @@ export function generarReciboNomina(pago: PagoNominaExportar) {
     [],
     ['', '', '', '', 'TOTAL NOMINA', '', pago.totalNomina],
     ['RECIBE CONFORME'],
-    [`RESPONSABLE DE PAGO: ${pago.nombreCreador}`],
+    [`RESPONSABLE DE PAGO: ${pago.nombreCreador.toUpperCase()}`],
   ];
   const worksheet = SheetUtils.aoa_to_sheet(excelContent);
   const itemRows =
@@ -292,7 +299,7 @@ export function generarReciboNomina(pago: PagoNominaExportar) {
 
 /**
  * Genera el recibo en excel para un pago de programa alimentario
- * @param pago 
+ * @param pago
  */
 export function generarReciboAlimentario(pago: PagoAlimentarioExportar) {
   const excelContent = [
@@ -306,8 +313,14 @@ export function generarReciboAlimentario(pago: PagoAlimentarioExportar) {
       '',
       `FECHA: ${pago.fecha.toLocaleDateString()}`,
     ],
-    ['APELLIDO Y NOMBRE:', '', pago.nombreEmpleado, '', pago.cedulaEmpleado],
-    [`CARGO: ${pago.cargoEmpleado}`],
+    [
+      'APELLIDO Y NOMBRE:',
+      '',
+      pago.nombreEmpleado.toUpperCase(),
+      '',
+      pago.cedulaEmpleado,
+    ],
+    [`CARGO: ${pago.cargoEmpleado.toUpperCase()}`],
     ['NUMERO DE HORAS LABORALES SEMANAL', '', '', '', pago.horasSemanales],
     [
       'NUMERO DE HORAS DIARIAS',
@@ -326,7 +339,13 @@ export function generarReciboAlimentario(pago: PagoAlimentarioExportar) {
       pago.totalARecibir,
     ],
     ['RECIBE CONFORME', '', '', '', ''],
-    [`RESPONSABLE DE PAGO: ${pago.nombreCreador}`, '', '', '', ''],
+    [
+      `RESPONSABLE DE PAGO: ${pago.nombreCreador.toUpperCase()}`,
+      '',
+      '',
+      '',
+      '',
+    ],
   ];
 
   const worksheet = SheetUtils.aoa_to_sheet(excelContent);
@@ -364,4 +383,104 @@ export function generarReciboAlimentario(pago: PagoAlimentarioExportar) {
   const workbook = SheetUtils.book_new();
   SheetUtils.book_append_sheet(workbook, worksheet, 'Recibo');
   writeFile(workbook, `Recibo-ProgramaAlimentario-${pago.nombreEmpleado}.xlsx`);
+}
+
+/**
+ * Genera el recibo en excel para un pago de evaluación de desempeño
+ * @param pago
+ */
+export function generarReciboDesempeño(pago: EvaluacionDesempeñoExportar) {
+  const excelContent = [
+    [`EVALUACIÓN DE DESEMPEÑO ${pago.periodo.toUpperCase()}`],
+    [FOUNDATION_NAME, '', `RIF: ${RIF}`],
+    [
+      `DIRECCION: ${ADDRESS}`,
+      '',
+      '',
+      '',
+      '',
+      `FECHA: ${pago.fecha.toLocaleDateString()}`,
+    ],
+    [
+      'APELLIDO Y NOMBRE:',
+      '',
+      pago.nombreEmpleado.toUpperCase(),
+      '',
+      pago.cedulaEmpleado,
+    ],
+    [`CARGO: ${pago.cargoEmpleado.toUpperCase()}`],
+    ['SUELDO BASE MENSUAL', '', '', '', pago.sueldoMensual],
+    ['OTRAS PRIMAS SEGÚN ANEXOS ADMINISTRATIVOS', '', '', '', pago.otrasPrimas],
+    ['TOTAL ASIGNACIONES', '', '', '', pago.sueldoMensual + pago.otrasPrimas],
+    [
+      'TOTAL ASIGNACIONES DIARIAS (Col. 5/30)',
+      '',
+      '',
+      '',
+      pago.totalAsignacionesDiarias,
+    ],
+    ['FACTOR DE CÁLCULO', '', '', '', pago.factorCalculo],
+    [
+      'DIAS SEGÚN RANGO OBTENIDO (MUY BUENO o BUENO)',
+      '',
+      '',
+      '',
+      pago.diasRangoObtenido,
+    ],
+    [
+      'MONTO A PAGAR PRIMA DE EVALUACIÓN DE DESEMPEÑO',
+      '',
+      '',
+      '',
+      pago.montoFinal,
+    ],
+    ['RECIBE CONFORME', '', '', '', ''],
+    [
+      `RESPONSABLE DE PAGO: ${pago.nombreCreador.toUpperCase()}`,
+      '',
+      '',
+      '',
+      '',
+    ],
+  ];
+
+  const worksheet = SheetUtils.aoa_to_sheet(excelContent);
+  worksheet['!merges'] = [
+    // Fila 1
+    { s: { c: EXCEL_COLS.A, r: 0 }, e: { c: EXCEL_COLS.H, r: 0 } },
+    // Fila 2
+    { s: { c: EXCEL_COLS.A, r: 1 }, e: { c: EXCEL_COLS.B, r: 1 } },
+    { s: { c: EXCEL_COLS.C, r: 1 }, e: { c: EXCEL_COLS.H, r: 1 } },
+    // Fila 3
+    { s: { c: EXCEL_COLS.A, r: 2 }, e: { c: EXCEL_COLS.E, r: 2 } },
+    { s: { c: EXCEL_COLS.F, r: 2 }, e: { c: EXCEL_COLS.H, r: 2 } },
+    // Fila 4
+    { s: { c: EXCEL_COLS.A, r: 3 }, e: { c: EXCEL_COLS.B, r: 3 } },
+    { s: { c: EXCEL_COLS.C, r: 3 }, e: { c: EXCEL_COLS.D, r: 3 } },
+    { s: { c: EXCEL_COLS.E, r: 3 }, e: { c: EXCEL_COLS.H, r: 3 } },
+    // Fila 5
+    { s: { c: EXCEL_COLS.A, r: 4 }, e: { c: EXCEL_COLS.H, r: 4 } },
+    // Resto de filas
+    { s: { c: EXCEL_COLS.A, r: 5 }, e: { c: EXCEL_COLS.D, r: 5 } },
+    { s: { c: EXCEL_COLS.E, r: 5 }, e: { c: EXCEL_COLS.H, r: 5 } },
+    { s: { c: EXCEL_COLS.A, r: 6 }, e: { c: EXCEL_COLS.D, r: 6 } },
+    { s: { c: EXCEL_COLS.E, r: 6 }, e: { c: EXCEL_COLS.H, r: 6 } },
+    { s: { c: EXCEL_COLS.A, r: 7 }, e: { c: EXCEL_COLS.D, r: 7 } },
+    { s: { c: EXCEL_COLS.E, r: 7 }, e: { c: EXCEL_COLS.H, r: 7 } },
+    { s: { c: EXCEL_COLS.A, r: 8 }, e: { c: EXCEL_COLS.D, r: 8 } },
+    { s: { c: EXCEL_COLS.E, r: 8 }, e: { c: EXCEL_COLS.H, r: 8 } },
+    { s: { c: EXCEL_COLS.A, r: 9 }, e: { c: EXCEL_COLS.D, r: 9 } },
+    { s: { c: EXCEL_COLS.E, r: 9 }, e: { c: EXCEL_COLS.H, r: 9 } },
+    { s: { c: EXCEL_COLS.A, r: 10 }, e: { c: EXCEL_COLS.D, r: 10 } },
+    { s: { c: EXCEL_COLS.E, r: 10 }, e: { c: EXCEL_COLS.H, r: 10 } },
+    { s: { c: EXCEL_COLS.A, r: 11 }, e: { c: EXCEL_COLS.D, r: 11 } },
+    { s: { c: EXCEL_COLS.E, r: 11 }, e: { c: EXCEL_COLS.H, r: 11 } },
+    { s: { c: EXCEL_COLS.A, r: 12 }, e: { c: EXCEL_COLS.D, r: 12 } },
+    { s: { c: EXCEL_COLS.E, r: 12 }, e: { c: EXCEL_COLS.H, r: 12 } },
+    { s: { c: EXCEL_COLS.A, r: 13 }, e: { c: EXCEL_COLS.D, r: 13 } },
+    { s: { c: EXCEL_COLS.E, r: 13 }, e: { c: EXCEL_COLS.H, r: 13 } },
+  ];
+  const workbook = SheetUtils.book_new();
+  SheetUtils.book_append_sheet(workbook, worksheet, 'Recibo');
+  writeFile(workbook, `Recibo-EvaluacionDesempeño-${pago.nombreEmpleado}.xlsx`);
 }
