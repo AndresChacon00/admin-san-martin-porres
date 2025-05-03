@@ -290,6 +290,78 @@ export function generarReciboNomina(pago: PagoNominaExportar) {
   writeFile(workbook, `Recibo-${pago.nombreEmpleado}.xlsx`);
 }
 
+/**
+ * Genera el recibo en excel para un pago de programa alimentario
+ * @param pago 
+ */
 export function generarReciboAlimentario(pago: PagoAlimentarioExportar) {
-  // @todo
+  const excelContent = [
+    [`PROGRAMA ALIMENTARIO ${pago.periodoAlimentario.toUpperCase()}`],
+    [FOUNDATION_NAME, '', `RIF: ${RIF}`],
+    [
+      `DIRECCION: ${ADDRESS}`,
+      '',
+      '',
+      '',
+      '',
+      `FECHA: ${pago.fecha.toLocaleDateString()}`,
+    ],
+    ['APELLIDO Y NOMBRE:', '', pago.nombreEmpleado, '', pago.cedulaEmpleado],
+    [`CARGO: ${pago.cargoEmpleado}`],
+    ['NUMERO DE HORAS LABORALES SEMANAL', '', '', '', pago.horasSemanales],
+    [
+      'NUMERO DE HORAS DIARIAS',
+      '',
+      '',
+      '',
+      (pago.horasSemanales / 5).toFixed(2),
+    ],
+    ['TOTAL BENEFICIO ALIMENTARIO', '', '', '', pago.totalBeneficio],
+    ['DESCUENTO DE INASISTENCIA', '', '', '', pago.descuentoInasistencia],
+    [
+      'TOTAL A RECIBIR DE BENEFICIO ALIMENTARIO',
+      '',
+      '',
+      '',
+      pago.totalARecibir,
+    ],
+    ['RECIBE CONFORME', '', '', '', ''],
+    [`RESPONSABLE DE PAGO: ${pago.nombreCreador}`, '', '', '', ''],
+  ];
+
+  const worksheet = SheetUtils.aoa_to_sheet(excelContent);
+  worksheet['!merges'] = [
+    // Fila 1
+    { s: { c: EXCEL_COLS.A, r: 0 }, e: { c: EXCEL_COLS.H, r: 0 } },
+    // Fila 2
+    { s: { c: EXCEL_COLS.A, r: 1 }, e: { c: EXCEL_COLS.B, r: 1 } },
+    { s: { c: EXCEL_COLS.C, r: 1 }, e: { c: EXCEL_COLS.H, r: 1 } },
+    // Fila 3
+    { s: { c: EXCEL_COLS.A, r: 2 }, e: { c: EXCEL_COLS.E, r: 2 } },
+    { s: { c: EXCEL_COLS.F, r: 2 }, e: { c: EXCEL_COLS.H, r: 2 } },
+    // Fila 4
+    { s: { c: EXCEL_COLS.A, r: 3 }, e: { c: EXCEL_COLS.B, r: 3 } },
+    { s: { c: EXCEL_COLS.C, r: 3 }, e: { c: EXCEL_COLS.D, r: 3 } },
+    { s: { c: EXCEL_COLS.E, r: 3 }, e: { c: EXCEL_COLS.H, r: 3 } },
+    // Fila 5
+    { s: { c: EXCEL_COLS.A, r: 4 }, e: { c: EXCEL_COLS.H, r: 4 } },
+    // Resto de filas
+    { s: { c: EXCEL_COLS.A, r: 5 }, e: { c: EXCEL_COLS.D, r: 5 } },
+    { s: { c: EXCEL_COLS.E, r: 5 }, e: { c: EXCEL_COLS.H, r: 5 } },
+    { s: { c: EXCEL_COLS.A, r: 6 }, e: { c: EXCEL_COLS.D, r: 6 } },
+    { s: { c: EXCEL_COLS.E, r: 6 }, e: { c: EXCEL_COLS.H, r: 6 } },
+    { s: { c: EXCEL_COLS.A, r: 7 }, e: { c: EXCEL_COLS.D, r: 7 } },
+    { s: { c: EXCEL_COLS.E, r: 7 }, e: { c: EXCEL_COLS.H, r: 7 } },
+    { s: { c: EXCEL_COLS.A, r: 8 }, e: { c: EXCEL_COLS.D, r: 8 } },
+    { s: { c: EXCEL_COLS.E, r: 8 }, e: { c: EXCEL_COLS.H, r: 8 } },
+    { s: { c: EXCEL_COLS.A, r: 9 }, e: { c: EXCEL_COLS.D, r: 9 } },
+    { s: { c: EXCEL_COLS.E, r: 9 }, e: { c: EXCEL_COLS.H, r: 9 } },
+    { s: { c: EXCEL_COLS.A, r: 10 }, e: { c: EXCEL_COLS.D, r: 10 } },
+    { s: { c: EXCEL_COLS.E, r: 10 }, e: { c: EXCEL_COLS.H, r: 10 } },
+    { s: { c: EXCEL_COLS.A, r: 11 }, e: { c: EXCEL_COLS.D, r: 11 } },
+    { s: { c: EXCEL_COLS.E, r: 11 }, e: { c: EXCEL_COLS.H, r: 11 } },
+  ];
+  const workbook = SheetUtils.book_new();
+  SheetUtils.book_append_sheet(workbook, worksheet, 'Recibo');
+  writeFile(workbook, `Recibo-ProgramaAlimentario-${pago.nombreEmpleado}.xlsx`);
 }

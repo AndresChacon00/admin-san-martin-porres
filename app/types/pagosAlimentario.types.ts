@@ -11,6 +11,7 @@ export type PagoAlimentarioListItem = {
   nombreUsuario: string;
 };
 export type PagoAlimentarioExportar = {
+  periodoAlimentario: string;
   fecha: Date;
   nombreEmpleado: string;
   cedulaEmpleado: string;
