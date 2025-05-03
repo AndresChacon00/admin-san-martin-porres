@@ -36,7 +36,7 @@ export async function createPeriodoAlimentario(
         'Periodo del programa alimentario creado exitosamente, puede seleccionarlo',
     } as const;
   } catch (error) {
-    console.error('Error creating periodo de nomina:', error);
+    console.error('Error creating periodo de programa alimentario:', error);
     return {
       type: 'error',
       message: 'Error creando periodo del programa alimentario',
