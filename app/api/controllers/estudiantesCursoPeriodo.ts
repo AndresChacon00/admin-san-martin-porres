@@ -54,7 +54,7 @@ export async function inscribirEstudianteCursoPeriodo(
 export async function eliminarEstudianteCursoPeriodo(
   idPeriodo: number,
   codigoCurso: string,
-  idEstudiante: number,
+  idEstudiante: string,
 ) {
   try {
     await eliminarEstudianteDeCursoPeriodo(

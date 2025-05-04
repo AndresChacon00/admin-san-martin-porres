@@ -12,7 +12,7 @@ export const estudiantesCursoPeriodo = sqliteTable(
     codigoCurso: text('codigo_curso')
       .notNull()
       .references(() => cursos.codigo),
-    idEstudiante: integer('id_estudiante')
+    cedulaEstudiante: text('id_estudiante')
       .notNull()
       .references(() => estudiantes.cedula),
 
@@ -22,7 +22,7 @@ export const estudiantesCursoPeriodo = sqliteTable(
     uniqueEnrollment: unique().on(
       table.idPeriodo,
       table.codigoCurso,
-      table.idEstudiante,
+      table.cedulaEstudiante,
     ),
   }),
 );

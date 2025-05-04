@@ -16,7 +16,6 @@ export async function getEstudiantesByCursoPeriodo(
 ) {
   return await db
     .select({
-      id: estudiantes.id,
       nombre: estudiantes.nombre,
       apellido: estudiantes.apellido,
       cedula: estudiantes.cedula,
@@ -28,7 +27,7 @@ export async function getEstudiantesByCursoPeriodo(
     .from(estudiantesCursoPeriodo)
     .innerJoin(
       estudiantes,
-      eq(estudiantesCursoPeriodo.idEstudiante, estudiantes.id),
+      eq(estudiantesCursoPeriodo.cedulaEstudiante, estudiantes.cedula),
     )
     .where(
       and(
@@ -57,7 +56,7 @@ export async function inscribirEstudianteEnCursoPeriodo(
 export async function eliminarEstudianteDeCursoPeriodo(
   idPeriodo: number,
   codigoCurso: string,
-  idEstudiante: number,
+  cedulaEstudiante: string,
 ) {
   await db
     .delete(estudiantesCursoPeriodo)
@@ -65,7 +64,7 @@ export async function eliminarEstudianteDeCursoPeriodo(
       and(
         eq(estudiantesCursoPeriodo.idPeriodo, idPeriodo),
         eq(estudiantesCursoPeriodo.codigoCurso, codigoCurso),
-        eq(estudiantesCursoPeriodo.idEstudiante, idEstudiante),
+        eq(estudiantesCursoPeriodo.cedulaEstudiante, cedulaEstudiante),
       ),
     );
 }
