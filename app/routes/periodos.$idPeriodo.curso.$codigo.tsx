@@ -34,6 +34,12 @@ export const loader: LoaderFunction = async ({ params }) => {
   );
 
   // Calcular la deuda para cada estudiante
+  if (!Array.isArray(estudiantes)) {
+    throw new Response(estudiantes.message || 'Error al obtener estudiantes', {
+      status: 500,
+    });
+  }
+
   const estudiantesConDeuda = await Promise.all(
     estudiantes.map(async (estudiante) => {
       if (!estudiante.cedula) {
@@ -61,7 +67,7 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
-  const cedulaEstudiante = formData.get('idEstudiante') as string | null;
+  const cedulaEstudiante = formData.get('cedulaEstudiante') as string | null;
 
   const idPeriodo = Number(params.idPeriodo);
   const codigoCurso = params.codigo;
@@ -100,8 +106,12 @@ export default function EstudiantesCursoPage() {
               </DialogDescription>
             </DialogHeader>
             <Form method='post'>
-              <Label htmlFor='idEstudiante'>ID Estudiante</Label>
-              <Input id='idEstudiante' name='idEstudiante' type='number' />
+              <Label htmlFor='cedulaEstudiante'>Cedula Estudiante</Label>
+              <Input
+                id='cedulaEstudiante'
+                name='cedulaEstudiante'
+                type='number'
+              />
               <DialogFooter>
                 <Button type='submit'>Inscribir Estudiante</Button>
               </DialogFooter>
