@@ -92,6 +92,12 @@ const itemGroups: SidebarItemGroupT[] = [
         icon: Settings,
         roles: ['admin'],
       },
+      {
+        title: 'Escala de Sueldo Personal',
+        url: '/escalaSueldoPersonal',
+        icon: Settings,
+        roles: ['admin'],
+      },
     ],
   },
 ];

@@ -39,21 +39,20 @@ export async function getEscalaSueldoPersonal(
  * @param sueldo Nuevo valor del sueldo
  */
 export async function updateEscalaSueldoPersonal(
-    id: number,
-    data: Partial<typeof escalaSueldoPersonal.$inferInsert>,
+  id: number,
+  data: Partial<typeof escalaSueldoPersonal.$inferInsert>,
 ) {
-    try {
-        const updatedEscalaSueldo = await db
-            .update(escalaSueldoPersonal)
-            .set({
-                escalaSueldo: data.escalaSueldo,
-            })
-            .where(eq(escalaSueldoPersonal.id, id))
-            .returning();
-        return updatedEscalaSueldo;
-    } catch (error) {
-        console.error('Error al editar la escala de sueldo del personal: ', error);
-        throw new Error('Error al editar la escala de sueldo del personal');
-    }
+  try {
+    const updatedEscalaSueldo = await db
+      .update(escalaSueldoPersonal)
+      .set({
+        escalaSueldo: data.escalaSueldo,
+      })
+      .where(eq(escalaSueldoPersonal.id, id))
+      .returning();
+    return updatedEscalaSueldo;
+  } catch (error) {
+    console.error('Error al editar la escala de sueldo del personal: ', error);
+    throw new Error('Error al editar la escala de sueldo del personal');
+  }
 }
-
