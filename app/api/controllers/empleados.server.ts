@@ -138,3 +138,53 @@ export async function getEmpleadosForNomina() {
     throw new Error('Error al obtener a los empleados para nómina');
   }
 }
+
+/**
+ * Gets empleado data for programa alimentario
+ * @author gabrielm
+ */
+export async function getEmpleadosForProgramaAlimentario() {
+  try {
+    return await db
+      .select({
+        id: empleados.id,
+        cedula: empleados.cedula,
+        nombre: empleados.nombreCompleto,
+        horasSemanales: empleados.horasSemanales,
+      })
+      .from(empleados);
+  } catch (error) {
+    console.error(
+      'Error al obtener a los empleados para programa alimentario: ',
+      error,
+    );
+    throw new Error(
+      'Error al obtener a los empleados para programa alimentario',
+    );
+  }
+}
+
+/**
+ * Gets empleado data for evaluacion de desempeño
+ * @author gabrielm
+ */
+export async function getEmpleadosForEvaluacionDesempeño() {
+  try {
+    return await db
+      .select({
+        id: empleados.id,
+        cedula: empleados.cedula,
+        nombre: empleados.nombreCompleto,
+        sueldoMensual: empleados.sueldo,
+      })
+      .from(empleados);
+  } catch (error) {
+    console.error(
+      'Error al obtener a los empleados para evaluación de desempeño: ',
+      error,
+    );
+    throw new Error(
+      'Error al obtener a los empleados para evaluación de desempeño',
+    );
+  }
+}

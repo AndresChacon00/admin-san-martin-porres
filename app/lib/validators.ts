@@ -186,4 +186,63 @@ export const periodoNominaSchema = z.object({
     .string({ required_error: 'Nombre requerido' })
     .min(3, 'Nombre muy corto'),
 });
+
+export const pagoAlimentarioSchema = z.object({
+  periodoAlimentarioId: z.coerce
+    .number({
+      required_error: 'Seleccione un periodo',
+      invalid_type_error: 'Seleccione un periodo',
+    })
+    .int(),
+  empleadoId: z.coerce
+    .number({
+      required_error: 'Seleccione un empleado',
+      invalid_type_error: 'Seleccione un empleado',
+    })
+    .int(),
+  cargoEmpleado: z.string({ required_error: 'Ingrese el cargo del empleado' }),
+  horasSemanales: z.coerce.number({
+    required_error: 'Ingrese las horas laborales semanales',
+  }),
+  totalBeneficio: z.coerce.number({
+    required_error: 'Ingrese el subtotal por beneficio alimentario',
+  }),
+  descuentoInasistencia: z.coerce.number({
+    required_error: 'Ingrese el descuento por inasistencia',
+  }),
+});
+
+export const evaluacionDesempeñoSchema = z.object({
+  periodoId: z.coerce
+    .number({
+      required_error: 'Seleccione un periodo',
+      invalid_type_error: 'Seleccione un periodo',
+    })
+    .int(),
+  empleadoId: z.coerce
+    .number({
+      required_error: 'Seleccione un empleado',
+      invalid_type_error: 'Seleccione un empleado',
+    })
+    .int(),
+  cargoEmpleado: z.string({ required_error: 'Ingrese el cargo del empleado' }),
+  sueldoMensual: z.coerce.number({
+    required_error: 'Ingrese el sueldo mensual del empleado',
+  }),
+  otrasPrimas: z.coerce.number({
+    required_error: 'Ingrese el monto de otras primas',
+  }),
+  totalAsignacionesDiarias: z.coerce.number({
+    required_error: 'Ingrese el total de asignaciones diarias',
+  }),
+  factorCalculo: z.coerce.number({
+    required_error: 'Ingrese el factor de cálculo',
+  }),
+  diasRangoObtenido: z.coerce.number({
+    required_error: 'Ingrese los días del rango obtenido',
+  }),
+  montoFinal: z.coerce.number({
+    required_error: 'Ingrese el monto final',
+  }),
+});
 // #endregion
