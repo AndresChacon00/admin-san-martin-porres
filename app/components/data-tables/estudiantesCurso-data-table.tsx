@@ -1,10 +1,13 @@
 import {
   ColumnDef,
+  SortingState,
+  getSortedRowModel,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 
+import * as React from 'react';
 import {
   Table,
   TableBody,
@@ -27,6 +30,7 @@ import { AgregarPagoModal } from '../crud/AgregarPagoModal';
 import { EditarPagoModal } from '../crud/EditarPagoModal';
 import { EliminarPagoModal } from '../crud/EliminarPagoModal';
 import { Estudiante } from '~/types/estudiantes.types';
+import { EliminarEstudianteCursoModal } from '../crud/EliminarEstudianteCursoModal';
 
 interface DataTableProps {
   columns: ColumnDef<Estudiante>[];
@@ -41,20 +45,21 @@ export function EstudiantesCursoDataTable({
   idPeriodo,
   codigoCurso,
 }: DataTableProps) {
+
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const table = useReactTable({
     data,
     columns,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
     getCoreRowModel: getCoreRowModel(),
   });
 
   const [selectedEstudiante, setSelectedEstudiante] = useState<Estudiante | null>(null);
-  const [selectedPago, setSelectedPago] = useState<{
-    idPago: number;
-    idPeriodo: number;
-    codigoCurso: string;
-    idEstudiante: number;
-  } | null>(null);
-  const [action, setAction] = useState<'addPago' | 'editPago' | 'deletePago' | null>(null);
+  const [action, setAction] = useState<'addPago' | 'editPago' | 'deletePago' | 'deleteEstudiante' | null>(null);
 
   return (
     <div className="rounded-md border">
@@ -97,29 +102,12 @@ export function EstudiantesCursoDataTable({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
-                          setAction('editPago');
-                          setSelectedPago({
-                            idPago: 1, // Replace with actual ID
-                            idPeriodo,
-                            codigoCurso,
-                            idEstudiante: row.original.id,
-                          });
+                          console.log('Opening Eliminar Estudiante Modal for:', row.original);
+                          setAction('deleteEstudiante');
+                          setSelectedEstudiante(row.original);
                         }}
                       >
-                        Editar Pago
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setAction('deletePago');
-                          setSelectedPago({
-                            idPago: 1, // Replace with actual ID
-                            idPeriodo,
-                            codigoCurso,
-                            idEstudiante: row.original.id,
-                          });
-                        }}
-                      >
-                        Eliminar Pago
+                        Eliminar Estudiante
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -150,38 +138,21 @@ export function EstudiantesCursoDataTable({
         />
       )}
 
-      {/* Editar Pago Modal */}
-      {selectedPago && action === 'editPago' && (
-        <EditarPagoModal
-          pago={{
-            idPago: selectedPago.idPago,
-            idPeriodo: selectedPago.idPeriodo,
-            codigoCurso: selectedPago.codigoCurso,
-            idEstudiante: selectedPago.idEstudiante,
-            monto: 0, // Replace with actual data
-            fecha: '', // Replace with actual data
-            tipoPago: '', // Replace with actual data
-            comprobante: '', // Replace with actual data
-          }}
-          open={action === 'editPago'}
+      {/* Eliminar Estudiante Modal */}
+      {selectedEstudiante && action === 'deleteEstudiante' && (
+        <EliminarEstudianteCursoModal
+          idPeriodo={idPeriodo}
+          codigoCurso={codigoCurso}
+          idEstudiante={selectedEstudiante.id}
+          nombreEstudiante={`${selectedEstudiante.nombre} ${selectedEstudiante.apellido}`}
+          open={action === 'deleteEstudiante'}
           onClose={() => {
             setAction(null);
-            setSelectedPago(null);
+            setSelectedEstudiante(null);
           }}
         />
       )}
 
-      {/* Eliminar Pago Modal */}
-      {selectedPago && action === 'deletePago' && (
-        <EliminarPagoModal
-          idPago={selectedPago.idPago}
-          open={action === 'deletePago'}
-          onClose={() => {
-            setAction(null);
-            setSelectedPago(null);
-          }}
-        />
-      )}
     </div>
   );
 }

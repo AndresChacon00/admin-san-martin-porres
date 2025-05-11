@@ -1,5 +1,6 @@
 import React from 'react';
-import Receipt from './RecibosEstudiantes';
+import ReciboEstudiantes from './ReciboEstudiantes';
+import { imprimirRecibo } from './ImprimirRecibo';
 
 const ReciboTest = () => {
   const dummyData = {
@@ -11,11 +12,10 @@ const ReciboTest = () => {
     cedula: '12345678',
     sexo: 'Masculino',
     fechaNacimiento: '01/01/2000',
-    edad: '25',
     religion: 'Católica',
     telefono: '0414-1234567',
     correo: 'juan.perez@example.com',
-    direccionPuntoReferencia: 'Calle Principal, Casa #123, Brisas del Sur',
+    direccion: 'Calle Principal, Casa #123, Brisas del Sur',
     ultimoAnioCursado: '2024',
     curso: 'Programación Básica',
     periodo: '2025-1',
@@ -27,7 +27,15 @@ const ReciboTest = () => {
     nombreCentroCapacitacion: 'Centro de Capacitación FUNDACECASMAR',
   };
 
-  return <Receipt {...dummyData} />;
+  const handleDescargarRecibo = () => {
+    imprimirRecibo(dummyData.cedula, dummyData.fechaPago); // Pasamos la cédula y la fecha de pago
+  };
+
+  return <div>
+      <h2>Confirmación de Pago</h2>
+      <ReciboEstudiantes{...dummyData} />
+      <button onClick={handleDescargarRecibo}>Descargar Recibo</button>
+    </div>;
 };
 
 export default ReciboTest;

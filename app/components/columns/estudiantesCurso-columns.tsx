@@ -1,7 +1,8 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Estudiante } from '~/types/estudiantes.types';
-
+import {ArrowUpDown} from 'lucide-react';
+import { Button } from '../ui/button';
 export const estudiantesCursoColumns: ColumnDef<Estudiante>[] = [
   {
     accessorKey: 'cedula',
@@ -35,8 +36,18 @@ export const estudiantesCursoColumns: ColumnDef<Estudiante>[] = [
     },
   },
   {
-    accessorKey: 'deuda',
-    header: 'Deuda',
+    accessorKey: "deuda",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Deuda
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
   },
   {
     accessorKey: 'correo',

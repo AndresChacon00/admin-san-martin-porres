@@ -47,7 +47,7 @@ export async function getCursosByPeriodo(idPeriodo: number) {
  */
 export async function removeCursoFromPeriodo(
   idPeriodo: number,
-  idCurso: number,
+  idCurso: string,
 ) {
   await db
     .delete(cursosPeriodo)

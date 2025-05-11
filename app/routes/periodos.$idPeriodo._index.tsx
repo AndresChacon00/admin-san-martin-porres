@@ -1,7 +1,9 @@
-import { useLoaderData, Form, useParams } from '@remix-run/react';
-import { obtenerCursosPorPeriodo, inscribirCursoEnPeriodo } from '~/api/controllers/cursosPeriodo';
+import { useLoaderData, Form, useParams, MetaFunction } from '@remix-run/react';
+import { obtenerCursosPorPeriodo, inscribirCursoEnPeriodo , eliminarCursoDePeriodo } from '~/api/controllers/cursosPeriodo';
+import { cursoColumns } from '~/components/columns/cursos-columns';
 import { cursoColumnsWithActions } from '~/components/columns/cursosPeriodos-columns';
 import { DataTable } from '~/components/ui/data-table';
+import { CursosPeriodosDataTable } from '~/components/data-tables/cursosPeriodo-data-table'; // Import the custom data table
 import {
   Dialog,
   DialogContent,
@@ -11,6 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '~/components/ui/dialog';
+
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
@@ -24,17 +27,42 @@ export const loader: LoaderFunction = async ({ params }) => {
   return await obtenerCursosPorPeriodo(idPeriodo);
 }
 
+
+export const meta: MetaFunction = () => {
+  return [{ title: 'Periodos | San Martín de Porres' }];
+};
+
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
-  const idCurso = Number(formData.get('idCurso'));
+  const actionType = formData.get('actionType');
   const idPeriodo = Number(params.idPeriodo);
-  const horario = String(formData.get('horario'));
 
-  if (isNaN(idCurso) || isNaN(idPeriodo) || !horario) {
-    return { error: 'Datos inválidos' };
+  if (isNaN(idPeriodo)) {
+    return { error: 'ID de periodo inválido' };
   }
 
-  return await inscribirCursoEnPeriodo( idPeriodo, idCurso, horario );
+  if (actionType === 'inscribirCurso') {
+    const idCurso = Number(formData.get('idCurso'));
+    const horario = String(formData.get('horario'));
+
+    if (isNaN(idCurso) || !horario) {
+      return { error: 'Datos inválidos' };
+    }
+
+    return await inscribirCursoEnPeriodo(idPeriodo, idCurso, horario);
+  }
+
+  if (actionType === 'eliminarCursoPeriodo') {
+    const codigoCurso = formData.get('codigoCurso');
+
+    if (!codigoCurso) {
+      return { error: 'Código del curso inválido' };
+    }
+
+    return await eliminarCursoDePeriodo(idPeriodo, Number(codigoCurso));
+  }
+
+  return { error: 'Acción no válida' };
 };
 
 export default function CursosPeriodoPage() {
@@ -59,6 +87,7 @@ export default function CursosPeriodoPage() {
             </DialogDescription>
           </DialogHeader>
           <Form method="post">
+            <input type="hidden" name="actionType" value="inscribirCurso" />
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="idCurso" className="text-right">
@@ -85,7 +114,11 @@ export default function CursosPeriodoPage() {
         {'type' in cursosInscritos && cursosInscritos.type === 'error' ? (
           <p>Ocurrió un error cargando los cursos</p>
         ) : (
-          <DataTable columns={cursoColumnsWithActions(Number(idPeriodo))} data={cursosInscritos} />
+          <CursosPeriodosDataTable
+              columns={cursoColumns} // Pass the base columns
+              data={cursosInscritos} // Pass the data from the loader
+              idPeriodo={Number(idPeriodo)} // Pass the period ID
+            />
         )}
       </main>
       </div>

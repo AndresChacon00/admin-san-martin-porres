@@ -22,18 +22,57 @@ import {
 import { Ellipsis } from 'lucide-react';
 import { Curso } from '~/types/cursos.types';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { EditarCursoModal } from '../crud/EditarCursoModal';
+import { Link } from '@remix-run/react';
+import { Button } from '../ui/button';
+import { EliminarCursoPeriodoModal } from '../crud/EliminarCursoPeriodoModal';
 
 interface DataTableProps {
   columns: ColumnDef<Curso>[];
   data: Curso[];
+  idPeriodo: number;
 }
 
-export function CursosPeriodosDataTable({ columns, data }: DataTableProps) {
+export function CursosPeriodosDataTable({
+  columns,
+  data,
+  idPeriodo,
+}: DataTableProps) {
+  const extendedColumns: ColumnDef<Curso>[] = [
+    ...columns,
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      cell: ({ row }) => {
+        const codigo = row.original.codigo;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Ellipsis color="gray" aria-label="Opciones" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem asChild>
+                <Link to={`/periodos/${idPeriodo}/curso/${codigo}`}>
+                  Ver alumnos inscritos
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setAction('delete');
+                  setSelectedCurso(row.original);
+                }}
+              >
+                Eliminar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
   const table = useReactTable({
     data,
-    columns,
+    columns: extendedColumns,
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -73,36 +112,11 @@ export function CursosPeriodosDataTable({ columns, data }: DataTableProps) {
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <Ellipsis color="gray" aria-label="Opciones" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setAction('edit');
-                          setSelectedCurso(row.original);
-                        }}
-                      >
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setAction('delete');
-                          setSelectedCurso(row.original);
-                        }}
-                      >
-                        Eliminar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={extendedColumns.length} className="h-24 text-center">
                 Sin resultados.
               </TableCell>
             </TableRow>
@@ -110,75 +124,18 @@ export function CursosPeriodosDataTable({ columns, data }: DataTableProps) {
         </TableBody>
       </Table>
 
-      {/* Editar Curso Modal */}
-      <Dialog
-        open={action === 'edit'}
-        onOpenChange={(open) => {
-          if (!open) {
+      {/* Eliminar Curso del Periodo Modal */}
+      {selectedCurso && action === 'delete' && (
+        <EliminarCursoPeriodoModal
+          idPeriodo={idPeriodo}
+          codigoCurso={selectedCurso.codigo}
+          open={action === 'delete'}
+          onClose={() => {
             setAction(null);
             setSelectedCurso(null);
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Curso</DialogTitle>
-          </DialogHeader>
-          {selectedCurso && (
-            <EditarCursoModal
-              curso={selectedCurso}
-              open={action === 'edit'}
-              onClose={() => {
-                setAction(null);
-                setSelectedCurso(null);
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Eliminar Curso Modal */}
-      <Dialog
-        open={action === 'delete'}
-        onOpenChange={(open) => {
-          if (!open) {
-            setAction(null);
-            setSelectedCurso(null);
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>¿Seguro que desea eliminar este curso?</DialogTitle>
-          </DialogHeader>
-          <>
-            <p>Esta acción no se puede revertir.</p>
-            <div className="flex flex-1 justify-end gap-4">
-              <button
-                className="bg-gray-200 px-4 py-2 rounded"
-                onClick={() => {
-                  setSelectedCurso(null);
-                  setAction(null);
-                }}
-              >
-                Cancelar
-              </button>
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded"
-                onClick={() => {
-                  if (selectedCurso) {
-                    // Call the delete function here
-                    setSelectedCurso(null);
-                    setAction(null);
-                  }
-                }}
-              >
-                Eliminar
-              </button>
-            </div>
-          </>
-        </DialogContent>
-      </Dialog>
+          }}
+        />
+      )}
     </div>
   );
 }
