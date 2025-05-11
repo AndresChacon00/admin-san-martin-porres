@@ -3,6 +3,10 @@ import {  getRecibosPorCursoPeriodo, editarPago, eliminarPago    } from '~/api/c
 import { DataTablePagosEstudiantes } from '~/components/data-tables/pagosEstudiantes-data-table';
 import type { LoaderFunction, ActionFunction } from '@remix-run/node';
 import { pagosColumns } from '~/components/columns/pagos-estudiante';
+import ReciboEstudiante from '~/components/ReciboEstudiantes';
+import { imprimirRecibo } from '~/components/ImprimirRecibo';
+import { useState } from 'react';
+import * as React from 'react';
 
 export const loader: LoaderFunction = async ({ params }) => {
   const idPeriodo = Number(params.idPeriodo);
@@ -70,6 +74,27 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function PagosCursoPage() {
   const pagos = useLoaderData<typeof loader>();
   const { idPeriodo, codigo } = useParams();
+  const [selectedPagoId, setSelectedPagoId] = useState<number | null>(null);
+
+  const handleGenerateReceipt = (idPago: number) => {
+    console.log('Generating receipt for ID:', idPago);
+    setSelectedPagoId(idPago); // Update the selectedPagoId state
+  };
+
+  const selectedPago = selectedPagoId
+    ? pagos.find((pago) => pago.idPago === selectedPagoId)
+    : null;
+
+  // Trigger imprimirRecibo when selectedPagoId changes
+  React.useEffect(() => {
+    if (selectedPago) {
+        console.log('Calling imprimirRecibo with:', selectedPago.cedula, selectedPago.fechaPago);
+      imprimirRecibo(selectedPago.cedula, selectedPago.fecha);
+      // // Reset the state after printing
+      setSelectedPagoId(null);
+    }
+  }, [selectedPago]);
+
   console.log('Pagos:', pagos);
 
   return (
@@ -77,9 +102,52 @@ export default function PagosCursoPage() {
       <h1 className="text-xl font-bold">Historial de Pagos del Curso {codigo} - Periodo {idPeriodo}</h1>
       <div className="py-4 w-3/4">
       <main className="py-4">
-        <DataTablePagosEstudiantes columns={pagosColumns} data={pagos} />
+        <DataTablePagosEstudiantes columns={pagosColumns} data={pagos} onGenerateReceipt={handleGenerateReceipt} />
       </main>
       </div>
+
+       {/* Hidden ReciboEstudiante for printing */}
+       {selectedPagoId && (
+        <div
+          id="recibo"
+          style={{
+            display: 'hidden',
+            position: 'absolute',
+            top: '-9999px',
+            left: '-9999px',
+          }}
+        >
+          <ReciboEstudiante
+            numeroRecibo={selectedPago.numeroRecibo.toString()}
+            codigoCurso={selectedPago.codigoCurso}
+            nombre={selectedPago.nombre}
+            apellido={selectedPago.apellido}
+            cedula={selectedPago.cedula}
+            sexo={selectedPago.sexo}
+            fechaNacimiento={
+              selectedPago.fechaNacimiento instanceof Date
+                ? selectedPago.fechaNacimiento.toISOString().split('T')[0]
+                : selectedPago.fechaNacimiento
+            }
+            religion={selectedPago.religion}
+            telefono={selectedPago.telefono}
+            correo={selectedPago.correo}
+            direccion={selectedPago.direccion}
+            ultimoAñoCursado={selectedPago.ultimoAnioCursado}
+            curso={selectedPago.curso}
+            periodo={selectedPago.periodo.toString()}
+            fechaPago={
+              selectedPago.fecha instanceof Date
+                ? selectedPago.fecha.toISOString().split('T')[0]
+                : selectedPago.fecha
+            }
+            numeroTransferencia={selectedPago.numeroTransferencia}
+            monto={selectedPago.monto.toString()}
+            observaciones={selectedPago.observaciones}
+          />
+        </div>
+      )}
+
     </>
   );
 }

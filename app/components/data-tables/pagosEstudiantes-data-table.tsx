@@ -8,6 +8,8 @@ import {
     useReactTable,
   } from '@tanstack/react-table';
   
+  import ReciboEstudiante from '~/components/ReciboEstudiantes';
+  import { imprimirRecibo } from '~/components/ImprimirRecibo'; 
   import {
     Table,
     TableBody,
@@ -33,9 +35,10 @@ import {
   interface DataTableProps {
     columns: ColumnDef<PagoEstudiante>[];
     data: PagoEstudiante[];
+    onGenerateReceipt: (idPago: number) => void;
   }
   
-  export function DataTablePagosEstudiantes({ columns, data }: DataTableProps) {
+  export function DataTablePagosEstudiantes({ columns, data, onGenerateReceipt }: DataTableProps) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const table = useReactTable({
       data,
@@ -49,7 +52,7 @@ import {
     });
   
     const [selectedPago, setSelectedPago] = useState<PagoEstudiante | null>(null);
-    const [action, setAction] = useState<'edit' | 'delete' | null>(null);
+    const [action, setAction] = useState<'edit' | 'delete' | 'generateReceipt'| null>(null);
   
     return (
       <div className="rounded-md border">
@@ -106,6 +109,11 @@ import {
                         >
                           Eliminar
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                        onClick={() => onGenerateReceipt(row.original.idPago)}
+                      >
+                        Generar Recibo
+                      </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -144,6 +152,7 @@ import {
             }}
           />
         )}
+
       </div>
     );
   }

@@ -1,4 +1,3 @@
-import React from 'react';
 import ReciboEstudiantes from './ReciboEstudiantes';
 import { imprimirRecibo } from './ImprimirRecibo';
 
@@ -16,7 +15,7 @@ const ReciboTest = () => {
     telefono: '0414-1234567',
     correo: 'juan.perez@example.com',
     direccion: 'Calle Principal, Casa #123, Brisas del Sur',
-    ultimoAnioCursado: '2024',
+    ultimoAñoCursado: '2024',
     curso: 'Programación Básica',
     periodo: '2025-1',
     fechaPago: '03/05/2025',

@@ -1,7 +1,17 @@
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
-export const imprimirRecibo = (cedulaEstudiante: string, fechaPago: string) => {
+export const imprimirRecibo = (
+  cedulaEstudiante: string,
+  fechaPago: string | Date,
+) => {
+  const formattedFechaPago =
+    typeof fechaPago === 'string'
+      ? fechaPago
+      : fechaPago instanceof Date
+        ? fechaPago.toISOString().split('T')[0]
+        : '';
+  console.log('imprimirRecibo called with:', { cedulaEstudiante, fechaPago });
   const receipt = document.getElementById('recibo');
   if (receipt) {
     html2canvas(receipt).then((canvas) => {
@@ -17,7 +27,7 @@ export const imprimirRecibo = (cedulaEstudiante: string, fechaPago: string) => {
       const y = (pdf.internal.pageSize.getHeight() - pdfHeight) / 2;
 
       pdf.addImage(imgData, 'PNG', x, y, pdfWidth, pdfHeight);
-      const fechaPagoFormateada = fechaPago.replace(/-/g, '.');
+      const fechaPagoFormateada = formattedFechaPago.replace(/-/g, '.');
 
       const nombreArchivo = `recibo-${cedulaEstudiante}-${fechaPagoFormateada}.pdf`;
 

@@ -13,7 +13,7 @@ interface ReceiptProps {
   telefono: string;
   correo: string;
   direccion: string;
-  ultimoAnioCursado: string;
+  ultimoAñoCursado: string;
   curso: string;
   periodo: string;
   fechaPago: string;
@@ -37,7 +37,7 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
   telefono,
   correo,
   direccion,
-  ultimoAnioCursado,
+  ultimoAñoCursado,
   curso,
   periodo,
   fechaPago,
@@ -63,7 +63,7 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
 
   return (
     <div style={styles.receiptContainer} id="recibo">
-      {logoSrc && <div style={styles.logoContainer}><img src={logoSrc} alt="Logo Curso" style={styles.logo} /></div>}
+      <div style={styles.logoContainer}><img src='/logo-fit.png' alt="Logo Curso" style={styles.logo} /></div>
        <h3 style={styles.centerText}>FUNDACIÓN AMIGOS DEL CENTRO DE CAPACITACIÓN SAN MARTIN DE PORRES <br/> FUNDACECASMAR</h3>
 
       <div style={styles.row}>
@@ -77,7 +77,7 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
       </div>
 
       <div style={styles.row}>
-        <div style={styles.column}>LUGAR: BRISAS DEL SUR:</div>
+        <div style={styles.column}>LUGAR: BRISAS DEL SUR</div>
         <div style={styles.column}>FECHA: {currentDate}</div>
       </div>
 
@@ -101,7 +101,7 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
       <div style={styles.fullWidth}>DIRECCION Y PUNTO DE REFERENCIA: {direccion}</div>
 
       <div style={styles.row}>
-        <div style={styles.column}>ULTIMO AÑO CURSADO: {ultimoAnioCursado}</div>
+        <div style={styles.column}>ULTIMO AÑO CURSADO: {ultimoAñoCursado}</div>
         <div style={styles.column}>CURSO: {curso}</div>
       </div>
 
