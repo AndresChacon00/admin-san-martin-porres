@@ -4,7 +4,9 @@ import {
   calcularDeudaEstudiante,
   eliminarPagoEstudiante,
   editarPagoEstudiante,
+  obtenerRecibosPorCursoPeriodo,
 } from '../services/pagosEstudiantesCurso';
+
 import type {
   PagoEstudianteInsert,
   PagoEstudiante,
@@ -25,6 +27,33 @@ export async function registrarPago(
   } catch (error) {
     console.error('Error al registrar el pago:', error);
     return { type: 'error', message: 'No se pudo registrar el pago' };
+  }
+}
+
+/**
+ * Retrieves receipts for a specific course and period
+ * @author Roberth
+ * @param idPeriodo - The ID of the period
+ * @param codigoCurso - The course code
+ * @returns A list of receipts or an error message
+ */
+
+export async function getRecibosPorCursoPeriodo({
+  idPeriodo,
+  codigoCurso,
+}: {
+  idPeriodo: number;
+  codigoCurso: string;
+}) {
+  try {
+    const recibos = await obtenerRecibosPorCursoPeriodo({
+      idPeriodo,
+      codigoCurso,
+    });
+    return recibos;
+  } catch (error) {
+    console.error('Error al obtener los recibos:', error);
+    throw new Error('No se pudieron obtener los recibos.');
   }
 }
 

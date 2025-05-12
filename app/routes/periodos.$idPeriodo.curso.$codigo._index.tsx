@@ -1,5 +1,5 @@
-import { useLoaderData, Form, useParams } from '@remix-run/react';
-import { obtenerEstudiantesDeCursoPeriodo, inscribirEstudianteCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
+import { useLoaderData, Form, useParams,Link, MetaFunction } from '@remix-run/react';
+import { obtenerEstudiantesDeCursoPeriodo, inscribirEstudianteCursoPeriodo , eliminarEstudianteCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
 import { registrarPago, obtenerHistorialPagos, editarPago, calcularDeuda, eliminarPago } from '~/api/controllers/pagosEstudiantesCursos';
 import { EstudiantesCursoDataTable } from '~/components/data-tables/estudiantesCurso-data-table';
 import { estudiantesCursoColumns } from '~/components/columns/estudiantesCurso-columns';
@@ -17,6 +17,10 @@ import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 import type { LoaderFunction, ActionFunction } from '@remix-run/node';
 
+export const meta: MetaFunction = () => {
+  return [{ title: 'Periodos | San Martín de Porres' }];
+};
+
 export const loader: LoaderFunction = async ({ params }) => {
   const idPeriodo = Number(params.idPeriodo);
   const codigoCurso = params.codigo;
@@ -24,7 +28,6 @@ export const loader: LoaderFunction = async ({ params }) => {
   if (isNaN(idPeriodo) || !codigoCurso) {
     throw new Response('Datos inválidos', { status: 400 });
   }
-
   const estudiantes = await obtenerEstudiantesDeCursoPeriodo(idPeriodo, codigoCurso);
 
   // Calcular la deuda para cada estudiante
@@ -112,6 +115,24 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
   }
 
+  if (actionType === 'eliminarEstudiante') {
+    const idEstudiante = Number(formData.get('idEstudiante'));
+
+    if (isNaN(idEstudiante)) {
+      return { error: 'ID de estudiante inválido' };
+    }
+
+    const result = await eliminarEstudianteCursoPeriodo(
+      idPeriodo,
+      codigoCurso,
+      idEstudiante
+    );
+
+    if (result.type === 'error') {
+      return { error: result.message };
+    }
+  }
+
   if (actionType === 'eliminar') {
     const idPago = Number(formData.get('idPago'));
 
@@ -139,6 +160,7 @@ export default function EstudiantesCursoPage() {
         Estudiantes en el Curso {codigo} - Periodo {idPeriodo}
       </h1>
       <div className="py-4 w-3/4">
+       <div className="flex gap-4">
         <Dialog>
           <DialogTrigger>
             <Button className="link-button">Inscribir Estudiante</Button>
@@ -159,6 +181,11 @@ export default function EstudiantesCursoPage() {
             </Form>
           </DialogContent>
         </Dialog>
+        {/* Nuevo botón para ver todos los pagos */}
+          <Link to={`./pagos`}>
+            <Button className="link-button">Ver todos los pagos</Button>
+          </Link>
+        </div>
         <main className="py-4">
           <EstudiantesCursoDataTable
             columns={estudiantesCursoColumns}

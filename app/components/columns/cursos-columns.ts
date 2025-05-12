@@ -15,11 +15,6 @@ export const cursoColumns: ColumnDef<Curso>[] = [
     header: 'Descripción',
   },
   {
-    accessorKey: 'estado',
-    header: 'Estado',
-    cell: ({ getValue }) => (getValue() === 1 ? 'Activo' : 'Inactivo'),
-  },
-  {
     accessorKey: 'precioTotal',
     header: 'Precio Total',
   },

@@ -12,19 +12,12 @@ import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 
-interface FormValues {
-  idPago: number;
-  idPeriodo: number;
-  codigoCurso: string;
-  idEstudiante: number;
-  monto: number;
-  fecha: string;
-  tipoPago: string;
-  comprobante: string;
-}
+import { PagoEstudianteUpdate } from '~/types/pagosEstudiantesCurso.types';
+
+
 
 interface EditarPagoModalProps {
-  pago: FormValues;
+  pago: PagoEstudianteUpdate;
   open: boolean;
   onClose: () => void;
 }
@@ -35,13 +28,25 @@ export function EditarPagoModal({
   onClose,
 }: EditarPagoModalProps) {
   const fetcher = useFetcher();
-  const [values, setValues] = useState<FormValues>(() => ({
+  const [values, setValues] = useState<PagoEstudianteUpdate>(() => ({
     ...pago,
   }));
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
+
+    setValues((prev) => {
+      if (name === 'fecha') {
+        const parsedDate = new Date(value);
+        if (isNaN(parsedDate.getTime())) {
+          console.error('Invalid date format:', value);
+          return prev; // Do not update if the date is invalid
+        }
+        return { ...prev, [name]: parsedDate };
+      }
+
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -65,7 +70,7 @@ export function EditarPagoModal({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          {/* Campos */}
+          {/* ID Pago (non-editable) */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="idPago" className="text-right">
               ID Pago
@@ -78,8 +83,71 @@ export function EditarPagoModal({
               className="col-span-3"
             />
           </div>
-          {/* Otros campos */}
-          {/* Similar to AgregarPagoModal */}
+
+          {/* Monto */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="monto" className="text-right">
+              Monto
+            </Label>
+            <Input
+              id="monto"
+              name="monto"
+              type="number"
+              value={values.monto}
+              onChange={handleChange}
+              className="col-span-3"
+              required
+            />
+          </div>
+
+          {/* Fecha */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="fecha" className="text-right">
+              Fecha
+            </Label>
+            <Input
+              id="fecha"
+              name="fecha"
+              type="date"
+              value={values.fecha ? values.fecha.toISOString().split('T')[0] : ''}
+              onChange={handleChange}
+              className="col-span-3"
+              required
+            />
+          </div>
+
+          {/* Tipo de Pago */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="tipoPago" className="text-right">
+              Tipo de Pago
+            </Label>
+            <select
+              id="tipoPago"
+              name="tipoPago"
+              value={values.tipoPago}
+              onChange={handleChange}
+              className="col-span-3 border rounded px-2 py-1"
+              required
+            >
+              <option value="Efectivo">Efectivo</option>
+              <option value="Transferencia">Transferencia</option>
+            </select>
+          </div>
+
+          {/* Comprobante */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="comprobante" className="text-right">
+              Comprobante
+            </Label>
+            <Input
+              id="comprobante"
+              name="comprobante"
+              value={values.comprobante? values.comprobante : ''}
+              onChange={handleChange}
+              className="col-span-3"
+            />
+          </div>
+
           <DialogFooter>
             <Button type="submit">Guardar Cambios</Button>
           </DialogFooter>

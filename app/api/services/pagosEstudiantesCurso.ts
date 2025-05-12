@@ -1,6 +1,7 @@
 import db from '../db';
 import { pagosEstudiantesCurso } from '../tables/pagosEstudiantesCurso';
 import { cursos } from '../tables/cursos';
+import { estudiantes } from '../tables/estudiantes';
 import { estudiantesCursoPeriodo } from '../tables/estudiantesCursoPeriodo';
 import { eq, and, desc, sum } from 'drizzle-orm';
 import type {
@@ -29,6 +30,73 @@ export async function editarPagoEstudiante(
     .update(pagosEstudiantesCurso)
     .set(data)
     .where(eq(pagosEstudiantesCurso.idPago, idPago));
+}
+
+/**
+ * Obtener todos los recibos de un curso y periodo específico.
+ * @param idPeriodo - ID del periodo
+ * @param codigoCurso - Código del curso
+ * @returns Lista de recibos
+ */
+
+export async function obtenerRecibosPorCursoPeriodo({
+  idPeriodo,
+  codigoCurso,
+}: {
+  idPeriodo: number;
+  codigoCurso: string;
+}) {
+  return await db
+    .select({
+      numeroRecibo: pagosEstudiantesCurso.idPago,
+      idPago: pagosEstudiantesCurso.idPago,
+      codigoCurso: pagosEstudiantesCurso.codigoCurso,
+      nombre: estudiantes.nombre,
+      apellido: estudiantes.apellido,
+      cedula: estudiantes.cedula,
+      sexo: estudiantes.sexo,
+      fechaNacimiento: estudiantes.fechaNacimiento,
+      religion: estudiantes.religion,
+      telefono: estudiantes.telefono,
+      correo: estudiantes.correo,
+      direccion: estudiantes.direccion,
+      ultimoAnioCursado: estudiantes.ultimoAñoCursado,
+      tipoPago: pagosEstudiantesCurso.tipoPago,
+      curso: cursos.nombreCurso,
+      periodo: estudiantesCursoPeriodo.idPeriodo,
+      fecha: pagosEstudiantesCurso.fecha,
+      numeroTransferencia: pagosEstudiantesCurso.comprobante, //añadir numero de referencia
+      comprobante: pagosEstudiantesCurso.comprobante,
+      monto: pagosEstudiantesCurso.monto,
+      observaciones: pagosEstudiantesCurso.tipoPago,
+    })
+    .from(pagosEstudiantesCurso)
+    .innerJoin(
+      estudiantesCursoPeriodo,
+      and(
+        eq(pagosEstudiantesCurso.idPeriodo, estudiantesCursoPeriodo.idPeriodo),
+        eq(
+          pagosEstudiantesCurso.codigoCurso,
+          estudiantesCursoPeriodo.codigoCurso,
+        ),
+        eq(
+          pagosEstudiantesCurso.idEstudiante,
+          estudiantesCursoPeriodo.idEstudiante,
+        ),
+      ),
+    )
+    .innerJoin(
+      estudiantes,
+      eq(estudiantesCursoPeriodo.idEstudiante, estudiantes.id),
+    )
+    .innerJoin(cursos, eq(pagosEstudiantesCurso.codigoCurso, cursos.codigo))
+    .where(
+      and(
+        eq(pagosEstudiantesCurso.idPeriodo, idPeriodo),
+        eq(pagosEstudiantesCurso.codigoCurso, codigoCurso),
+      ),
+    )
+    .orderBy(pagosEstudiantesCurso.fecha);
 }
 
 /**
