@@ -1,7 +1,9 @@
 
 import {
     ColumnDef,
+    ColumnFiltersState,
     SortingState,
+    getFilteredRowModel,
     getSortedRowModel,
     flexRender,
     getCoreRowModel,
@@ -27,6 +29,7 @@ import {
   import { Ellipsis } from 'lucide-react';
   import { useState } from 'react';
   import * as React from 'react';
+  import { Input } from "../ui/input"
   import { PagoEstudiante, PagoEstudianteUpdate } from '~/types/pagosEstudiantesCurso.types';
   import { EditarPagoModal } from '../crud/EditarPagoModal';
   import { EliminarPagoModal } from '../crud/EliminarPagoModal';
@@ -40,14 +43,18 @@ import {
   
   export function DataTablePagosEstudiantes({ columns, data, onGenerateReceipt }: DataTableProps) {
     const [sorting, setSorting] = React.useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const table = useReactTable({
       data,
       columns,
       getCoreRowModel: getCoreRowModel(),
       onSortingChange: setSorting,
       getSortedRowModel: getSortedRowModel(),
+      onColumnFiltersChange: setColumnFilters,
+      getFilteredRowModel: getFilteredRowModel(),
       state: {
         sorting,
+        columnFilters,
       },   
     });
   
@@ -56,6 +63,16 @@ import {
   
     return (
       <div className="rounded-md border">
+        <div className="flex items-center py-4 pl-4">
+          <Input
+            placeholder="Filtrar por cédula"
+            value={(table.getColumn("cedula")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("cedula")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
