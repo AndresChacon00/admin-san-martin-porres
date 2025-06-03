@@ -24,7 +24,7 @@ import { EditarEstudianteModal } from '../crud/EditarEstudianteModal';
 import { EliminarEstudianteModal } from '../crud/EliminarEstudianteModal';
 import { Estudiante } from '~/types/estudiantes.types';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Dialog} from '../ui/dialog';
 
 interface DataTableProps {
   columns: ColumnDef<Estudiante>[];

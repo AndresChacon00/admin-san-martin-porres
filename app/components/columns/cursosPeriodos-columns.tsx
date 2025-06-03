@@ -25,18 +25,4 @@ export const cursoColumnsWithActions = (idPeriodo: number): ColumnDef<Curso>[] =
     accessorKey: 'precioTotal',
     header: 'Precio Total',
   },
-  {
-    id: 'acciones',
-    header: 'Acciones',
-    cell: ({ row }) => {
-      const codigo = row.original.codigo;
-      return (
-        <Link
-          to={`/periodos/${idPeriodo}/curso/${codigo}`}
-        >
-          <Button variant="outline">Ver alumnos inscritos</Button>
-        </Link>
-      );
-    },
-  },
 ];

@@ -11,6 +11,7 @@ import {
   getEstudiantes,
   updateEstudiante,
 } from '~/api/controllers/estudiantes.server';
+import ReciboTest from '~/components/ReciboTest';
 import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
 import { DataTable } from '~/components/ui/data-table';
 import { ActionFunction , json } from '@remix-run/node';
@@ -165,6 +166,7 @@ export default function EstudiantesPage() {
           <DataTableEstudiantes columns={estudiantesColumns} data={data} />
         )}
       </main>
+      <ReciboTest></ReciboTest>
       </div>
     </>
   );
