@@ -19,6 +19,8 @@ import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 import type { LoaderFunction, ActionFunction } from '@remix-run/node';
+import { GenerarRelacionParticipantesDialog } from '~/components/Planillas/GenerarRelacionParticipantesDialog';
+import { number } from 'zod';
 
 export const loader: LoaderFunction = async ({ params }) => {
   const idPeriodo = Number(params.idPeriodo);
@@ -120,46 +122,11 @@ export default function EstudiantesCursoPage() {
         </Dialog>
 
         {/* Dialog generacion de plantilla */}
-        <Dialog>
-          <DialogTrigger>
-            <Button className=''>Generar relacion participantes</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Relación Participantes</DialogTitle>
-              <DialogDescription>
-                Ingrese los datos solicitados
-              </DialogDescription>
-            </DialogHeader>
-            <Form method='post'>
-              {/* Nombre del centro */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label htmlFor='codigo' className='text-right'>
-                  Nombre del Centro
-                </Label>
-                <Input
-                  id='nombreCentro'
-                  name='nombreCentro'
-                  className='col-span-3'
-                />
-              </div>
-              {/* Coordinador General */}
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <Label htmlFor='codigo' className='text-right'>
-                  Coordinador general
-                </Label>
-                <Input
-                  id='coordinadorGeneral'
-                  name='coordinadorGeneral'
-                  className='col-span-3'
-                />
-              </div>
-              <DialogFooter>
-                <Button type='submit'>Generar relacion participantes</Button>
-              </DialogFooter>
-            </Form>
-          </DialogContent>
-        </Dialog>
+        <GenerarRelacionParticipantesDialog
+          idPeriodo={Number(idPeriodo)}
+          codigoCurso={codigo || ''}
+          estudiantesInscritos={estudiantesInscritos}
+        />
         <main className='py-4'>
           <DataTable
             columns={estudiantesCursoColumns}
