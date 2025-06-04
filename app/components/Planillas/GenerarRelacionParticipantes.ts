@@ -5,6 +5,7 @@ interface Estudiante {
   cedula: string;
   nombre: string;
   apellido: string;
+  genero: string;
   deuda: number;
 }
 
@@ -23,6 +24,15 @@ export async function generarPlanillaPDF({
   nombreCentro,
   coordinadorGeneral,
 }: PlanillaData) {
+  // Calcular estadísticas de participantes
+  const totalParticipantes = estudiantesInscritos.length;
+  const mujeresParticipantes = estudiantesInscritos.filter(
+    (estudiante) => estudiante.genero.toLowerCase() === 'f',
+  ).length;
+  const hombresParticipantes = estudiantesInscritos.filter(
+    (estudiante) => estudiante.genero.toLowerCase() === 'm',
+  ).length;
+
   // Crear el contenido dinámico para la planilla
   const planillaContent = document.createElement('div');
   planillaContent.id = 'planilla-content';
@@ -53,7 +63,7 @@ export async function generarPlanillaPDF({
             <td style="border: 1px solid black; text-align: center; padding: 5px;">${index + 1}</td>
             <td style="border: 1px solid black; text-align: left; padding: 5px;">${estudiante.apellido} ${estudiante.nombre}</td>
             <td style="border: 1px solid black; text-align: center; padding: 5px;">${estudiante.cedula}</td>
-            <td style="border: 1px solid black; text-align: center; padding: 5px;">${estudiante.sexo}</td>
+            <td style="border: 1px solid black; text-align: center; padding: 5px;">${estudiante.genero}</td>
             <td style="border: 1px solid black; text-align: center; padding: 5px;"></td>
           </tr>
         `,
@@ -61,6 +71,20 @@ export async function generarPlanillaPDF({
           .join('')}
       </tbody>
     </table>
+    <p style="font-style: italic; font-weight: bold; margin-top: 20px;">
+      Relación final de participantes<br>
+      Número de mujeres participantes: ${mujeresParticipantes}<br>
+      Número de hombres participantes: ${hombresParticipantes}<br>
+      Número total de participantes: ${totalParticipantes}
+    </p>
+    <div style="margin-top: 40px;">
+      <p>______________________________</p>
+      <p>Firma del Coordinador</p>
+    </div>
+    <div style="margin-top: 20px;">
+      <p>______________________________</p>
+      <p>Sello del Centro</p>
+    </div>
   `;
 
   // Agregar el contenido al DOM temporalmente

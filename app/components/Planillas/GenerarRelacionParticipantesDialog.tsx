@@ -17,6 +17,7 @@ interface Estudiante {
   cedula: string;
   nombre: string;
   apellido: string;
+  genero: string;
   deuda: number;
 }
 
