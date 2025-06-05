@@ -11,7 +11,8 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
-import { Form } from '@remix-run/react';
+import { Form, json, useLoaderData } from '@remix-run/react';
+import { getCursoById } from '~/api/controllers/cursos';
 
 interface Estudiante {
   cedula: string;
@@ -25,12 +26,14 @@ interface GenerarRelacionParticipantesDialogProps {
   idPeriodo: number;
   codigoCurso: string;
   estudiantesInscritos: Estudiante[];
+  curso: any;
 }
 
 export function GenerarRelacionParticipantesDialog({
   idPeriodo,
   codigoCurso,
   estudiantesInscritos,
+  curso,
 }: GenerarRelacionParticipantesDialogProps) {
   const handleGeneratePDF = async () => {
     const nombreCentro =
@@ -46,6 +49,7 @@ export function GenerarRelacionParticipantesDialog({
       estudiantesInscritos,
       nombreCentro,
       coordinadorGeneral,
+      curso,
     });
   };
 

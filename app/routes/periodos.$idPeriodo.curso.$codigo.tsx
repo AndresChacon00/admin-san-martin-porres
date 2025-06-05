@@ -21,6 +21,7 @@ import { Input } from '~/components/ui/input';
 import type { LoaderFunction, ActionFunction } from '@remix-run/node';
 import { GenerarRelacionParticipantesDialog } from '~/components/Planillas/GenerarRelacionParticipantesDialog';
 import { number } from 'zod';
+import { getCursoById } from '~/api/controllers/cursos';
 
 export const loader: LoaderFunction = async ({ params }) => {
   const idPeriodo = Number(params.idPeriodo);
@@ -35,7 +36,6 @@ export const loader: LoaderFunction = async ({ params }) => {
     codigoCurso,
   );
 
-  // Calcular la deuda para cada estudiante
   if (!Array.isArray(estudiantes)) {
     throw new Response(estudiantes.message || 'Error al obtener estudiantes', {
       status: 500,
@@ -48,23 +48,26 @@ export const loader: LoaderFunction = async ({ params }) => {
         console.error('El estudiante no tiene un ID válido:', estudiante);
         return { ...estudiante, deuda: 0 };
       }
-
       const deudaResult = await calcularDeuda({
         idPeriodo,
         codigoCurso,
         cedulaEstudiante: estudiante.cedula,
       });
-
       const deuda = deudaResult.type === 'success' ? deudaResult.deuda : 0;
-
       return {
         ...estudiante,
         deuda,
       };
     }),
   );
+  const curso = await getCursoById(codigoCurso);
 
-  return estudiantesConDeuda;
+  // Return everything you want to use in the component
+  return {
+    estudiantesConDeuda,
+    estudiantesInscritos: estudiantesConDeuda, // alias if you want
+    curso,
+  };
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -86,7 +89,8 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function EstudiantesCursoPage() {
-  const estudiantesInscritos = useLoaderData<typeof loader>();
+  const { estudiantesConDeuda, estudiantesInscritos, curso } =
+    useLoaderData<typeof loader>();
   const { idPeriodo, codigo } = useParams();
   console.log('Estudiantes inscritos:', estudiantesInscritos);
   return (
@@ -126,6 +130,7 @@ export default function EstudiantesCursoPage() {
           idPeriodo={Number(idPeriodo)}
           codigoCurso={codigo || ''}
           estudiantesInscritos={estudiantesInscritos}
+          curso={curso}
         />
         <main className='py-4'>
           <DataTable
