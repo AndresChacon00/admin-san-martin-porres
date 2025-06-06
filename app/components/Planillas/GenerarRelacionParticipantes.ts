@@ -43,7 +43,12 @@ export async function generarPlanillaPDF({
   planillaContent.style.fontSize = '0.9em';
   planillaContent.style.width = '794px'; // Ancho estándar para una hoja A4
   planillaContent.innerHTML = `
-    <h3 style="font-size: 18px; font-weight: bold; text-align: center;">Relación Final de los Participantes</h3>
+    <div style="display: flex; align-items: flex-end; margin-bottom: 10px;">
+      <img src="/logo_avec.png" alt="Logo AVEC" style="height: 100px; margin-right: 20px;" />
+      <h3 style="font-size: 18px; font-weight: bold; text-align: center ; flex: 1;">
+        Relación Final de los Participantes
+      </h3>
+    </div>
     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
         <div style="flex: 1; text-align: left;">
             <p><strong>Nombre del Centro:</strong></p>
@@ -55,10 +60,10 @@ export async function generarPlanillaPDF({
             <p>${nombreCentro}</p>
             <p>${codigoCurso}</p>
             <p>${coordinadorGeneral}</p>
-            <p>Curso: ${curso.nombreCurso}</p>
+            <p><strong>Curso:</strong> ${curso.nombreCurso}</p>
         </div>
     </div>
-    <p style="text-align: center;">Registrado en la Escuela de Formación AVEC, Programa CECAL</p>
+    <p style="text-align: left; text-decoration: underline;">Registrado en la Escuela de Formación AVEC, Programa CECAL</p>
     <p style="text-align: center;">Libro N°:_______________________________________________________ Fecha:_________</p>
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid black;">
         <thead>
