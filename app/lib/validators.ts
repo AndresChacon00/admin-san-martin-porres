@@ -16,7 +16,9 @@ export const datosPersonalesEmpleado = z.object({
   estadoCivil: z.enum(['S', 'C', 'D', 'V', 'R'], {
     required_error: 'Estado civil requerido',
   }),
-  religion: z.string().min(3, 'Religión muy corta'),
+  religion: z
+    .string({ required_error: 'Religión requerida' })
+    .min(3, 'Religión muy corta'),
   cantidadHijos: z.coerce.number().int().min(0, 'Cantidad de hijos inválida'),
   hijosMenoresSeis: z.coerce
     .number({
@@ -37,7 +39,13 @@ export const datosProfesionalesEmpleado = z.object({
       required_error: 'Fecha de ingreso al plantel es requerida',
     })
     .date('Fecha inválida'),
-  titulo: z.coerce.number().int().min(1, 'Título requerido'),
+  titulo: z.coerce
+    .number({
+      required_error: 'Título requerido',
+      invalid_type_error: 'Título requerido',
+    })
+    .int()
+    .min(1, 'Título requerido'),
   descripcionTitulo: z.string().optional().default(''),
   mencionTitulo: z.string().optional().default(''),
   carreraEstudiando: z.string().optional().default(''),
@@ -64,7 +72,10 @@ export const datosCargoEmpleado = z.object({
   nivelCentro: z.coerce.number({
     required_error: 'Nivel en el centro requerido',
   }),
-  cargo: z.coerce.number({ required_error: 'Cargo requerido' }),
+  cargo: z.coerce.number({
+    required_error: 'Cargo requerido',
+    invalid_type_error: 'Cargo requerido',
+  }),
   horasSemanales: z.coerce.number().int().min(0, 'Horas semanales inválidas'),
   sueldo: z.coerce.number().min(0, 'Sueldo inválido'),
   contribucionDiscapacidad: z.coerce
