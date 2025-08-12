@@ -11,6 +11,8 @@ import {
 import { profesores } from '../tables/profesores';
 import { titulos } from '../tables/titulos';
 import { cargos } from '../tables/cargos';
+import { niveles } from '../tables/niveles';
+import { grados } from '../tables/grados';
 
 /**
  * Get full list of employees
@@ -22,9 +24,18 @@ export async function getEmpleados() {
       .select({
         ...getTableColumns(empleados),
         nombreCargo: cargos.nombreCargo,
+        codigoTitulo: titulos.codigo,
+        codigoCargo: cargos.codigo,
+        codigoNivelSistema: niveles.nombre,
+        codigoNivelCentro: niveles.nombre,
+        codigoGradoSistema: grados.codigo,
+        codigoGradoCentro: grados.codigo,
       })
       .from(empleados)
+      .innerJoin(titulos, eq(titulos.id, empleados.titulo))
+      .innerJoin(niveles, eq(niveles.id, empleados.nivelCentro))
       .innerJoin(cargos, eq(cargos.id, empleados.cargo))
+      .innerJoin(grados, eq(grados.id, empleados.gradoCentro))
       .where(
         notExists(
           db.select().from(profesores).where(eq(profesores.id, empleados.id)),

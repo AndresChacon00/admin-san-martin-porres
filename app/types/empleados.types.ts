@@ -16,6 +16,16 @@ export type EmpleadoUpdate = Partial<EmpleadoInsert>;
 
 export type Empleado = typeof empleados.$inferSelect;
 
+export type EmpleadoExport = Empleado & {
+  nombreCargo: string;
+  codigoTitulo: string;
+  codigoCargo: string;
+  codigoNivelSistema: string;
+  codigoNivelCentro: string;
+  codigoGradoSistema: string;
+  codigoGradoCentro: string;
+};
+
 export type NivelAcademico =
   | 'POSTGRADO EN ESPECIALIDAD'
   | 'MAESTRIA'
