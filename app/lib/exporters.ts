@@ -1,7 +1,13 @@
-import { type Empleado } from '~/types/empleados.types';
+import type { EmpleadoExport } from '~/types/empleados.types';
 import { utils as SheetUtils, writeFile } from 'xlsx';
 import { PagoNominaExportar } from '~/types/pagosNomina.types';
-import { ADDRESS, EXCEL_COLS, FOUNDATION_NAME, RIF } from '~/constants';
+import {
+  ADDRESS,
+  CENTRO_ID,
+  EXCEL_COLS,
+  FOUNDATION_NAME,
+  RIF,
+} from '~/constants';
 import { PagoAlimentarioExportar } from '~/types/pagosAlimentario.types';
 import { EvaluacionDesempeñoExportar } from '~/types/pagosEvaluacionDesempeño.types';
 
@@ -9,7 +15,7 @@ import { EvaluacionDesempeñoExportar } from '~/types/pagosEvaluacionDesempeño.
  * Exports a list of employees into an Excel file
  * @param empleados
  */
-export function exportEmpleados(empleados: Empleado[]) {
+export function exportEmpleados(empleados: EmpleadoExport[]) {
   const excelContent = [
     [
       'Centro',
@@ -43,28 +49,11 @@ export function exportEmpleados(empleados: Empleado[]) {
       'Sueldo según clasificación',
       'Sueldo SISTEMA',
       'Sueldo Centro',
-      'Asignaciones mensual',
-      'Deducciones mensual',
-      'Prima Antigüedad',
-      'Prima Antigüedad según SISTEMA',
-      'Beneficio Geográfica',
-      'Prima Geográfica',
-      'Prima Geográfica según SISTEMA',
-      'Prima Compensación Académica',
-      'Prima Compensación Académica según SISTEMA',
-      'Beneficio de prima por hijo',
       'Cantidad de hijos',
       'Prima por Hijo',
       'Prima por Hijo según SISTEMA',
-      'Prima Asistencial',
-      'Prima Compensatoria',
       'Contribución por discapacidad',
       'Contribución por discapacidad de hijos',
-      'Seguro Social-Regimen prestacional de empleo',
-      'Porcentaje SSO',
-      'Porcentaje RPE',
-      'FAOV',
-      'Porcentaje FAOV',
       'Pago directo',
       'Jubilado',
       'Cuenta Bancaria',
@@ -73,10 +62,12 @@ export function exportEmpleados(empleados: Empleado[]) {
       'fecha de actualización',
     ],
     ...empleados.map((empleado) => [
-      '11C058',
+      CENTRO_ID,
       empleado.nombreCompleto,
       empleado.cedula,
-      new Date(empleado.fechaNacimiento).toLocaleDateString(),
+      new Date(empleado.fechaNacimiento).toLocaleDateString('es-VE', {
+        timeZone: 'GMT',
+      }),
       empleado.sexo,
       empleado.estadoCivil,
       empleado.religion,
@@ -84,34 +75,35 @@ export function exportEmpleados(empleados: Empleado[]) {
       empleado.hijosMenoresSeis,
       empleado.montoMensualGuarderia ? 'SI' : 'NO',
       empleado.montoMensualGuarderia,
-      new Date(empleado.fechaIngresoAvec).toLocaleDateString(),
-      new Date(empleado.fechaIngresoPlantel).toLocaleDateString(),
-      empleado.titulo,
-      empleado.descripcionTitulo ?? 'Ninguno',
-      empleado.mencionTitulo ?? 'Ninguno',
-      empleado.carreraEstudiando ?? 'Ninguno',
-      empleado.tipoLapsoEstudios ?? 'Ninguno',
-      empleado.numeroLapsosAprobados ?? 'Ninguno',
-      empleado.postgrado ?? 'Ninguno',
+      new Date(empleado.fechaIngresoAvec).toLocaleDateString('es-VE', {
+        timeZone: 'GMT',
+      }),
+      new Date(empleado.fechaIngresoPlantel).toLocaleDateString('es-VE', {
+        timeZone: 'GMT',
+      }),
+      empleado.codigoTitulo,
+      empleado.descripcionTitulo || 'Ninguno',
+      empleado.mencionTitulo || 'Ninguno',
+      empleado.carreraEstudiando || 'Ninguno',
+      empleado.numeroLapsosAprobados || 'Ninguno',
+      empleado.postgrado || 'Ninguno',
       new Date().getFullYear() -
         new Date(empleado.fechaIngresoAvec).getFullYear(),
       empleado.experienciaLaboral,
-      empleado.gradoSistema,
-      empleado.nivelSistema,
-      empleado.gradoCentro,
-      empleado.nivelCentro,
-      empleado.cargo,
+      empleado.codigoGradoSistema,
+      empleado.codigoNivelSistema,
+      empleado.codigoGradoCentro,
+      empleado.codigoNivelCentro,
+      empleado.nombreCargo,
       new Date().getFullYear() -
         new Date(empleado.fechaIngresoPlantel).getFullYear(),
       empleado.horasSemanales,
       empleado.sueldo,
       empleado.sueldo,
       empleado.sueldo,
-      empleado.cantidadHijos ? 'SI' : 'NO',
       empleado.cantidadHijos,
       empleado.cantidadHijos * 12.5,
       empleado.cantidadHijos * 12.5,
-      0,
       empleado.contribucionDiscapacidad,
       empleado.contribucionDiscapacidadHijos,
       empleado.pagoDirecto ? 'SI' : 'NO',

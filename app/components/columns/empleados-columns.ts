@@ -11,7 +11,7 @@ export const empleadoColumns: ColumnDef<Empleado>[] = [
     header: 'Nombre',
   },
   {
-    accessorKey: 'cargo',
+    accessorKey: 'nombreCargo',
     header: 'Cargo',
   },
   {
@@ -22,7 +22,9 @@ export const empleadoColumns: ColumnDef<Empleado>[] = [
     accessorKey: 'fechaIngresoPlantel',
     header: 'Ingreso al Plantel',
     accessorFn: (row) => {
-      return new Date(row.fechaIngresoPlantel).toLocaleDateString();
+      return new Date(row.fechaIngresoPlantel).toLocaleDateString('es-VE', {
+        timeZone: 'GMT',
+      });
     },
   },
   {

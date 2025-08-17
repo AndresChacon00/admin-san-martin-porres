@@ -1,4 +1,4 @@
-import { desc, eq, notExists } from 'drizzle-orm';
+import { desc, eq, getTableColumns, notExists } from 'drizzle-orm';
 import db from '../db';
 import { empleados } from '../tables/empleados';
 import type { EmpleadoInsert, EmpleadoUpdate } from '~/types/empleados.types';
@@ -10,6 +10,9 @@ import {
 } from '../services/empleados.server';
 import { profesores } from '../tables/profesores';
 import { titulos } from '../tables/titulos';
+import { cargos } from '../tables/cargos';
+import { niveles } from '../tables/niveles';
+import { grados } from '../tables/grados';
 
 /**
  * Get full list of employees
@@ -18,8 +21,21 @@ import { titulos } from '../tables/titulos';
 export async function getEmpleados() {
   try {
     const empleadosList = await db
-      .select()
+      .select({
+        ...getTableColumns(empleados),
+        nombreCargo: cargos.nombreCargo,
+        codigoTitulo: titulos.codigo,
+        codigoCargo: cargos.codigo,
+        codigoNivelSistema: niveles.nombre,
+        codigoNivelCentro: niveles.nombre,
+        codigoGradoSistema: grados.codigo,
+        codigoGradoCentro: grados.codigo,
+      })
       .from(empleados)
+      .innerJoin(titulos, eq(titulos.id, empleados.titulo))
+      .innerJoin(niveles, eq(niveles.id, empleados.nivelCentro))
+      .innerJoin(cargos, eq(cargos.id, empleados.cargo))
+      .innerJoin(grados, eq(grados.id, empleados.gradoCentro))
       .where(
         notExists(
           db.select().from(profesores).where(eq(profesores.id, empleados.id)),

@@ -2,7 +2,7 @@ import { read, utils as SheetUtils } from 'xlsx';
 import type {
   EstadoCivil,
   Sexo,
-  EmpleadoInsert,
+  NivelAcademico,
 } from '~/types/empleados.types';
 
 /**
@@ -23,54 +23,52 @@ export function importEmpleados(file: ArrayBuffer) {
   };
 
   const parseDate = (value: unknown) => {
+    if (typeof value === 'number') {
+      // Excel serial date: days since 1899-12-31
+      const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+      return new Date(excelEpoch.getTime() + value * 86400000);
+    }
     const date = new Date(String(value));
     return isNaN(date.getTime()) ? null : date;
   };
 
-  const empleados: EmpleadoInsert[] = excelContent.slice(1).map((row) => ({
-    nombreCompleto: String(row[1]),
-    cedula: String(row[2]),
-    fechaNacimiento: parseDate(row[3]) ?? new Date(0),
-    sexo: String(row[4]) as Sexo,
-    estadoCivil: String(row[5]) as EstadoCivil,
-    religion: String(row[6]),
-    hijosMenoresSeis: row[7] === 'SI' ? 1 : 0,
-    montoMensualGuarderia: row[9] === 'SI' ? parseNumber(row[10], undefined) : undefined,
-    fechaIngresoAvec: parseDate(row[11]) ?? new Date(0),
-    fechaIngresoPlantel: parseDate(row[12]) ?? new Date(0),
-    titulo: String(row[13]),
-    descripcionTitulo: row[14] !== 'Ninguno' ? String(row[14]) : undefined,
-    mencionTitulo: row[15] !== 'Ninguno' ? String(row[15]) : undefined,
-    carreraEstudiando: row[16] !== 'Ninguno' ? String(row[16]) : undefined,
-    tipoLapsoEstudios: row[17] !== 'Ninguno' ? String(row[17]) : undefined,
-    numeroLapsosAprobados: row[18] !== 'Ninguno' ? parseNumber(row[18], undefined) : undefined,
-    postgrado: row[19] !== 'Ninguno' ? String(row[19]) : undefined,
-    experienciaLaboral: parseNumber(row[21]),
-    gradoSistema: String(row[22]),
-    nivelSistema: String(row[23]),
-    gradoCentro: String(row[24]),
-    nivelCentro: String(row[25]),
-    cargo: String(row[26]),
-    horasSemanales: parseNumber(row[28]),
-    sueldo: parseNumber(row[29]),
-    asignacionesMensual: parseNumber(row[31]),
-    deduccionesMensual: parseNumber(row[32]),
-    primaAntiguedad: parseNumber(row[33]),
-    primaGeografica: row[35] === 'SI' ? parseNumber(row[36], undefined) : undefined,
-    primaCompensacionAcademica: parseNumber(row[38]),
-    cantidadHijos: row[40] === 'SI' ? parseNumber(row[41]) : 0,
-    primaAsistencial: parseNumber(row[44]),
-    contribucionDiscapacidad: parseNumber(row[46]),
-    contribucionDiscapacidadHijos: parseNumber(row[47]),
-    porcentajeSso: row[48] === 'SI' ? parseNumber(row[49], undefined) : undefined,
-    porcentajeRpe: parseNumber(row[50]),
-    porcentajeFaov: row[51] === 'SI' ? parseNumber(row[52], undefined) : undefined,
-    pagoDirecto: row[53] === 'SI',
-    jubilado: row[54] === 'SI',
-    cuentaBancaria: String(row[55]),
-    observaciones: String(row[56] ?? ''),
-    fechaRegistro: parseDate(row[57]) ?? new Date(0),
-    fechaActualizacion: parseDate(row[58]) ?? new Date(0),
+  const empleados = excelContent.slice(1).map((row) => ({
+    nombreCompleto: String(row[0]),
+    cedula: String(row[1]),
+    fechaNacimiento: parseDate(row[2]) ?? new Date(0),
+    sexo: String(row[3]) as Sexo,
+    estadoCivil: String(row[4]) as EstadoCivil,
+    religion: String(row[5]),
+    hijosMenoresSeis: parseNumber(row[6]),
+    montoMensualGuarderia: parseNumber(row[7]),
+    fechaIngresoAvec: parseDate(row[8]) ?? new Date(0),
+    fechaIngresoPlantel: parseDate(row[9]) ?? new Date(0),
+    titulo: String(row[10]),
+    descripcionTitulo: row[11] !== 'Ninguno' ? String(row[11]) : undefined,
+    mencionTitulo: row[12] !== 'Ninguno' ? String(row[12]) : undefined,
+    carreraEstudiando: row[13] !== 'Ninguno' ? String(row[13]) : undefined,
+    tipoLapsoEstudios: row[14] !== 'Ninguno' ? String(row[14]) : undefined,
+    numeroLapsosAprobados:
+      row[15] !== 'Ninguno' ? parseNumber(row[15], 0) : undefined,
+    postgrado:
+      row[16] !== 'Ninguno' ? (String(row[16]) as NivelAcademico) : undefined,
+    experienciaLaboral: parseNumber(row[17]),
+    gradoSistema: String(row[18]),
+    nivelSistema: String(row[19]),
+    gradoCentro: String(row[20]),
+    nivelCentro: String(row[21]),
+    cargo: String(row[22]),
+    horasSemanales: parseNumber(row[23]),
+    sueldo: parseNumber(row[24]),
+    cantidadHijos: parseNumber(row[25]),
+    contribucionDiscapacidad: parseNumber(row[26]),
+    contribucionDiscapacidadHijos: parseNumber(row[27]),
+    pagoDirecto: row[28] === 'SI',
+    jubilado: row[29] === 'SI',
+    cuentaBancaria: String(row[30]),
+    observaciones: String(row[31] ?? ''),
+    fechaRegistro: parseDate(row[32]) ?? new Date(0),
+    fechaActualizacion: parseDate(row[33]) ?? new Date(0),
   }));
 
   return empleados;

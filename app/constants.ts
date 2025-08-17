@@ -8,6 +8,7 @@ export const ROLE_TRANSLATIONS: Record<UserRole, string> = {
 export const FOUNDATION_NAME = 'FUNDACECASMAR';
 export const RIF = 'J297107436';
 export const ADDRESS = 'BRISAS DEL SUR, CALLE MANUEL FELIPE PARRA, CASA #36';
+export const CENTRO_ID = '11C058';
 export const EXCEL_COLS = {
   A: 0,
   B: 1,
