@@ -166,7 +166,6 @@ export default function EstudiantesPage() {
           <DataTableEstudiantes columns={estudiantesColumns} data={data} />
         )}
       </main>
-      <ReciboTest></ReciboTest>
       </div>
     </>
   );
