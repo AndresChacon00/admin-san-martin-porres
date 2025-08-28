@@ -282,6 +282,13 @@ function StepOneForm({
   goToNext: () => void;
   step: number;
 }) {
+  const maxBirthDate = useMemo(() => {
+    const today = new Date();
+    // Restringir la fecha para que el empleado tenga al menos 18 años
+    today.setFullYear(today.getFullYear() - 18);
+    return today.toISOString().split('T')[0];
+  }, []);
+
   return (
     <Form {...formStepOne}>
       <form
@@ -296,7 +303,7 @@ function StepOneForm({
             <FormItem>
               <RequiredLabel>Cédula</RequiredLabel>
               <FormControl>
-                <Input {...field} placeholder='Ejemplo: V12345678' />
+                <Input {...field} placeholder='Ejemplo: V12345678' maxLength={9}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -324,7 +331,7 @@ function StepOneForm({
             <FormItem>
               <RequiredLabel>Fecha de nacimiento</RequiredLabel>
               <FormControl>
-                <Input {...field} type='date' />
+                <Input {...field} type='date' max={maxBirthDate} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -418,7 +425,7 @@ function StepOneForm({
                 </Tooltip>
               </div>
               <FormControl>
-                <Input {...field} type='number' />
+                <Input {...field} type='number' min={0}/>
               </FormControl>
               <FormMessage />
             </FormItem>
