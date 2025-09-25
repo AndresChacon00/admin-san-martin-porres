@@ -29,6 +29,7 @@ import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 import { ActionFunction, json, LoaderFunction } from '@remix-run/node';
+import { GenerarRelacionParticipantesDialog } from '~/components/Planillas/GenerarRelacionParticipantesDialog';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Cursos detalle | San Martín de Porres' }];
@@ -62,44 +63,13 @@ export default function CursosDetallePage() {
   return (
     <>
       <h1 className='text-xl font-bold'>Cursos detalleee</h1>
-      <Dialog>
-        <DialogTrigger>
-          <Button className=''>Generar relacion participantes</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Relación Participantes</DialogTitle>
-            <DialogDescription>Ingrese los datos solicitados</DialogDescription>
-          </DialogHeader>
-          <Form method='post'>
-            {/* Nombre del centro */}
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='codigo' className='text-right'>
-                Nombre del Centro
-              </Label>
-              <Input
-                id='nombreCentro'
-                name='nombreCentro'
-                className='col-span-3'
-              />
-            </div>
-            {/* Coordinador General */}
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='codigo' className='text-right'>
-                Coordinador general
-              </Label>
-              <Input
-                id='coordinadorGeneral'
-                name='coordinadorGeneral'
-                className='col-span-3'
-              />
-            </div>
-            <DialogFooter>
-              <Button type='submit'>Generar relacion participantes</Button>
-            </DialogFooter>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      {/* Use client-side dialog component to generate PDF in the browser */}
+      <GenerarRelacionParticipantesDialog
+        idPeriodo={0} // placeholder: set correct periodo when available
+        codigoCurso={String(data)}
+        estudiantesInscritos={[]}
+        curso={{ nombreCurso: String(data) }}
+      />
     </>
   );
 }

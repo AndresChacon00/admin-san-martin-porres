@@ -1,5 +1,5 @@
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 
 interface Estudiante {
   cedula: string;
@@ -115,7 +115,7 @@ export async function generarPlanillaPDF({
   // Generar el PDF usando html2canvas y jsPDF
   const canvas = await html2canvas(planillaContent);
   const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF();
+  const pdf = new jsPDF('p', 'mm', 'a4');
 
   pdf.addImage(imgData, 'PNG', 10, 10, 190, 0); // Ajusta las dimensiones según sea necesario
   pdf.save(`Planilla_Curso_${codigoCurso}_Periodo_${idPeriodo}.pdf`);
