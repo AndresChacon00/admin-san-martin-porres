@@ -98,11 +98,7 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
                       >
                         Eliminar
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Link to={`/cursos/detalle/${row.original.codigo}`}>
-                          Ver Detalles
-                        </Link>
-                      </DropdownMenuItem>
+                      <DropdownMenuItem></DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

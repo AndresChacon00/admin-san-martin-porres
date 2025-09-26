@@ -200,9 +200,6 @@ export default function CursosPage() {
                   <>
                     <EditarCursoModal curso={curso} />
                     <EliminarCursoModal curso={curso} />
-                    <Link to={`cursos/detalle/${curso.codigo}`}>
-                      Ver detalle curso
-                    </Link>
                   </>
                 ),
               }))}
