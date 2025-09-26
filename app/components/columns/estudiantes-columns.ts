@@ -3,10 +3,6 @@ import { Estudiante } from '~/types/estudiantes.types';
 
 export const estudiantesColumns: ColumnDef<Estudiante>[] = [
   {
-    accessorKey: 'id',
-    header: 'Id',
-  },
-  {
     accessorKey: 'cedula',
     header: 'Cédula',
   },

@@ -88,17 +88,17 @@ export async function editarPago(
 export async function obtenerHistorialPagos({
   idPeriodo,
   codigoCurso,
-  idEstudiante,
+  cedulaEstudiante,
 }: {
   idPeriodo: number;
   codigoCurso: string;
-  idEstudiante: number;
+  cedulaEstudiante: string;
 }): Promise<PagoEstudiante[] | { type: 'error'; message: string }> {
   try {
     const historial = await obtenerHistorialPagosEstudiante({
       idPeriodo,
       codigoCurso,
-      idEstudiante,
+      cedulaEstudiante,
     });
     return historial;
   } catch (error) {
@@ -115,17 +115,17 @@ export async function obtenerHistorialPagos({
  * @author Roberth
  * @param idPeriodo - The ID of the period
  * @param codigoCurso - The course code
- * @param idEstudiante - The ID of the student
+ * @param cedulaEstudiante - The ID of the student
  * @returns The remaining debt or an error message
  */
 export async function calcularDeuda({
   idPeriodo,
   codigoCurso,
-  idEstudiante,
+  cedulaEstudiante,
 }: {
   idPeriodo: number;
   codigoCurso: string;
-  idEstudiante: number;
+  cedulaEstudiante: string;
 }): Promise<
   { type: 'success'; deuda: number } | { type: 'error'; message: string }
 > {
@@ -133,7 +133,7 @@ export async function calcularDeuda({
     const deuda = await calcularDeudaEstudiante({
       idPeriodo,
       codigoCurso,
-      idEstudiante,
+      cedulaEstudiante,
     });
     return { type: 'success', deuda };
   } catch (error) {

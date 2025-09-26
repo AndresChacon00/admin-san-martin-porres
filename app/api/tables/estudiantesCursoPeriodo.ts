@@ -17,9 +17,9 @@ export const estudiantesCursoPeriodo = sqliteTable(
     codigoCurso: text('codigo_curso')
       .notNull()
       .references(() => cursos.codigo),
-    idEstudiante: integer('id_estudiante')
+    cedulaEstudiante: text('id_estudiante')
       .notNull()
-      .references(() => estudiantes.id),
+      .references(() => estudiantes.cedula),
 
     // ✅ Prevent duplicate enrollments (Unique Constraint)
   },
@@ -27,7 +27,7 @@ export const estudiantesCursoPeriodo = sqliteTable(
     primaryKey: primaryKey(
       table.idPeriodo,
       table.codigoCurso,
-      table.idEstudiante,
+      table.cedulaEstudiante,
     ),
   }),
 );
