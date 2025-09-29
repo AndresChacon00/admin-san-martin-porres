@@ -19,7 +19,7 @@ export async function getEstudiantes() {
     const estudiantesList = await db
       .select()
       .from(estudiantes)
-      .orderBy(desc(estudiantes.id));
+      .orderBy(desc(estudiantes.cedula));
 
     return estudiantesList;
   } catch (error) {
@@ -32,13 +32,13 @@ export async function getEstudiantes() {
 }
 
 /**
- * Get a single student by ID
+ * Get a single student by Cédula
  * @author Andrés
  * @param id
  */
-export async function getEstudianteById(id: number) {
+export async function getEstudianteByCedula(cedula: string) {
   try {
-    return await getSingleEstudiante(id);
+    return await getSingleEstudiante(cedula);
   } catch (error) {
     console.error('Error al obtener a un estudiante por id');
     return {
@@ -66,14 +66,14 @@ export async function addEstudiante(data: EstudianteInsert) {
 }
 
 /**
- * Endpoint for updating a student by ID
+ * Endpoint for updating a student by Cedula
  * @author Andrés
- * @param id
+ * @param cedula
  * @param data
  */
-export async function updateEstudiante(id: number, data: EstudianteUpdate) {
+export async function updateEstudiante(cedula: string, data: EstudianteUpdate) {
   try {
-    const updatedEstudiante = await updateEstudianteInDb(id, data);
+    const updatedEstudiante = await updateEstudianteInDb(cedula, data);
     return updateEstudiante;
   } catch (error) {
     console.error('Error al actualizar un estudiante: ', error);
@@ -85,13 +85,13 @@ export async function updateEstudiante(id: number, data: EstudianteUpdate) {
 }
 
 /**
- * Endpoint for deleting an student by id
+ * Endpoint for deleting an student by cedula
  * @author Andrés
- * @param id
+ * @param cedula
  */
-export const deleteEstudiante = async (id: number) => {
+export const deleteEstudiante = async (cedula: string) => {
   try {
-    await deleteEstudianteFromDb(id);
+    await deleteEstudianteFromDb(cedula);
     return {
       type: 'success',
       message: 'Estudiante eliminado exitosamente',

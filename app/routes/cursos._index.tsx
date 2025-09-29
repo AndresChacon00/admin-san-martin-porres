@@ -5,6 +5,7 @@ import {
   redirect,
   useActionData,
 } from '@remix-run/react';
+import { Link } from '@remix-run/react';
 import {
   addCurso,
   deleteCurso,
@@ -111,8 +112,8 @@ export default function CursosPage() {
 
   return (
     <>
-      <h1 className="text-xl font-bold">Cursos</h1>
-      <div className="py-4 w-3/4">
+      <h1 className='text-xl font-bold'>Cursos</h1>
+      <div className='py-4 w-3/4'>
         <Dialog>
           <DialogTrigger>
             <Button className='link-button'>Agregar Curso </Button>
@@ -124,69 +125,69 @@ export default function CursosPage() {
                 Agrega un nuevo curso a la lista.
               </DialogDescription>
             </DialogHeader>
-            <Form method="post">
-              <input type="hidden" name="actionType" value="agregar" />
-              <div className="grid gap-4 py-4">
+            <Form method='post'>
+              <input type='hidden' name='actionType' value='agregar' />
+              <div className='grid gap-4 py-4'>
                 {/* Código */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="codigo" className="text-right">
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label htmlFor='codigo' className='text-right'>
                     Código
                   </Label>
-                  <Input id="codigo" name="codigo" className="col-span-3" />
+                  <Input id='codigo' name='codigo' className='col-span-3' />
                 </div>
                 {/* Nombre del Curso */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="nombreCurso" className="text-right">
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label htmlFor='nombreCurso' className='text-right'>
                     Nombre del Curso
                   </Label>
                   <Input
-                    id="nombreCurso"
-                    name="nombreCurso"
-                    className="col-span-3"
+                    id='nombreCurso'
+                    name='nombreCurso'
+                    className='col-span-3'
                   />
                 </div>
                 {/* Descripción */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="descripcion" className="text-right">
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label htmlFor='descripcion' className='text-right'>
                     Descripción
                   </Label>
                   <Input
-                    id="descripcion"
-                    name="descripcion"
-                    className="col-span-3"
+                    id='descripcion'
+                    name='descripcion'
+                    className='col-span-3'
                   />
                 </div>
                 {/* Estado */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="estado" className="text-right">
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label htmlFor='estado' className='text-right'>
                     Estado
                   </Label>
-                  <select id="estado" name="estado" className="col-span-3">
-                    <option value="1">Activo</option>
-                    <option value="0">Inactivo</option>
+                  <select id='estado' name='estado' className='col-span-3'>
+                    <option value='1'>Activo</option>
+                    <option value='0'>Inactivo</option>
                   </select>
                 </div>
                 {/* Precio Total */}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="precioTotal" className="text-right">
+                <div className='grid grid-cols-4 items-center gap-4'>
+                  <Label htmlFor='precioTotal' className='text-right'>
                     Precio Total
                   </Label>
                   <Input
-                    id="precioTotal"
-                    name="precioTotal"
-                    type="number"
-                    step="0.01"
-                    className="col-span-3"
+                    id='precioTotal'
+                    name='precioTotal'
+                    type='number'
+                    step='0.01'
+                    className='col-span-3'
                   />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Agregar Curso</Button>
+                <Button type='submit'>Agregar Curso</Button>
               </DialogFooter>
             </Form>
           </DialogContent>
         </Dialog>
-        <main className="py-4 px-4">
+        <main className='py-4 px-4'>
           {'type' in data && data.type === 'error' && (
             <p>Ocurrió un error cargando los datos</p>
           )}

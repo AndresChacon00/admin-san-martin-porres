@@ -6,14 +6,14 @@ import { EstudianteInsert, EstudianteUpdate } from '~/types/estudiantes.types';
 /**
  * Gets a single student
  * @author Andréss
- * @param id
+ * @param cedula
  * @throws if the student could not be selected
  */
-export async function getSingleEstudiante(id: number) {
+export async function getSingleEstudiante(cedula: string) {
   const estudiante = await db
     .select()
     .from(estudiantes)
-    .where(eq(estudiantes.id, id));
+    .where(eq(estudiantes.cedula, cedula));
 
   return estudiante[0];
 }
@@ -32,15 +32,18 @@ export async function createEstudiante(data: EstudianteInsert) {
 /**
  * Updates a student in the database by ID
  * @author Andrés
- * @param id
+ * @param cedula
  * @param data
  * @throws if the student could not be updated
  */
-export async function updateEstudianteInDb(id: number, data: EstudianteUpdate) {
+export async function updateEstudianteInDb(
+  cedula: string,
+  data: EstudianteUpdate,
+) {
   const updatedEstudiante = await db
     .update(estudiantes)
     .set(data)
-    .where(eq(estudiantes.id, id))
+    .where(eq(estudiantes.cedula, cedula))
     .returning();
 
   return updatedEstudiante[0];
@@ -49,9 +52,9 @@ export async function updateEstudianteInDb(id: number, data: EstudianteUpdate) {
 /**
  * Deletes a student from the database by ID
  * @author Andrés
- * @param id
+ * @param cedula
  * @throws if the student could not be deleted
  */
-export async function deleteEstudianteFromDb(id: number) {
-  await db.delete(estudiantes).where(eq(estudiantes.id, id));
+export async function deleteEstudianteFromDb(cedula: string) {
+  await db.delete(estudiantes).where(eq(estudiantes.cedula, cedula));
 }

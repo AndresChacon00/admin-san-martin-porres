@@ -109,11 +109,11 @@ export async function obtenerRecibosPorCursoPeriodo({
 export async function obtenerHistorialPagosEstudiante({
   idPeriodo,
   codigoCurso,
-  idEstudiante,
+  cedulaEstudiante,
 }: {
   idPeriodo: number;
   codigoCurso: string;
-  idEstudiante: number;
+  cedulaEstudiante: string;
 }): Promise<PagoEstudiante[]> {
   return await db
     .select()
@@ -122,7 +122,7 @@ export async function obtenerHistorialPagosEstudiante({
       and(
         eq(pagosEstudiantesCurso.idPeriodo, idPeriodo),
         eq(pagosEstudiantesCurso.codigoCurso, codigoCurso),
-        eq(pagosEstudiantesCurso.idEstudiante, idEstudiante),
+        eq(pagosEstudiantesCurso.cedulaEstudiante, cedulaEstudiante),
       ),
     )
     .orderBy(desc(pagosEstudiantesCurso.fecha));
@@ -138,11 +138,11 @@ export async function obtenerHistorialPagosEstudiante({
 export async function calcularDeudaEstudiante({
   idPeriodo,
   codigoCurso,
-  idEstudiante,
+  cedulaEstudiante,
 }: {
   idPeriodo: number;
   codigoCurso: string;
-  idEstudiante: number;
+  cedulaEstudiante: string;
 }): Promise<number> {
   const [curso] = await db
     .select({
@@ -154,7 +154,7 @@ export async function calcularDeudaEstudiante({
       and(
         eq(estudiantesCursoPeriodo.idPeriodo, idPeriodo),
         eq(estudiantesCursoPeriodo.codigoCurso, codigoCurso),
-        eq(estudiantesCursoPeriodo.idEstudiante, idEstudiante),
+        eq(estudiantesCursoPeriodo.cedulaEstudiante, cedulaEstudiante),
       ),
     );
 
@@ -167,7 +167,7 @@ export async function calcularDeudaEstudiante({
       and(
         eq(pagosEstudiantesCurso.idPeriodo, idPeriodo),
         eq(pagosEstudiantesCurso.codigoCurso, codigoCurso),
-        eq(pagosEstudiantesCurso.idEstudiante, idEstudiante),
+        eq(pagosEstudiantesCurso.cedulaEstudiante, cedulaEstudiante),
       ),
     );
 

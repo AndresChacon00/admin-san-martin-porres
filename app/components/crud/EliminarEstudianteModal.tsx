@@ -11,7 +11,6 @@ import { useFetcher } from '@remix-run/react';
 import { useState } from 'react';
 
 interface FormValues {
-  id: number;
   nombre: string;
   apellido: string;
   cedula: string;
@@ -44,7 +43,7 @@ export function EliminarEstudianteModal({
   function handleDelete() {
     const formData = new FormData();
     formData.append('actionType', 'eliminar');
-    formData.append('id', values.id.toString());
+    formData.append('cedula', values.cedula.toString());
     fetcher.submit(formData, { method: 'post' });
     onClose(); // Close the modal after submission
   }
@@ -55,14 +54,15 @@ export function EliminarEstudianteModal({
         <DialogHeader>
           <DialogTitle>Eliminar estudiante</DialogTitle>
           <DialogDescription>
-            ¿Estás seguro que deseas eliminar a {values.nombre} {values.apellido}?
+            ¿Estás seguro que deseas eliminar a {values.nombre}{' '}
+            {values.apellido}?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant='ghost' onClick={onClose}>
             Cancelar
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button variant='destructive' onClick={handleDelete}>
             Sí, eliminar
           </Button>
         </DialogFooter>

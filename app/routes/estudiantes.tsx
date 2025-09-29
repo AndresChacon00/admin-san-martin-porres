@@ -14,7 +14,7 @@ import {
 import ReciboTest from '~/components/ReciboTest';
 import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
 import { DataTable } from '~/components/ui/data-table';
-import { ActionFunction , json } from '@remix-run/node';
+import { ActionFunction, json } from '@remix-run/node';
 import { AgregarEstudianteModal } from '~/components/crud/AgregarEstudianteModal';
 
 import { DataTableEstudiantes } from '~/components/data-tables/estudiantes-data-table';
@@ -82,8 +82,6 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   if (actionType === 'editar') {
-    const id = formData.get('id');
-
     const nombre = formData.get('nombre');
     const apellido = formData.get('apellido');
     const cedula = formData.get('cedula');
@@ -97,7 +95,6 @@ export const action: ActionFunction = async ({ request }) => {
     const ultimoAñoCursado = formData.get('ultimoAñoCursado');
 
     if (
-      typeof id !== 'string' ||
       typeof nombre !== 'string' ||
       typeof apellido !== 'string' ||
       typeof cedula !== 'string' ||
@@ -112,7 +109,7 @@ export const action: ActionFunction = async ({ request }) => {
     ) {
       return json({ error: 'Datos inválidos' }, { status: 400 });
     }
-    const result = await updateEstudiante(parseInt(id), {
+    const result = await updateEstudiante(cedula, {
       nombre,
       apellido,
       cedula,
@@ -133,13 +130,13 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   if (actionType === 'eliminar') {
-    const id = formData.get('id');
+    const cedula = formData.get('cedula');
 
-    if (typeof id !== 'string') {
-      return json({ error: 'ID inválido' }, { status: 400 });
+    if (typeof cedula !== 'string') {
+      return json({ error: 'Cedula inválida' }, { status: 400 });
     }
 
-    const result = await deleteEstudiante(parseInt(id));
+    const result = await deleteEstudiante(cedula);
     if ('type' in result && result.type === 'error') {
       console.log('ERRORRRRcito', result.message);
       return json({ error: result.message }, { status: 400 });
@@ -155,17 +152,17 @@ export default function EstudiantesPage() {
   return (
     <>
       <h1 className='text-xl font-bold'>Estudiantes</h1>
-      <div className="py-4 w-3/4">
-      <AgregarEstudianteModal />
+      <div className='py-4 w-3/4'>
+        <AgregarEstudianteModal />
 
-      <main className='py-4'>
-        {'type' in data && data.type === 'error' && (
-          <p>Ocurrió un error cargando los datos</p>
-        )}
-        {!('type' in data) && (
-          <DataTableEstudiantes columns={estudiantesColumns} data={data} />
-        )}
-      </main>
+        <main className='py-4'>
+          {'type' in data && data.type === 'error' && (
+            <p>Ocurrió un error cargando los datos</p>
+          )}
+          {!('type' in data) && (
+            <DataTableEstudiantes columns={estudiantesColumns} data={data} />
+          )}
+        </main>
       </div>
     </>
   );
