@@ -1,6 +1,22 @@
-import { useLoaderData, Form, useParams,Link, MetaFunction } from '@remix-run/react';
-import { obtenerEstudiantesDeCursoPeriodo, inscribirEstudianteCursoPeriodo , eliminarEstudianteCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
-import { registrarPago, obtenerHistorialPagos, editarPago, calcularDeuda, eliminarPago } from '~/api/controllers/pagosEstudiantesCursos';
+import {
+  useLoaderData,
+  Form,
+  useParams,
+  Link,
+  MetaFunction,
+} from '@remix-run/react';
+import {
+  obtenerEstudiantesDeCursoPeriodo,
+  inscribirEstudianteCursoPeriodo,
+  eliminarEstudianteCursoPeriodo,
+} from '~/api/controllers/estudiantesCursoPeriodo';
+import {
+  registrarPago,
+  obtenerHistorialPagos,
+  editarPago,
+  calcularDeuda,
+  eliminarPago,
+} from '~/api/controllers/pagosEstudiantesCursos';
 import { EstudiantesCursoDataTable } from '~/components/data-tables/estudiantesCurso-data-table';
 import { estudiantesCursoColumns } from '~/components/columns/estudiantesCurso-columns';
 import {
@@ -15,6 +31,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
+import { GenerarRelacionParticipantesDialog } from '~/components/Planillas/GenerarRelacionParticipantesDialog';
 import type { LoaderFunction, ActionFunction } from '@remix-run/node';
 
 export const meta: MetaFunction = () => {
@@ -28,20 +45,29 @@ export const loader: LoaderFunction = async ({ params }) => {
   if (isNaN(idPeriodo) || !codigoCurso) {
     throw new Response('Datos inválidos', { status: 400 });
   }
-  const estudiantes = await obtenerEstudiantesDeCursoPeriodo(idPeriodo, codigoCurso);
+  const estudiantes = await obtenerEstudiantesDeCursoPeriodo(
+    idPeriodo,
+    codigoCurso,
+  );
+
+  // Si el controlador devolvió un error, retornar arreglo vacío para evitar errores de mapeo
+  if (!Array.isArray(estudiantes)) {
+    console.error('Error al obtener estudiantes:', estudiantes);
+    return [];
+  }
 
   // Calcular la deuda para cada estudiante
   const estudiantesConDeuda = await Promise.all(
     estudiantes.map(async (estudiante) => {
-      if (!estudiante.id) {
-        console.error('El estudiante no tiene un ID válido:', estudiante);
+      if (!estudiante.cedula) {
+        console.error('El estudiante no tiene una cédula válida:', estudiante);
         return { ...estudiante, deuda: 0 };
       }
 
       const deudaResult = await calcularDeuda({
         idPeriodo,
         codigoCurso,
-        idEstudiante: estudiante.id,
+        cedulaEstudiante: estudiante.cedula,
       });
 
       const deuda = deudaResult.type === 'success' ? deudaResult.deuda : 0;
@@ -50,7 +76,7 @@ export const loader: LoaderFunction = async ({ params }) => {
         ...estudiante,
         deuda,
       };
-    })
+    }),
   );
 
   return estudiantesConDeuda;
@@ -66,21 +92,40 @@ export const action: ActionFunction = async ({ request, params }) => {
     return { error: 'Datos inválidos' };
   }
 
+  // Inscribir estudiante por cédula (cliente envía actionType='inscribir')
+  if (actionType === 'inscribir') {
+    const cedula = String(formData.get('cedula') || '');
+
+    if (!cedula) {
+      return { error: 'Cédula inválida' };
+    }
+
+    const result = await inscribirEstudianteCursoPeriodo({
+      idPeriodo,
+      codigoCurso,
+      cedulaEstudiante: cedula,
+    });
+
+    if (result.type === 'error') {
+      return { error: result.message };
+    }
+  }
+
   if (actionType === 'agregar') {
-    const idEstudiante = Number(formData.get('idEstudiante'));
+    const cedula = String(formData.get('cedula') || '');
     const monto = Number(formData.get('monto'));
     const fecha = formData.get('fecha') as string;
     const tipoPago = formData.get('tipoPago') as string;
     const comprobante = formData.get('comprobante') as string;
 
-    if (isNaN(idEstudiante) || isNaN(monto) || !fecha || !tipoPago) {
+    if (!cedula || isNaN(monto) || !fecha || !tipoPago) {
       return { error: 'Datos inválidos' };
     }
 
     const result = await registrarPago({
       idPeriodo,
       codigoCurso,
-      idEstudiante,
+      cedulaEstudiante: cedula,
       monto,
       fecha: new Date(fecha),
       tipoPago,
@@ -116,16 +161,16 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 
   if (actionType === 'eliminarEstudiante') {
-    const idEstudiante = Number(formData.get('idEstudiante'));
+    const cedula = String(formData.get('cedula') || '');
 
-    if (isNaN(idEstudiante)) {
-      return { error: 'ID de estudiante inválido' };
+    if (!cedula) {
+      return { error: 'Cédula de estudiante inválida' };
     }
 
     const result = await eliminarEstudianteCursoPeriodo(
       idPeriodo,
       codigoCurso,
-      idEstudiante
+      cedula,
     );
 
     if (result.type === 'error') {
@@ -156,37 +201,46 @@ export default function EstudiantesCursoPage() {
 
   return (
     <>
-      <h1 className="text-xl font-bold">
+      <h1 className='text-xl font-bold'>
         Estudiantes en el Curso {codigo} - Periodo {idPeriodo}
       </h1>
-      <div className="py-4 w-3/4">
-       <div className="flex gap-4">
-        <Dialog>
-          <DialogTrigger>
-            <Button className="link-button">Inscribir Estudiante</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Inscribir Estudiante</DialogTitle>
-              <DialogDescription>
-                Ingresa el ID del estudiante que deseas inscribir en este curso.
-              </DialogDescription>
-            </DialogHeader>
-            <Form method="post">
-              <Label htmlFor="idEstudiante">ID Estudiante</Label>
-              <Input id="idEstudiante" name="idEstudiante" type="number" />
-              <DialogFooter>
-                <Button type="submit">Inscribir Estudiante</Button>
-              </DialogFooter>
-            </Form>
-          </DialogContent>
-        </Dialog>
-        {/* Nuevo botón para ver todos los pagos */}
+      <div className='py-4 w-3/4'>
+        <div className='flex gap-4'>
+          <Dialog>
+            <DialogTrigger>
+              <Button className='link-button'>Inscribir Estudiante</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Inscribir Estudiante</DialogTitle>
+                <DialogDescription>
+                  Ingresa la cédula del estudiante que deseas inscribir en este
+                  curso.
+                </DialogDescription>
+              </DialogHeader>
+              <Form method='post'>
+                <input type='hidden' name='actionType' value='inscribir' />
+                <Label htmlFor='cedula'>Cédula Estudiante</Label>
+                <Input id='cedula' name='cedula' type='text' />
+                <DialogFooter>
+                  <Button type='submit'>Inscribir Estudiante</Button>
+                </DialogFooter>
+              </Form>
+            </DialogContent>
+          </Dialog>
+          {/* Botón para generar la planilla (cliente) */}
+          <GenerarRelacionParticipantesDialog
+            idPeriodo={Number(idPeriodo)}
+            codigoCurso={String(codigo)}
+            estudiantesInscritos={estudiantesInscritos}
+            curso={{ nombreCurso: String(codigo) }}
+          />
+          {/* Nuevo botón para ver todos los pagos */}
           <Link to={`./pagos`}>
-            <Button className="link-button">Ver todos los pagos</Button>
+            <Button className='link-button'>Ver todos los pagos</Button>
           </Link>
         </div>
-        <main className="py-4">
+        <main className='py-4'>
           <EstudiantesCursoDataTable
             columns={estudiantesCursoColumns}
             data={estudiantesInscritos}

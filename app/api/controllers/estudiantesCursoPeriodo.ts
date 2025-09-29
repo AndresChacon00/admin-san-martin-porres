@@ -54,14 +54,10 @@ export async function inscribirEstudianteCursoPeriodo(
 export async function eliminarEstudianteCursoPeriodo(
   idPeriodo: number,
   codigoCurso: string,
-  idEstudiante: string,
+  cedula: string,
 ) {
   try {
-    await eliminarEstudianteDeCursoPeriodo(
-      idPeriodo,
-      codigoCurso,
-      idEstudiante,
-    );
+    await eliminarEstudianteDeCursoPeriodo(idPeriodo, codigoCurso, cedula);
     return { type: 'success', message: 'Estudiante eliminado del curso' };
   } catch (error) {
     console.error('Error al eliminar estudiante del curso del periodo:', error);
