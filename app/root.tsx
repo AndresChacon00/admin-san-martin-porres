@@ -13,6 +13,8 @@ import { SidebarProvider, SidebarTrigger } from '../app/components/ui/sidebar';
 import { AppSidebar } from '../app/components/Sidebar';
 import { Toaster } from './components/ui/sonner';
 import { getSession } from './sessions';
+import FloatingButton from './components/floating-button';
+import { CircleQuestionMark } from 'lucide-react';
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -55,6 +57,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className='ps-4 pt-12 w-full'>{children}</div>
             <ScrollRestoration />
             <Scripts />
+            <FloatingButton
+              onClick={() =>
+                window.open(
+                  'https://docs.google.com/document/d/15_7_Bq6iR7VCya9GLyfq2TXp__kaU_wyTKEvzT0o17c/edit?usp=drive_link',
+                  '_blank',
+                )
+              }
+            >
+              <CircleQuestionMark />
+              <span className='sr-only'>Ayuda</span>
+            </FloatingButton>
           </SidebarProvider>
         ) : (
           <>
