@@ -20,8 +20,8 @@ import { Input } from '~/components/ui/input';
 import { ActionFunction, LoaderFunction } from '@remix-run/node';
 
 export const loader: LoaderFunction = async ({ params }) => {
-  const idPeriodo = Number(params.idPeriodo);
-  if (isNaN(idPeriodo)) {
+  const idPeriodo = String(params.idPeriodo);
+  if (!idPeriodo) {
     return { type: 'error', message: 'ID de periodo inválido' };
   }
   return await obtenerCursosPorPeriodo(idPeriodo);
@@ -35,9 +35,9 @@ export const meta: MetaFunction = () => {
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
   const actionType = formData.get('actionType');
-  const idPeriodo = Number(params.idPeriodo);
+  const idPeriodo = String(params.idPeriodo);
 
-  if (isNaN(idPeriodo)) {
+  if (!idPeriodo) {
     return { error: 'ID de periodo inválido' };
   }
 
@@ -117,7 +117,7 @@ export default function CursosPeriodoPage() {
           <CursosPeriodosDataTable
               columns={cursoColumns} // Pass the base columns
               data={cursosInscritos} // Pass the data from the loader
-              idPeriodo={Number(idPeriodo)} // Pass the period ID
+              idPeriodo={String(idPeriodo)} // Pass the period ID as string
             />
         )}
       </main>

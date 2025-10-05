@@ -43,7 +43,7 @@ export async function obtenerRecibosPorCursoPeriodo({
   idPeriodo,
   codigoCurso,
 }: {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
 }) {
   return await db
@@ -111,7 +111,7 @@ export async function obtenerHistorialPagosEstudiante({
   codigoCurso,
   cedulaEstudiante,
 }: {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   cedulaEstudiante: string;
 }): Promise<PagoEstudiante[]> {
@@ -140,7 +140,7 @@ export async function calcularDeudaEstudiante({
   codigoCurso,
   cedulaEstudiante,
 }: {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   cedulaEstudiante: string;
 }): Promise<number> {

@@ -11,7 +11,7 @@ import type { EstudianteCursoPeriodoInsert } from '~/types/estudiantesCursoPerio
  * @param codigoCurso - The course code
  */
 export async function getEstudiantesByCursoPeriodo(
-  idPeriodo: number,
+  idPeriodo: string,
   codigoCurso: string,
 ) {
   return await db
@@ -55,7 +55,7 @@ export async function inscribirEstudianteEnCursoPeriodo(
  * @param idEstudiante - The student ID
  */
 export async function eliminarEstudianteDeCursoPeriodo(
-  idPeriodo: number,
+  idPeriodo: string,
   codigoCurso: string,
   cedulaEstudiante: string,
 ) {

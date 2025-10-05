@@ -33,7 +33,7 @@ export async function getPeriodos() {
  * @author Roberth
  * @param idPeriodo
  */
-export async function getPeriodoById(idPeriodo: number) {
+export async function getPeriodoById(idPeriodo: string) {
   try {
     const period = await db
       .select()
@@ -73,7 +73,7 @@ export async function addPeriodo(data: PeriodoInsert) {
  * @param idPeriodo
  * @param data
  */
-export async function updatePeriodo(idPeriodo: number, data: PeriodoUpdate) {
+export async function updatePeriodo(idPeriodo: string, data: PeriodoUpdate) {
   try {
     const updated = await updatePeriodoInDb(idPeriodo, data);
     return updated;
@@ -91,7 +91,7 @@ export async function updatePeriodo(idPeriodo: number, data: PeriodoUpdate) {
  * @author Roberth
  * @param idPeriodo
  */
-export async function deletePeriodo(idPeriodo: number) {
+export async function deletePeriodo(idPeriodo: string) {
   try {
     await deletePeriodoFromDb(idPeriodo);
     return {

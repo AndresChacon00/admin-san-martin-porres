@@ -28,7 +28,7 @@ import { Ellipsis } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog } from '../ui/dialog';
 import { Button } from '../ui/button';
-import { Input } from "../ui/input"
+import { Input } from '../ui/input';
 import { AgregarPagoModal } from '../crud/AgregarPagoModal';
 import { EditarPagoModal } from '../crud/EditarPagoModal';
 import { EliminarPagoModal } from '../crud/EliminarPagoModal';
@@ -38,7 +38,7 @@ import { EliminarEstudianteCursoModal } from '../crud/EliminarEstudianteCursoMod
 interface DataTableProps {
   columns: ColumnDef<Estudiante>[];
   data: Estudiante[];
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
 }
 
@@ -48,9 +48,10 @@ export function EstudiantesCursoDataTable({
   idPeriodo,
   codigoCurso,
 }: DataTableProps) {
-
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
 
   const table = useReactTable({
     data,
@@ -66,19 +67,22 @@ export function EstudiantesCursoDataTable({
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const [selectedEstudiante, setSelectedEstudiante] = useState<Estudiante | null>(null);
-  const [action, setAction] = useState<'addPago' | 'editPago' | 'deletePago' | 'deleteEstudiante' | null>(null);
+  const [selectedEstudiante, setSelectedEstudiante] =
+    useState<Estudiante | null>(null);
+  const [action, setAction] = useState<
+    'addPago' | 'editPago' | 'deletePago' | 'deleteEstudiante' | null
+  >(null);
 
   return (
-    <div className="rounded-md border">
-      <div className="flex items-center py-4 pl-4">
+    <div className='rounded-md border'>
+      <div className='flex items-center py-4 pl-4'>
         <Input
-          placeholder="Filtrar por cédula"
-          value={(table.getColumn("cedula")?.getFilterValue() as string) ?? ""}
+          placeholder='Filtrar por cédula'
+          value={(table.getColumn('cedula')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
-            table.getColumn("cedula")?.setFilterValue(event.target.value)
+            table.getColumn('cedula')?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className='max-w-sm'
         />
       </div>
       <Table>
@@ -89,7 +93,10 @@ export function EstudiantesCursoDataTable({
                 <TableHead key={header.id}>
                   {header.isPlaceholder
                     ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </TableHead>
               ))}
             </TableRow>
@@ -98,7 +105,10 @@ export function EstudiantesCursoDataTable({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -107,7 +117,7 @@ export function EstudiantesCursoDataTable({
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger>
-                      <Ellipsis color="gray" aria-label="Opciones" />
+                      <Ellipsis color='gray' aria-label='Opciones' />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem
@@ -120,7 +130,10 @@ export function EstudiantesCursoDataTable({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
-                          console.log('Opening Eliminar Estudiante Modal for:', row.original);
+                          console.log(
+                            'Opening Eliminar Estudiante Modal for:',
+                            row.original,
+                          );
                           setAction('deleteEstudiante');
                           setSelectedEstudiante(row.original);
                         }}
@@ -134,7 +147,7 @@ export function EstudiantesCursoDataTable({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length} className='h-24 text-center'>
                 Sin resultados.
               </TableCell>
             </TableRow>
@@ -170,7 +183,6 @@ export function EstudiantesCursoDataTable({
           }}
         />
       )}
-
     </div>
   );
 }
