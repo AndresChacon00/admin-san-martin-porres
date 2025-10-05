@@ -11,15 +11,17 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
+import { Periodo } from '~/types/periodos.types';
 
+// Use string dates for form inputs
 interface FormValues {
   idPeriodo: string;
-  fechaInicio: Date; // Assuming it's a date in string format
-  fechaFin: Date; // Assuming it's a date in string format
+  fechaInicio: string; // YYYY-MM-DD
+  fechaFin: string; // YYYY-MM-DD
 }
 
 interface EditarPeriodoModalProps {
-  periodo: FormValues;
+  periodo: Periodo;
   open: boolean;
   onClose: () => void;
 }
@@ -30,8 +32,23 @@ export function EditarPeriodoModal({
   onClose,
 }: EditarPeriodoModalProps) {
   const fetcher = useFetcher();
+
+  // Helper to normalize a date-like value to 'YYYY-MM-DD' string
+  const toDateString = (d: any) => {
+    if (!d) return '';
+    try {
+      const dt = new Date(d);
+      if (isNaN(dt.getTime())) return '';
+      return dt.toISOString().slice(0, 10);
+    } catch {
+      return '';
+    }
+  };
+
   const [values, setValues] = useState<FormValues>(() => ({
-    ...periodo,
+    idPeriodo: String(periodo?.idPeriodo ?? ''),
+    fechaInicio: toDateString((periodo as any)?.fechaInicio),
+    fechaFin: toDateString((periodo as any)?.fechaFin),
   }));
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +88,7 @@ export function EditarPeriodoModal({
               className='col-span-3'
             />
           </div>
+
           {/* Fecha Inicio */}
           <div className='grid grid-cols-4 items-center gap-4'>
             <Label htmlFor='fechaInicio' className='text-right'>
