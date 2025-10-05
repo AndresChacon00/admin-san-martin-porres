@@ -223,7 +223,7 @@ export default function EstudiantesCursoPage() {
                 <Label htmlFor='cedula'>Cédula Estudiante</Label>
                 <Input id='cedula' name='cedula' type='text' />
                 <DialogFooter>
-                  <Button type='submit'>Inscribir Estudiante</Button>
+                  <Button type='submit' className='link-button'>Inscribir Estudiante</Button>
                 </DialogFooter>
               </Form>
             </DialogContent>

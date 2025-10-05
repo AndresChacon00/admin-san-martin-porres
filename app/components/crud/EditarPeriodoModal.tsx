@@ -120,7 +120,7 @@ export function EditarPeriodoModal({
             />
           </div>
           <DialogFooter>
-            <Button type='submit'>Confirmar cambios</Button>
+            <Button type="submit" className='link-button'>Confirmar cambios</Button>
           </DialogFooter>
         </form>
       </DialogContent>

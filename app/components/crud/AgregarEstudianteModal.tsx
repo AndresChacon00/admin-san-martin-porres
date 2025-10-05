@@ -242,7 +242,7 @@ export function AgregarEstudianteModal() {
           </div>
 
           <DialogFooter>
-            <Button type='submit'>Agregar estudiante</Button>
+            <Button type='submit' className='link-button'>Agregar estudiante</Button>
           </DialogFooter>
         </form>
       </DialogContent>

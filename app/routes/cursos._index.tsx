@@ -4,8 +4,8 @@ import {
   Form,
   redirect,
   useActionData,
-} from '@remix-run/react';
-import { Link } from '@remix-run/react';
+ Link } from '@remix-run/react';
+
 import {
   addCurso,
   deleteCurso,
@@ -157,20 +157,12 @@ export default function CursosPage() {
                     className='col-span-3'
                   />
                 </div>
-                {/* Estado */}
-                <div className='grid grid-cols-4 items-center gap-4'>
-                  <Label htmlFor='estado' className='text-right'>
-                    Estado
-                  </Label>
-                  <select id='estado' name='estado' className='col-span-3'>
-                    <option value='1'>Activo</option>
-                    <option value='0'>Inactivo</option>
-                  </select>
-                </div>
-                {/* Precio Total */}
+                {/* Estado (removed from UI) */}
+                <input type='hidden' name='estado' value='1' />
+                {/* Matrícula (REF) */}
                 <div className='grid grid-cols-4 items-center gap-4'>
                   <Label htmlFor='precioTotal' className='text-right'>
-                    Precio Total
+                    Matrícula (REF)
                   </Label>
                   <Input
                     id='precioTotal'
@@ -182,7 +174,7 @@ export default function CursosPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type='submit'>Agregar Curso</Button>
+                <Button type='submit' className='link-button'>Agregar Curso</Button>
               </DialogFooter>
             </Form>
           </DialogContent>

@@ -115,19 +115,20 @@ export default function CursosPeriodoPage() {
                   />
                 </div>
               </div>
-              <DialogFooter>
-                <Button type='submit'>Inscribir Curso</Button>
-              </DialogFooter>
-            </Form>
-          </DialogContent>
-        </Dialog>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className='link-button'>Inscribir Curso</Button>
+            </DialogFooter>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
-        {/* Tabla de cursos inscritos en este periodo */}
-        <main className='py-4'>
-          {'type' in cursosInscritos && cursosInscritos.type === 'error' ? (
-            <p>Ocurrió un error cargando los cursos</p>
-          ) : (
-            <CursosPeriodosDataTable
+      {/* Tabla de cursos inscritos en este periodo */}
+      <main className="py-4">
+        {'type' in cursosInscritos && cursosInscritos.type === 'error' ? (
+          <p>Ocurrió un error cargando los cursos</p>
+        ) : (
+          <CursosPeriodosDataTable
               columns={cursoColumns} // Pass the base columns
               data={cursosInscritos} // Pass the data from the loader
               idPeriodo={String(idPeriodo)} // Pass the period ID as string

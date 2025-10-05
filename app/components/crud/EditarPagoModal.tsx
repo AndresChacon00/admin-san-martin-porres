@@ -149,7 +149,7 @@ export function EditarPagoModal({
           </div>
 
           <DialogFooter>
-            <Button type="submit">Guardar Cambios</Button>
+            <Button type="submit" className='link-button'>Guardar Cambios</Button>
           </DialogFooter>
         </form>
       </DialogContent>
