@@ -20,7 +20,7 @@ interface FormValues {
 }
 
 interface AgregarPagoModalProps {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   idEstudiante: number;
   open: boolean;
@@ -67,103 +67,104 @@ export function AgregarPagoModal({
         <DialogHeader>
           <DialogTitle>Agregar Pago</DialogTitle>
           <DialogDescription>
-            Ingresa los datos del nuevo pago para el estudiante con ID {idEstudiante}.
+            Ingresa los datos del nuevo pago para el estudiante con ID{' '}
+            {idEstudiante}.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit} className='grid gap-4 py-4'>
           {/* Indicadores */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="idPeriodo" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='idPeriodo' className='text-right'>
               ID Periodo
             </Label>
             <Input
-              id="idPeriodo"
-              name="idPeriodo"
+              id='idPeriodo'
+              name='idPeriodo'
               value={idPeriodo}
               readOnly
-              className="col-span-3"
+              className='col-span-3'
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="codigoCurso" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='codigoCurso' className='text-right'>
               Código Curso
             </Label>
             <Input
-              id="codigoCurso"
-              name="codigoCurso"
+              id='codigoCurso'
+              name='codigoCurso'
               value={codigoCurso}
               readOnly
-              className="col-span-3"
+              className='col-span-3'
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="idEstudiante" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='idEstudiante' className='text-right'>
               ID Estudiante
             </Label>
             <Input
-              id="idEstudiante"
-              name="idEstudiante"
+              id='idEstudiante'
+              name='idEstudiante'
               value={idEstudiante}
               readOnly
-              className="col-span-3"
+              className='col-span-3'
             />
           </div>
           {/* Campos Editables */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="monto" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='monto' className='text-right'>
               Monto
             </Label>
             <Input
-              id="monto"
-              name="monto"
-              type="number"
+              id='monto'
+              name='monto'
+              type='number'
               value={values.monto}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="fecha" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='fecha' className='text-right'>
               Fecha
             </Label>
             <Input
-              id="fecha"
-              name="fecha"
-              type="date"
+              id='fecha'
+              name='fecha'
+              type='date'
               value={values.fecha}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="tipoPago" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='tipoPago' className='text-right'>
               Tipo de Pago
             </Label>
             <Input
-              id="tipoPago"
-              name="tipoPago"
+              id='tipoPago'
+              name='tipoPago'
               value={values.tipoPago}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="comprobante" className="text-right">
+          <div className='grid grid-cols-4 items-center gap-4'>
+            <Label htmlFor='comprobante' className='text-right'>
               Comprobante
             </Label>
             <Input
-              id="comprobante"
-              name="comprobante"
+              id='comprobante'
+              name='comprobante'
               value={values.comprobante}
               onChange={handleChange}
-              className="col-span-3"
+              className='col-span-3'
             />
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={onClose}>
+            <Button variant='ghost' onClick={onClose}>
               Cancelar
             </Button>
             <Button type="submit" className='link-button'>Agregar Pago</Button>

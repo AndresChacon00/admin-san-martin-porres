@@ -10,7 +10,7 @@ import { Button } from '~/components/ui/button';
 import { useFetcher } from '@remix-run/react';
 
 interface EliminarEstudianteCursoModalProps {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   idEstudiante: number;
   nombreEstudiante: string;
@@ -44,14 +44,15 @@ export function EliminarEstudianteCursoModal({
         <DialogHeader>
           <DialogTitle>Eliminar Estudiante del Curso</DialogTitle>
           <DialogDescription>
-            ¿Estás seguro que deseas eliminar a {nombreEstudiante} del curso {codigoCurso}?
+            ¿Estás seguro que deseas eliminar a {nombreEstudiante} del curso{' '}
+            {codigoCurso}?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant='ghost' onClick={onClose}>
             Cancelar
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button variant='destructive' onClick={handleDelete}>
             Sí, eliminar
           </Button>
         </DialogFooter>

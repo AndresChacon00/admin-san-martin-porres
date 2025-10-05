@@ -23,7 +23,7 @@ interface Estudiante {
 }
 
 interface GenerarRelacionParticipantesDialogProps {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   estudiantesInscritos: Estudiante[];
   curso: any;

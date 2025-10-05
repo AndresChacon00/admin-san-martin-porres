@@ -3,7 +3,7 @@ import { periodos } from './periodos';
 import { cursos } from './cursos';
 
 export const cursosPeriodo = sqliteTable('cursos_periodo', {
-  idPeriodo: integer('id_periodo')
+  idPeriodo: text('id_periodo')
     .notNull()
     .references(() => periodos.idPeriodo, { onDelete: 'cascade' }),
   idCurso: integer('id_curso')

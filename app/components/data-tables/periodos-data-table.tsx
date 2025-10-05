@@ -1,6 +1,23 @@
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 import { Ellipsis } from 'lucide-react';
 import { Periodo } from '~/types/periodos.types';
 import { useState } from 'react';
@@ -26,7 +43,7 @@ export function PeriodosDataTable({ columns, data }: DataTableProps) {
   const [action, setAction] = useState<'edit' | 'delete' | null>(null);
 
   return (
-    <div className="rounded-md border">
+    <div className='rounded-md border'>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -35,7 +52,10 @@ export function PeriodosDataTable({ columns, data }: DataTableProps) {
                 <TableHead key={header.id}>
                   {header.isPlaceholder
                     ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </TableHead>
               ))}
             </TableRow>
@@ -44,7 +64,10 @@ export function PeriodosDataTable({ columns, data }: DataTableProps) {
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -53,7 +76,7 @@ export function PeriodosDataTable({ columns, data }: DataTableProps) {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger>
-                      <Ellipsis color="gray" aria-label="Opciones" />
+                      <Ellipsis color='gray' aria-label='Opciones' />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem
@@ -84,7 +107,7 @@ export function PeriodosDataTable({ columns, data }: DataTableProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length} className='h-24 text-center'>
                 Sin resultados.
               </TableCell>
             </TableRow>
@@ -93,14 +116,16 @@ export function PeriodosDataTable({ columns, data }: DataTableProps) {
       </Table>
 
       {/* Editar Periodo Modal */}
-      <EditarPeriodoModal
-        periodo={selectedPeriodo}
-        open={action === 'edit'}
-        onClose={() => {
-          setAction(null);
-          setSelectedPeriodo(null);
-        }}
-      />
+      {selectedPeriodo && (
+        <EditarPeriodoModal
+          periodo={selectedPeriodo}
+          open={action === 'edit'}
+          onClose={() => {
+            setAction(null);
+            setSelectedPeriodo(null);
+          }}
+        />
+      )}
 
       {/* Eliminar Periodo Modal */}
       {selectedPeriodo && (

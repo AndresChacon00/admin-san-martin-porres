@@ -22,7 +22,7 @@ export async function createPeriodoInDb(data: PeriodoInsert) {
  * @throws if the period could not be updated.
  */
 export async function updatePeriodoInDb(
-  idPeriodo: number,
+  idPeriodo: string,
   data: PeriodoUpdate,
 ) {
   const updatedPeriodo = await db
@@ -39,6 +39,6 @@ export async function updatePeriodoInDb(
  * @param idPeriodo - The ID of the period to delete.
  * @throws if the period could not be deleted.
  */
-export async function deletePeriodoFromDb(idPeriodo: number) {
+export async function deletePeriodoFromDb(idPeriodo: string) {
   await db.delete(periodos).where(eq(periodos.idPeriodo, idPeriodo));
 }

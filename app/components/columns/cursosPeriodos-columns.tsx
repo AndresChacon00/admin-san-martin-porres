@@ -1,10 +1,11 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Curso } from '~/types/cursos.types';
 import { Link } from '@remix-run/react';
-import { Button } from "../ui/button";
+import { Button } from '../ui/button';
 
-
-export const cursoColumnsWithActions = (idPeriodo: number): ColumnDef<Curso>[] => [
+export const cursoColumnsWithActions = (
+  idPeriodo: string,
+): ColumnDef<Curso>[] => [
   {
     accessorKey: 'codigo',
     header: 'Código',

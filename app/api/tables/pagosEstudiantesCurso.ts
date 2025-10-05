@@ -9,7 +9,7 @@ import { estudiantesCursoPeriodo } from './estudiantesCursoPeriodo';
 
 export const pagosEstudiantesCurso = sqliteTable('pagos_estudiantes_curso', {
   idPago: integer('id_pago').primaryKey({ autoIncrement: true }),
-  idPeriodo: integer('id_periodo')
+  idPeriodo: text('id_periodo')
     .notNull()
     .references(() => estudiantesCursoPeriodo.idPeriodo),
   codigoCurso: text('codigo_curso')

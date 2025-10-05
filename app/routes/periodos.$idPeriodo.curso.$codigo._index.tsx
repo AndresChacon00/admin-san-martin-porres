@@ -39,10 +39,10 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader: LoaderFunction = async ({ params }) => {
-  const idPeriodo = Number(params.idPeriodo);
+  const idPeriodo = String(params.idPeriodo);
   const codigoCurso = params.codigo;
 
-  if (isNaN(idPeriodo) || !codigoCurso) {
+  if (idPeriodo == '' || !codigoCurso) {
     throw new Response('Datos inválidos', { status: 400 });
   }
   const estudiantes = await obtenerEstudiantesDeCursoPeriodo(
@@ -85,10 +85,10 @@ export const loader: LoaderFunction = async ({ params }) => {
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
   const actionType = formData.get('actionType');
-  const idPeriodo = Number(params.idPeriodo);
+  const idPeriodo = String(params.idPeriodo);
   const codigoCurso = params.codigo;
 
-  if (!codigoCurso || isNaN(idPeriodo)) {
+  if (!codigoCurso || !idPeriodo) {
     return { error: 'Datos inválidos' };
   }
 
@@ -230,7 +230,7 @@ export default function EstudiantesCursoPage() {
           </Dialog>
           {/* Botón para generar la planilla (cliente) */}
           <GenerarRelacionParticipantesDialog
-            idPeriodo={Number(idPeriodo)}
+            idPeriodo={String(idPeriodo)}
             codigoCurso={String(codigo)}
             estudiantesInscritos={estudiantesInscritos}
             curso={{ nombreCurso: String(codigo) }}
@@ -244,7 +244,7 @@ export default function EstudiantesCursoPage() {
           <EstudiantesCursoDataTable
             columns={estudiantesCursoColumns}
             data={estudiantesInscritos}
-            idPeriodo={Number(idPeriodo)}
+            idPeriodo={String(idPeriodo)}
             codigoCurso={String(codigo)}
           />
         </main>

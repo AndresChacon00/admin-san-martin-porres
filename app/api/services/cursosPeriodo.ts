@@ -21,7 +21,7 @@ export async function addCursoToPeriodo(data: CursoPeriodoInsert) {
  * @returns A list of courses linked to the given period
  * @throws if there is an error fetching courses
  */
-export async function getCursosByPeriodo(idPeriodo: number) {
+export async function getCursosByPeriodo(idPeriodo: string) {
   const cursosEnPeriodo = await db
     .select({
       idPeriodo: cursosPeriodo.idPeriodo,
@@ -46,7 +46,7 @@ export async function getCursosByPeriodo(idPeriodo: number) {
  * @throws if the course could not be removed from the period
  */
 export async function removeCursoFromPeriodo(
-  idPeriodo: number,
+  idPeriodo: string,
   idCurso: number,
 ) {
   await db

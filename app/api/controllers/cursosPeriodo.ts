@@ -13,7 +13,7 @@ import {
  * @returns A success or error message
  */
 export async function inscribirCursoEnPeriodo(
-  idPeriodo: number,
+  idPeriodo: string,
   idCurso: number,
   horario: string,
 ): Promise<{ type: 'success' | 'error'; message: string }> {
@@ -33,7 +33,7 @@ export async function inscribirCursoEnPeriodo(
  * @param idPeriodo - The ID of the period
  * @returns A list of courses or an error message
  */
-export async function obtenerCursosPorPeriodo(idPeriodo: number) {
+export async function obtenerCursosPorPeriodo(idPeriodo: string) {
   try {
     const cursos = await getCursosByPeriodo(idPeriodo);
     return cursos;
@@ -51,7 +51,7 @@ export async function obtenerCursosPorPeriodo(idPeriodo: number) {
  * @returns A success or error message
  */
 export async function eliminarCursoDePeriodo(
-  idPeriodo: number,
+  idPeriodo: string,
   idCurso: number,
 ): Promise<{ type: 'success' | 'error'; message: string }> {
   try {

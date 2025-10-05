@@ -29,7 +29,7 @@ import { EliminarCursoPeriodoModal } from '../crud/EliminarCursoPeriodoModal';
 interface DataTableProps {
   columns: ColumnDef<Curso>[];
   data: Curso[];
-  idPeriodo: number;
+  idPeriodo: string;
 }
 
 export function CursosPeriodosDataTable({
@@ -47,7 +47,7 @@ export function CursosPeriodosDataTable({
         return (
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Ellipsis color="gray" aria-label="Opciones" />
+              <Ellipsis color='gray' aria-label='Opciones' />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem asChild>
@@ -80,7 +80,7 @@ export function CursosPeriodosDataTable({
   const [action, setAction] = useState<'edit' | 'delete' | null>(null);
 
   return (
-    <div className="rounded-md border">
+    <div className='rounded-md border'>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -92,7 +92,7 @@ export function CursosPeriodosDataTable({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 );
@@ -116,7 +116,10 @@ export function CursosPeriodosDataTable({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={extendedColumns.length} className="h-24 text-center">
+              <TableCell
+                colSpan={extendedColumns.length}
+                className='h-24 text-center'
+              >
                 Sin resultados.
               </TableCell>
             </TableRow>

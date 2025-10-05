@@ -11,7 +11,7 @@ import { estudiantes } from './estudiantes';
 export const estudiantesCursoPeriodo = sqliteTable(
   'estudiantes_curso_periodo',
   {
-    idPeriodo: integer('id_periodo')
+    idPeriodo: text('id_periodo')
       .notNull()
       .references(() => periodos.idPeriodo),
     codigoCurso: text('codigo_curso')

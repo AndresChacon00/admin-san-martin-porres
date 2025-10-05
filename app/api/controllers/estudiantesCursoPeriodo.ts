@@ -12,7 +12,7 @@ import type { EstudianteCursoPeriodoInsert } from '~/types/estudiantesCursoPerio
  * @param codigoCurso - The course code
  */
 export async function obtenerEstudiantesDeCursoPeriodo(
-  idPeriodo: number,
+  idPeriodo: string,
   codigoCurso: string,
 ) {
   try {
@@ -52,7 +52,7 @@ export async function inscribirEstudianteCursoPeriodo(
  * @param idEstudiante - The student ID
  */
 export async function eliminarEstudianteCursoPeriodo(
-  idPeriodo: number,
+  idPeriodo: string,
   codigoCurso: string,
   cedula: string,
 ) {
