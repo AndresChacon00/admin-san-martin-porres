@@ -147,7 +147,7 @@ export default function PeriodosPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Agregar Periodo</Button>
+                <Button type="submit" className='link-button'>Agregar Periodo</Button>
               </DialogFooter>
             </Form>
           </DialogContent>

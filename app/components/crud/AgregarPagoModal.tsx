@@ -166,7 +166,7 @@ export function AgregarPagoModal({
             <Button variant="ghost" onClick={onClose}>
               Cancelar
             </Button>
-            <Button type="submit">Agregar Pago</Button>
+            <Button type="submit" className='link-button'>Agregar Pago</Button>
           </DialogFooter>
         </form>
       </DialogContent>

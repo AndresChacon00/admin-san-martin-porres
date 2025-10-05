@@ -103,7 +103,7 @@ export default function CursosPeriodoPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Inscribir Curso</Button>
+              <Button type="submit" className='link-button'>Inscribir Curso</Button>
             </DialogFooter>
           </Form>
         </DialogContent>
