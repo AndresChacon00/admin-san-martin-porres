@@ -12,7 +12,7 @@ import { useState } from 'react';
 
 interface FormValues {
   idPeriodo: string;
-  nombre: string;
+  nombre?: string;
 }
 
 interface EliminarPeriodoModalProps {

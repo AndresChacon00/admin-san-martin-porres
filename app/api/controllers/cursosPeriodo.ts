@@ -14,11 +14,11 @@ import {
  */
 export async function inscribirCursoEnPeriodo(
   idPeriodo: string,
-  idCurso: number,
+  idCurso: string,
   horario: string,
 ): Promise<{ type: 'success' | 'error'; message: string }> {
   try {
-    const data: CursoPeriodoInsert = { idPeriodo, idCurso, horario };
+    const data: CursoPeriodoInsert = { idPeriodo, idCurso, horario } as any;
     await addCursoToPeriodo(data);
     return { type: 'success', message: 'Curso inscrito en el periodo' };
   } catch (error) {
@@ -52,7 +52,7 @@ export async function obtenerCursosPorPeriodo(idPeriodo: string) {
  */
 export async function eliminarCursoDePeriodo(
   idPeriodo: string,
-  idCurso: number,
+  idCurso: string,
 ): Promise<{ type: 'success' | 'error'; message: string }> {
   try {
     await removeCursoFromPeriodo(idPeriodo, idCurso);

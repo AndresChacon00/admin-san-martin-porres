@@ -12,7 +12,7 @@ import { useFetcher } from '@remix-run/react';
 interface EliminarEstudianteCursoModalProps {
   idPeriodo: string;
   codigoCurso: string;
-  idEstudiante: number;
+  cedula: string;
   nombreEstudiante: string;
   open: boolean;
   onClose: () => void;
@@ -21,7 +21,7 @@ interface EliminarEstudianteCursoModalProps {
 export function EliminarEstudianteCursoModal({
   idPeriodo,
   codigoCurso,
-  idEstudiante,
+  cedula,
   nombreEstudiante,
   open,
   onClose,
@@ -31,9 +31,9 @@ export function EliminarEstudianteCursoModal({
   function handleDelete() {
     const formData = new FormData();
     formData.append('actionType', 'eliminarEstudiante');
-    formData.append('idPeriodo', idPeriodo.toString());
+    formData.append('idPeriodo', idPeriodo);
     formData.append('codigoCurso', codigoCurso);
-    formData.append('idEstudiante', idEstudiante.toString());
+    formData.append('cedula', cedula);
     fetcher.submit(formData, { method: 'post' });
     onClose(); // Close the modal after submission
   }
@@ -44,8 +44,7 @@ export function EliminarEstudianteCursoModal({
         <DialogHeader>
           <DialogTitle>Eliminar Estudiante del Curso</DialogTitle>
           <DialogDescription>
-            ¿Estás seguro que deseas eliminar a {nombreEstudiante} del curso{' '}
-            {codigoCurso}?
+            ¿Estás seguro que deseas eliminar a {nombreEstudiante} del curso {codigoCurso}?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

@@ -4,16 +4,17 @@ import {
   Form,
   redirect,
   useActionData,
+  useFetcher,
+  useRevalidator,
 } from '@remix-run/react';
+import { useEffect } from 'react';
 import {
   addEstudiante,
   deleteEstudiante,
   getEstudiantes,
   updateEstudiante,
 } from '~/api/controllers/estudiantes.server';
-import ReciboTest from '~/components/ReciboTest';
 import { estudiantesColumns } from '~/components/columns/estudiantes-columns';
-import { DataTable } from '~/components/ui/data-table';
 import { ActionFunction, json } from '@remix-run/node';
 import { AgregarEstudianteModal } from '~/components/crud/AgregarEstudianteModal';
 
@@ -29,10 +30,14 @@ export async function loader() {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const actionType = formData.get('actionType');
+  try {
+    const formData = await request.formData();
+    const actionType = formData.get('actionType');
+    const accept = request.headers.get('accept') || '';
+    const xreq = request.headers.get('x-requested-with') || '';
+    const wantsJson = accept.includes('application/json') || xreq === 'XMLHttpRequest';
 
-  if (actionType === 'agregar') {
+    if (actionType === 'agregar') {
     const nombre = formData.get('nombre');
     const apellido = formData.get('apellido');
     const cedula = formData.get('cedula');
@@ -58,7 +63,7 @@ export const action: ActionFunction = async ({ request }) => {
       typeof direccion !== 'string' ||
       typeof ultimoAñoCursado !== 'string'
     ) {
-      return json({ error: 'Datos inválidos' }, { status: 400 });
+      return json({ type: 'error', message: 'Datos inválidos' }, { status: 400 });
     }
 
     const result = await addEstudiante({
@@ -76,9 +81,19 @@ export const action: ActionFunction = async ({ request }) => {
     });
 
     if ('type' in result && result.type === 'error') {
-      console.log('ERRORRRRcito', result.message);
-      return json({ error: result.message }, { status: 400 });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  console.log('ERRORRRRcito', (result as any)?.message);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return new Response(JSON.stringify({ type: 'error', message: (result as any)?.message }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          'X-Error-Message': String((result as any)?.message),
+        },
+      });
     }
+    if (wantsJson) return json({ type: 'success', message: 'Estudiante agregado' });
   }
 
   if (actionType === 'editar') {
@@ -107,7 +122,7 @@ export const action: ActionFunction = async ({ request }) => {
       typeof direccion !== 'string' ||
       typeof ultimoAñoCursado !== 'string'
     ) {
-      return json({ error: 'Datos inválidos' }, { status: 400 });
+      return json({ type: 'error', message: 'Datos inválidos' }, { status: 400 });
     }
     const result = await updateEstudiante(cedula, {
       nombre,
@@ -124,30 +139,77 @@ export const action: ActionFunction = async ({ request }) => {
     });
 
     if ('type' in result && result.type === 'error') {
-      console.log('ERRORRRRcito', result.message);
-      return json({ error: result.message }, { status: 400 });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      console.log('ERRORRRRcito', (result as any)?.message);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return new Response(JSON.stringify({ type: 'error', message: (result as any)?.message }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            'X-Error-Message': String((result as any)?.message),
+          },
+        });
     }
+    if (wantsJson) return json({ type: 'success', message: 'Estudiante actualizado' });
   }
 
   if (actionType === 'eliminar') {
     const cedula = formData.get('cedula');
 
     if (typeof cedula !== 'string') {
-      return json({ error: 'Cedula inválida' }, { status: 400 });
+      return json({ type: 'error', message: 'Cedula inválida' }, { status: 400 });
     }
 
     const result = await deleteEstudiante(cedula);
     if ('type' in result && result.type === 'error') {
       console.log('ERRORRRRcito', result.message);
-      return json({ error: result.message }, { status: 400 });
+        return new Response(JSON.stringify({ type: 'error', message: result.message }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'X-Error-Message': String(result.message),
+          },
+        });
     }
+    if (wantsJson) return json({ type: 'success', message: 'Estudiante eliminado' });
   }
-
-  return redirect('/estudiantes');
+    return redirect('/estudiantes');
+  } catch (err: unknown) {
+    // Catch any unexpected error and return JSON so the client doesn't get HTML
+    // Log the error server-side for debugging
+    console.error('Unhandled error in estudiantes action:', err);
+    const msg = err instanceof Error ? err.message : String(err);
+  const raw = (err as unknown as { raw?: string })?.raw || '';
+    return new Response(JSON.stringify({ type: 'error', message: msg, raw }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'X-Error-Message': msg,
+        'X-Raw-Error': raw,
+      },
+    });
+  }
 };
 
 export default function EstudiantesPage() {
   const data = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
+  const revalidator = useRevalidator();
+
+  // Listen for custom refresh events so child modals can ask the page to reload
+  useEffect(() => {
+    const handler = () => {
+      fetcher.load(window.location.pathname);
+      try {
+        revalidator.revalidate();
+      } catch (_) {
+        // ignore if revalidator is not functional in this environment
+      }
+    };
+    window.addEventListener('refreshEstudiantes', handler);
+    return () => window.removeEventListener('refreshEstudiantes', handler);
+  }, [fetcher, revalidator]);
 
   return (
     <>

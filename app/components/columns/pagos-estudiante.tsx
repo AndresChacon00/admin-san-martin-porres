@@ -8,7 +8,7 @@ export const pagosColumns: ColumnDef<PagoEstudiante>[] = [
     header: 'ID Pago',
   },
   {
-    accessorKey: 'cedula',
+    accessorKey: 'cedulaEstudiante',
     header: ({ column }) => {
       return (
         <Button

@@ -1,5 +1,6 @@
+import { useState, ChangeEvent, FormEvent } from 'react';
 import { useFetcher } from '@remix-run/react';
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -31,13 +32,14 @@ export function EditarPeriodoModal({
   open,
   onClose,
 }: EditarPeriodoModalProps) {
-  const fetcher = useFetcher();
+  // using direct fetch for AJAX
 
   // Helper to normalize a date-like value to 'YYYY-MM-DD' string
-  const toDateString = (d: any) => {
+  const toDateString = (d: unknown) => {
     if (!d) return '';
     try {
-      const dt = new Date(d);
+      const s = typeof d === 'string' || typeof d === 'number' ? String(d) : (d instanceof Date ? d.toISOString() : String(d));
+      const dt = new Date(s);
       if (isNaN(dt.getTime())) return '';
       return dt.toISOString().slice(0, 10);
     } catch {
@@ -47,8 +49,8 @@ export function EditarPeriodoModal({
 
   const [values, setValues] = useState<FormValues>(() => ({
     idPeriodo: String(periodo?.idPeriodo ?? ''),
-    fechaInicio: toDateString((periodo as any)?.fechaInicio),
-    fechaFin: toDateString((periodo as any)?.fechaFin),
+  fechaInicio: toDateString((periodo as unknown as { fechaInicio?: unknown })?.fechaInicio),
+  fechaFin: toDateString((periodo as unknown as { fechaFin?: unknown })?.fechaFin),
   }));
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -56,16 +58,57 @@ export function EditarPeriodoModal({
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const fetcher = useFetcher();
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('actionType', 'editar');
-    Object.entries(values).forEach(([key, value]) => {
-      formData.append(key, value.toString());
-    });
-    fetcher.submit(formData, { method: 'post' });
-    onClose(); // Close the modal after submission
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('actionType', 'editar');
+      Object.entries(values).forEach(([key, value]) => {
+        formData.append(key, value.toString());
+      });
+
+      const res = await fetch(window.location.pathname, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (res.status < 400) {
+        const data = (await res.json().catch(() => undefined)) as
+          | { message?: string }
+          | undefined;
+        try {
+          window.dispatchEvent(new Event('refreshPeriodos'));
+        } catch (_) {
+          // ignore in non-browser environments
+        }
+        fetcher.load(window.location.pathname);
+        toast.success(data?.message || 'Periodo actualizado');
+        onClose();
+      } else {
+        const data = (await res.json().catch(() => undefined)) as
+          | { message?: string }
+          | undefined;
+        const text = await res.text().catch(() => '');
+        toast.error(data?.message || text || 'Ocurrió un error');
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error actualizando periodo', err);
+      toast.error('Ocurrió un error');
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  // legacy fetcher-based effect removed; using direct fetch in handleSubmit
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -120,7 +163,9 @@ export function EditarPeriodoModal({
             />
           </div>
           <DialogFooter>
-            <Button type="submit" className='link-button'>Confirmar cambios</Button>
+            <Button type="submit" className='link-button' disabled={isSaving}>
+              {isSaving ? 'Guardando...' : 'Confirmar cambios'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -15,7 +15,7 @@ export const pagosEstudiantesCurso = sqliteTable('pagos_estudiantes_curso', {
   codigoCurso: text('codigo_curso')
     .notNull()
     .references(() => estudiantesCursoPeriodo.codigoCurso),
-  cedulaEstudiante: text('cedula_estudiante')
+  cedulaEstudiante: text('id_estudiante')
     .notNull()
     .references(() => estudiantesCursoPeriodo.cedulaEstudiante),
   monto: real('monto').notNull(), // Monto del pago

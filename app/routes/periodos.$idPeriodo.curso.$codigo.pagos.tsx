@@ -1,5 +1,6 @@
 import { useLoaderData, useParams } from '@remix-run/react';
-import {  getRecibosPorCursoPeriodo, editarPago, eliminarPago    } from '~/api/controllers/pagosEstudiantesCursos';
+import { getRecibosPorCursoPeriodo, editarPago, eliminarPago } from '~/api/controllers/pagosEstudiantesCursos';
+import { getCursoById } from '~/api/controllers/cursos';
 import { DataTablePagosEstudiantes } from '~/components/data-tables/pagosEstudiantes-data-table';
 import type { LoaderFunction, ActionFunction } from '@remix-run/node';
 import { pagosColumns } from '~/components/columns/pagos-estudiante';
@@ -9,16 +10,17 @@ import { useState } from 'react';
 import * as React from 'react';
 
 export const loader: LoaderFunction = async ({ params }) => {
-  const idPeriodo = Number(params.idPeriodo);
-  const codigoCurso = params.codigo;
+  const idPeriodo = params.idPeriodo as string | undefined;
+  const codigoCurso = params.codigo as string | undefined;
 
-  if (isNaN(idPeriodo) || !codigoCurso) {
+  if (!idPeriodo || !codigoCurso) {
     throw new Response('Datos inválidos', { status: 400 });
   }
 
-  const pagos = await  getRecibosPorCursoPeriodo ({idPeriodo, codigoCurso});
+  const pagos = await getRecibosPorCursoPeriodo({ idPeriodo, codigoCurso });
+  const curso = await getCursoById(codigoCurso);
 
-  return pagos;
+  return { pagos, curso };
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -72,7 +74,34 @@ export const action: ActionFunction = async ({ request, params }) => {
   };
 
 export default function PagosCursoPage() {
-  const pagos = useLoaderData<typeof loader>();
+  type PagoRecibo = {
+    idPago: number;
+    numeroRecibo: number;
+    codigoCurso: string;
+    nombre: string;
+    apellido: string;
+    cedula: string;
+    sexo?: string;
+    fechaNacimiento?: Date | string;
+    religion?: string;
+    telefono?: string;
+    correo?: string;
+    direccion?: string;
+    ultimoAnioCursado?: string | number;
+    tipoPago?: string;
+    curso?: string;
+    periodo: string | number;
+    fecha: Date | string;
+    numeroTransferencia?: string | null;
+    comprobante?: string | null;
+    monto: number;
+    observaciones?: string;
+  };
+
+  type CursoSmall = { codigo: string; nombreCurso?: string };
+  const loaderData = useLoaderData<{ pagos: PagoRecibo[]; curso?: CursoSmall }>();
+  const pagos = loaderData.pagos ?? [];
+  const curso = loaderData.curso;
   const { idPeriodo, codigo } = useParams();
   const [selectedPagoId, setSelectedPagoId] = useState<number | null>(null);
 
@@ -82,15 +111,15 @@ export default function PagosCursoPage() {
   };
 
   const selectedPago = selectedPagoId
-    ? pagos.find((pago) => pago.idPago === selectedPagoId)
+    ? pagos.find((pago: PagoRecibo) => pago.idPago === selectedPagoId) ?? null
     : null;
 
   // Trigger imprimirRecibo when selectedPagoId changes
   React.useEffect(() => {
     if (selectedPago) {
-        console.log('Calling imprimirRecibo with:', selectedPago.cedula, selectedPago.fechaPago);
+      console.log('Calling imprimirRecibo with:', selectedPago.cedula, selectedPago.fecha);
       imprimirRecibo(selectedPago.cedula, selectedPago.fecha);
-      // // Reset the state after printing
+      // Reset the state after printing
       setSelectedPagoId(null);
     }
   }, [selectedPago]);
@@ -99,15 +128,32 @@ export default function PagosCursoPage() {
 
   return (
     <>
-      <h1 className="text-xl font-bold">Historial de Pagos del Curso {codigo} - Periodo {idPeriodo}</h1>
+  <h1 className="text-xl font-bold">Historial de Pagos del Curso {curso?.nombreCurso ?? codigo} - Periodo {idPeriodo}</h1>
       <div className="py-4 w-3/4">
       <main className="py-4">
-        <DataTablePagosEstudiantes columns={pagosColumns} data={pagos} onGenerateReceipt={handleGenerateReceipt} />
+        {/* Map loader result to DataTable expected shape */}
+        {(() => {
+          const pagosForTable = pagos.map((p) => ({
+            idPago: p.idPago,
+            idPeriodo: String(p.periodo),
+            codigoCurso: p.codigoCurso,
+            // the data-table column expects 'cedulaEstudiante'
+            cedulaEstudiante: p.cedula,
+            monto: p.monto,
+            fecha: p.fecha instanceof Date ? p.fecha : new Date(String(p.fecha)),
+            tipoPago: p.tipoPago ?? '',
+            comprobante: p.comprobante ?? null,
+          }));
+
+          return (
+            <DataTablePagosEstudiantes columns={pagosColumns} data={pagosForTable} onGenerateReceipt={handleGenerateReceipt} />
+          );
+        })()}
       </main>
       </div>
 
        {/* Hidden ReciboEstudiante for printing */}
-       {selectedPagoId && (
+       {selectedPago && (
         <div
           id="recibo"
           style={{
@@ -118,32 +164,32 @@ export default function PagosCursoPage() {
           }}
         >
           <ReciboEstudiante
-            numeroRecibo={selectedPago.numeroRecibo.toString()}
-            codigoCurso={selectedPago.codigoCurso}
-            nombre={selectedPago.nombre}
-            apellido={selectedPago.apellido}
-            cedula={selectedPago.cedula}
-            sexo={selectedPago.sexo}
+            numeroRecibo={String(selectedPago.numeroRecibo)}
+            codigoCurso={selectedPago.codigoCurso ?? ''}
+            nombre={selectedPago.nombre ?? ''}
+            apellido={selectedPago.apellido ?? ''}
+            cedula={selectedPago.cedula ?? ''}
+            sexo={selectedPago.sexo ?? ''}
             fechaNacimiento={
               selectedPago.fechaNacimiento instanceof Date
                 ? selectedPago.fechaNacimiento.toISOString().split('T')[0]
-                : selectedPago.fechaNacimiento
+                : String(selectedPago.fechaNacimiento ?? '')
             }
-            religion={selectedPago.religion}
-            telefono={selectedPago.telefono}
-            correo={selectedPago.correo}
-            direccion={selectedPago.direccion}
-            ultimoAñoCursado={selectedPago.ultimoAnioCursado}
-            curso={selectedPago.curso}
-            periodo={selectedPago.periodo.toString()}
+            religion={selectedPago.religion ?? ''}
+            telefono={selectedPago.telefono ?? ''}
+            correo={selectedPago.correo ?? ''}
+            direccion={selectedPago.direccion ?? ''}
+            ultimoAñoCursado={String(selectedPago.ultimoAnioCursado ?? '')}
+            curso={selectedPago.curso ?? ''}
+            periodo={String(selectedPago.periodo)}
             fechaPago={
               selectedPago.fecha instanceof Date
                 ? selectedPago.fecha.toISOString().split('T')[0]
-                : selectedPago.fecha
+                : String(selectedPago.fecha)
             }
-            numeroTransferencia={selectedPago.numeroTransferencia}
-            monto={selectedPago.monto.toString()}
-            observaciones={selectedPago.observaciones}
+            numeroTransferencia={String(selectedPago.numeroTransferencia ?? '')}
+            monto={String(selectedPago.monto)}
+            observaciones={String(selectedPago.observaciones ?? '')}
           />
         </div>
       )}

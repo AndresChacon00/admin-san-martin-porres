@@ -26,12 +26,9 @@ import {
 } from '../ui/dropdown-menu';
 import { Ellipsis } from 'lucide-react';
 import { useState } from 'react';
-import { Dialog } from '../ui/dialog';
-import { Button } from '../ui/button';
+// ...existing code...
 import { Input } from '../ui/input';
 import { AgregarPagoModal } from '../crud/AgregarPagoModal';
-import { EditarPagoModal } from '../crud/EditarPagoModal';
-import { EliminarPagoModal } from '../crud/EliminarPagoModal';
 import { Estudiante } from '~/types/estudiantes.types';
 import { EliminarEstudianteCursoModal } from '../crud/EliminarEstudianteCursoModal';
 
@@ -158,9 +155,7 @@ export function EstudiantesCursoDataTable({
       {/* Agregar Pago Modal */}
       {selectedEstudiante && action === 'addPago' && (
         <AgregarPagoModal
-          idPeriodo={idPeriodo}
-          codigoCurso={codigoCurso}
-          idEstudiante={selectedEstudiante.id}
+          idEstudiante={selectedEstudiante.cedula}
           open={action === 'addPago'}
           onClose={() => {
             setAction(null);
@@ -174,7 +169,7 @@ export function EstudiantesCursoDataTable({
         <EliminarEstudianteCursoModal
           idPeriodo={idPeriodo}
           codigoCurso={codigoCurso}
-          idEstudiante={selectedEstudiante.id}
+          cedula={selectedEstudiante.cedula}
           nombreEstudiante={`${selectedEstudiante.nombre} ${selectedEstudiante.apellido}`}
           open={action === 'deleteEstudiante'}
           onClose={() => {
