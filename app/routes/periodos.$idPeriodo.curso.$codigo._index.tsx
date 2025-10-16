@@ -120,7 +120,10 @@ export const action: ActionFunction = async ({ request, params }) => {
       return { error: result.message };
     }
     // Return structured success as JSON so client fetcher can detect and close dialogs
-    return json({ type: 'success', message: 'Estudiante inscrito en el curso' });
+    return json({
+      type: 'success',
+      message: 'Estudiante inscrito en el curso',
+    });
   }
 
   if (actionType === 'agregar') {
@@ -210,14 +213,17 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function EstudiantesCursoPage() {
-  const { estudiantes: estudiantesInscritos, todosEstudiantes, curso } =
-    useLoaderData<typeof loader>();
+  const {
+    estudiantes: estudiantesInscritos,
+    todosEstudiantes,
+    curso,
+  } = useLoaderData<typeof loader>();
   const { idPeriodo, codigo } = useParams();
 
   return (
     <>
       <h1 className='text-xl font-bold'>
-        Estudiantes en el Curso {curso?.nombreCurso ?? codigo} - Periodo {idPeriodo}
+        Estudiantes en el Curso {curso?.nombreCurso} - Periodo {idPeriodo}
       </h1>
       <div className='py-4 w-3/4'>
         <div className='flex gap-4'>
@@ -232,7 +238,7 @@ export default function EstudiantesCursoPage() {
             idPeriodo={String(idPeriodo)}
             codigoCurso={String(codigo)}
             estudiantesInscritos={estudiantesInscritos}
-            curso={{ nombreCurso: String(codigo) }}
+            curso={curso}
           />
           {/* Nuevo botón para ver todos los pagos */}
           <Link to={`./pagos`}>
@@ -276,14 +282,14 @@ function InscribirEstudianteDialog({
       // Close on structured success
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (data && 'type' in data && data.type === 'success') {
-  toast.success('Estudiante inscrito');
+        toast.success('Estudiante inscrito');
         setOpen(false);
         try {
           fetcher.load(window.location.pathname);
         } catch (e) {
           // ignore
         }
-  } else if (data && 'success' in data && data.success === true) {
+      } else if (data && 'success' in data && data.success === true) {
         toast.success('Estudiante inscrito');
         setOpen(false);
         try {
@@ -318,13 +324,16 @@ function InscribirEstudianteDialog({
         <DialogHeader>
           <DialogTitle>Inscribir Estudiante</DialogTitle>
           <DialogDescription>
-            Ingresa la cédula del estudiante que deseas inscribir en este
-            curso.
+            Ingresa la cédula del estudiante que deseas inscribir en este curso.
           </DialogDescription>
         </DialogHeader>
         <fetcher.Form method='post' onSubmit={handleSubmit}>
           <Label htmlFor='cedula'>Selecciona Estudiante</Label>
-          <select id='cedula' name='cedula' className='w-full rounded border px-2 py-1 mb-4'>
+          <select
+            id='cedula'
+            name='cedula'
+            className='w-full rounded border px-2 py-1 mb-4'
+          >
             <option value=''>-- Selecciona un estudiante --</option>
             {Array.isArray(todosEstudiantes) &&
               todosEstudiantes.map((e) => (
@@ -334,7 +343,9 @@ function InscribirEstudianteDialog({
               ))}
           </select>
           <DialogFooter>
-            <Button type='submit' className='link-button'>Inscribir Estudiante</Button>
+            <Button type='submit' className='link-button'>
+              Inscribir Estudiante
+            </Button>
           </DialogFooter>
         </fetcher.Form>
       </DialogContent>
