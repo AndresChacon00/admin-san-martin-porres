@@ -13,7 +13,6 @@ interface PlanillaData {
   idPeriodo: string;
   codigoCurso: string;
   estudiantesInscritos: Estudiante[];
-  nombreCentro: string;
   coordinadorGeneral: string;
   curso: any;
 }
@@ -22,7 +21,6 @@ export async function generarPlanillaPDF({
   idPeriodo,
   codigoCurso,
   estudiantesInscritos,
-  nombreCentro,
   coordinadorGeneral,
   curso,
 }: PlanillaData) {
@@ -57,7 +55,7 @@ export async function generarPlanillaPDF({
             <p><strong>Periodo: ${idPeriodo}</strong></p>
         </div>
         <div style="flex: 1; text-align: left;">
-            <p>${nombreCentro}</p>
+            <p>FUNDACECASMAR</p>
             <p>${codigoCurso}</p>
             <p>${coordinadorGeneral}</p>
             <p><strong>Curso:</strong> ${curso.nombreCurso}</p>

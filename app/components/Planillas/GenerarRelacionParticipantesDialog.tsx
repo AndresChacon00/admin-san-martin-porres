@@ -36,9 +36,6 @@ export function GenerarRelacionParticipantesDialog({
   curso,
 }: GenerarRelacionParticipantesDialogProps) {
   const handleGeneratePDF = async () => {
-    const nombreCentro =
-      (document.getElementById('nombreCentro') as HTMLInputElement)?.value ||
-      '';
     const coordinadorGeneral =
       (document.getElementById('coordinadorGeneral') as HTMLInputElement)
         ?.value || '';
@@ -47,7 +44,6 @@ export function GenerarRelacionParticipantesDialog({
       idPeriodo,
       codigoCurso,
       estudiantesInscritos,
-      nombreCentro,
       coordinadorGeneral,
       curso,
     });
@@ -67,17 +63,6 @@ export function GenerarRelacionParticipantesDialog({
           </DialogDescription>
         </DialogHeader>
         <Form method='post'>
-          {/* Nombre del centro */}
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <Label htmlFor='nombreCentro' className='text-right'>
-              Nombre del Centro
-            </Label>
-            <Input
-              id='nombreCentro'
-              name='nombreCentro'
-              className='col-span-3'
-            />
-          </div>
           {/* Coordinador General */}
           <div className='grid grid-cols-4 items-center gap-4'>
             <Label htmlFor='coordinadorGeneral' className='text-right'>
