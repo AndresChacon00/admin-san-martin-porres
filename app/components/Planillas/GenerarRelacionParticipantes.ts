@@ -56,7 +56,7 @@ export async function generarPlanillaPDF({
         </div>
         <div style="flex: 1; text-align: left;">
             <p>FUNDACECASMAR</p>
-            <p>${codigoCurso}</p>
+            <p>11C058</p>
             <p>${coordinadorGeneral}</p>
             <p><strong>Curso:</strong> ${curso.nombreCurso}</p>
         </div>
