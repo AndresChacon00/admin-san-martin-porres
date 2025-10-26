@@ -1,9 +1,4 @@
-import {
-  sqliteTable,
-  integer,
-  text,
-  primaryKey,
-} from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, primaryKey } from 'drizzle-orm/sqlite-core';
 import { periodos } from './periodos';
 import { cursos } from './cursos';
 import { estudiantes } from './estudiantes';
