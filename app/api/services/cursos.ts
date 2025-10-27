@@ -10,35 +10,45 @@ import { eq } from 'drizzle-orm';
  * @throws if the course could not be inserted
  */
 export async function createCursoInDb(data: Partial<CursoInsert>) {
-  // Ensure we have a codigo; if not, generate a short 4-digit numeric code
-  // Try to avoid collisions by checking the DB; fallback to timestamp-based code after attempts
+  // Ensure we have a codigo; if not, generate an incremental numeric code
+  // We'll try to find the max numeric code currently in the DB and increment it.
+  // Codes that are non-numeric (e.g., fallback values) are ignored for incrementing.
   const providedCodigo =
     data.codigo && String(data.codigo).trim() !== ''
       ? String(data.codigo)
       : null;
   let codigo = providedCodigo;
   if (!codigo) {
-    const maxAttempts = 10;
-    let attempt = 0;
+    // Fetch existing codes and compute the next numeric code
+    const rows = await db.select({ codigo: cursos.codigo }).from(cursos);
+    const existingCodes = new Set<string>(
+      rows.map((r: any) => String(r.codigo ?? '')),
+    );
+    const numericValues = rows
+      .map((r: any) => String(r.codigo ?? '').trim())
+      .filter((c: string) => /^\d+$/.test(c))
+      .map((c: string) => parseInt(c, 10));
+
+    let next = 1;
+    if (numericValues.length > 0) {
+      next = Math.max(...numericValues) + 1;
+    }
+
     const pad = (n: number) => n.toString().padStart(4, '0');
-    while (attempt < maxAttempts) {
-      // generate random 4-digit numeric string
-      const candidate = pad(Math.floor(Math.random() * 10000));
-      // check uniqueness
-      const existing = await db
-        .select()
-        .from(cursos)
-        .where(eq(cursos.codigo, candidate));
-      if (!existing || existing.length === 0) {
-        codigo = candidate;
+    // find first unused padded candidate
+    let candidate = pad(next);
+    // If candidate exists (very unlikely), increment until we find a free one
+    while (existingCodes.has(candidate)) {
+      next += 1;
+      candidate = pad(next);
+      // protect against pathological loops
+      if (next > 999999) {
         break;
       }
-      attempt += 1;
     }
-    if (!codigo) {
-      // fallback: timestamp prefixed with C
-      codigo = `C${Date.now()}`;
-    }
+
+    // If after the loop we still collide (or next exceeded a large bound), fallback
+    codigo = existingCodes.has(candidate) ? `C${Date.now()}` : candidate;
   }
   const toInsert: CursoInsert = {
     codigo,

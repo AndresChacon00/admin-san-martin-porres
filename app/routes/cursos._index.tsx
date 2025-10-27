@@ -54,14 +54,15 @@ export const action: ActionFunction = async ({ request }) => {
       const nombreCurso = formData.get('nombreCurso');
       const descripcion = formData.get('descripcion');
       const estado = Number(formData.get('estado'));
-      const precioTotal = Number(formData.get('precioTotal'));
+  const precioTotal = Number(formData.get('precioTotal'));
 
       // codigo can be omitted; the service will generate one if missing.
       if (
         typeof nombreCurso !== 'string' ||
         typeof descripcion !== 'string' ||
         isNaN(estado) ||
-        isNaN(precioTotal)
+        isNaN(precioTotal) ||
+        precioTotal < 0
       ) {
         if (wantsJson) return json({ type: 'error', message: 'Datos inválidos' }, { status: 400 });
         return json({ error: 'Datos inválidos' }, { status: 400 });
@@ -92,7 +93,8 @@ export const action: ActionFunction = async ({ request }) => {
         typeof nombreCurso !== 'string' ||
         typeof descripcion !== 'string' ||
         isNaN(estado) ||
-        isNaN(precioTotal)
+        isNaN(precioTotal) ||
+        precioTotal < 0
       ) {
         if (wantsJson) return json({ type: 'error', message: 'Datos inválidos' }, { status: 400 });
         return json({ error: 'Datos inválidos' }, { status: 400 });
@@ -271,6 +273,7 @@ export default function CursosPage() {
                     id='precioTotal'
                     name='precioTotal'
                     type='number'
+                    min='0'
                     step='0.01'
                     className='col-span-3'
                   />

@@ -1,6 +1,8 @@
 import { ColumnDef } from '@tanstack/react-table';
+import { Link } from '@remix-run/react';
 
 import { Periodo } from '~/types/periodos.types';
+import { Button } from '../ui/button';
 
 export const periodosColumns: ColumnDef<Periodo>[] = [
   {
@@ -22,5 +24,14 @@ export const periodosColumns: ColumnDef<Periodo>[] = [
       new Date(row.fechaFin).toLocaleDateString('es-VE', {
         timeZone: 'GMT',
       }),
+  },
+  {
+    id: 'verCursos',
+    header: 'Cursos inscritos',
+    cell: ({ row }) => (
+      <Link to={`/periodos/${row.original.idPeriodo}`}>
+        <Button variant='default' size='sm' className='link-button'>Ver Cursos</Button>
+      </Link>
+    ),
   },
 ];
