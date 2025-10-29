@@ -1,5 +1,7 @@
+import { useState, ChangeEvent, FormEvent } from 'react';
 import { useFetcher } from '@remix-run/react';
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import { toast } from 'sonner';
+import { Curso } from '~/types/cursos.types';
 import {
   Dialog,
   DialogContent,
@@ -21,15 +23,19 @@ interface FormValues {
 }
 
 interface EditarCursoModalProps {
-  curso: FormValues;
+  curso: Curso;
   open: boolean;
   onClose: () => void;
 }
 
 export function EditarCursoModal({ curso, open, onClose }: EditarCursoModalProps) {
-  const fetcher = useFetcher();
+  const cursoSafe = curso as unknown as Partial<Record<string, unknown>>;
   const [values, setValues] = useState<FormValues>(() => ({
-    ...curso,
+    codigo: String(cursoSafe.codigo ?? ''),
+    nombreCurso: String(cursoSafe.nombreCurso ?? ''),
+    descripcion: String(cursoSafe.descripcion ?? ''),
+    estado: Number(cursoSafe.estado ?? 1),
+    precioTotal: Number(cursoSafe.precioTotal ?? 0),
   }));
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -37,15 +43,55 @@ export function EditarCursoModal({ curso, open, onClose }: EditarCursoModalProps
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const fetcher = useFetcher();
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('actionType', 'editar');
-    Object.entries(values).forEach(([key, value]) => {
-      formData.append(key, value.toString());
-    });
-    fetcher.submit(formData, { method: 'post' });
-    onClose(); // Close the modal after submission
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('actionType', 'editar');
+      Object.entries(values).forEach(([key, value]) => {
+        formData.append(key, value.toString());
+      });
+
+      const res = await fetch(window.location.pathname, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (res.status < 400) {
+        const data = (await res.json().catch(() => undefined)) as
+          | { message?: string }
+          | undefined;
+        // notify the page to refresh the loader so the table updates
+        try {
+          window.dispatchEvent(new Event('refreshCursos'));
+        } catch (_) {
+          // ignore in non-browser environments
+        }
+        fetcher.load(window.location.pathname);
+        toast.success(data?.message || 'Curso actualizado');
+        onClose();
+      } else {
+        const data = (await res.json().catch(() => undefined)) as
+          | { message?: string }
+          | undefined;
+        const text = await res.text().catch(() => '');
+        toast.error(data?.message || text || 'Ocurrió un error');
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error actualizando curso', err);
+      toast.error('Ocurrió un error');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -128,7 +174,9 @@ export function EditarCursoModal({ curso, open, onClose }: EditarCursoModalProps
             />
           </div>
           <DialogFooter>
-            <Button type="submit">Confirmar cambios</Button>
+            <Button type="submit" className='link-button' disabled={isSaving}>
+              {isSaving ? 'Guardando...' : 'Confirmar cambios'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { PagoEstudiante } from '~/types/pagosEstudiantesCurso.types';
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown } from 'lucide-react';
 import { Button } from '../ui/button';
 export const pagosColumns: ColumnDef<PagoEstudiante>[] = [
   {
@@ -8,17 +8,17 @@ export const pagosColumns: ColumnDef<PagoEstudiante>[] = [
     header: 'ID Pago',
   },
   {
-    accessorKey: 'cedula',
+    accessorKey: 'cedulaEstudiante',
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant='ghost'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Cédula
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className='ml-2 h-4 w-4' />
         </Button>
-      )
+      );
     },
   },
   {
@@ -29,7 +29,9 @@ export const pagosColumns: ColumnDef<PagoEstudiante>[] = [
     accessorKey: 'fecha',
     header: 'Fecha de Pago',
     accessorFn: (row) => {
-      return row.fecha ? new Date(row.fecha).toLocaleDateString() : '';
+      return row.fecha
+        ? new Date(row.fecha).toLocaleDateString('es-VE', { timeZone: 'GMT' })
+        : '';
     },
   },
   {

@@ -42,7 +42,7 @@ export async function getRecibosPorCursoPeriodo({
   idPeriodo,
   codigoCurso,
 }: {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
 }) {
   try {
@@ -90,7 +90,7 @@ export async function obtenerHistorialPagos({
   codigoCurso,
   cedulaEstudiante,
 }: {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   cedulaEstudiante: string;
 }): Promise<PagoEstudiante[] | { type: 'error'; message: string }> {
@@ -123,7 +123,7 @@ export async function calcularDeuda({
   codigoCurso,
   cedulaEstudiante,
 }: {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   cedulaEstudiante: string;
 }): Promise<

@@ -54,7 +54,14 @@ export function EditarPagoModal({
     const formData = new FormData();
     formData.append('actionType', 'editar');
     Object.entries(values).forEach(([key, value]) => {
-      formData.append(key, value.toString());
+      // guard against null/undefined values before calling toString
+      if (value === null || value === undefined) {
+        formData.append(key, '');
+      } else if (value instanceof Date) {
+        formData.append(key, value.toISOString());
+      } else {
+        formData.append(key, String(value));
+      }
     });
     fetcher.submit(formData, { method: 'post' });
     onClose(); // Close the modal after submission

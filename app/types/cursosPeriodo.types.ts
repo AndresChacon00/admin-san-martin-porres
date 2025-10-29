@@ -7,7 +7,7 @@ export type CursoPeriodoUpdate = Partial<CursoPeriodoInsert>;
 export type CursoPeriodo = typeof cursosPeriodo.$inferSelect;
 
 export type CursoEnPeriodo = {
-  idPeriodo: number;
+  idPeriodo: string;
   codigo: string;
   nombreCurso: string;
   descripcion: string | null;

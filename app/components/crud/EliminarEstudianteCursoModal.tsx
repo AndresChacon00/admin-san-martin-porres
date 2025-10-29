@@ -10,9 +10,9 @@ import { Button } from '~/components/ui/button';
 import { useFetcher } from '@remix-run/react';
 
 interface EliminarEstudianteCursoModalProps {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
-  idEstudiante: number;
+  cedula: string;
   nombreEstudiante: string;
   open: boolean;
   onClose: () => void;
@@ -21,7 +21,7 @@ interface EliminarEstudianteCursoModalProps {
 export function EliminarEstudianteCursoModal({
   idPeriodo,
   codigoCurso,
-  idEstudiante,
+  cedula,
   nombreEstudiante,
   open,
   onClose,
@@ -31,9 +31,9 @@ export function EliminarEstudianteCursoModal({
   function handleDelete() {
     const formData = new FormData();
     formData.append('actionType', 'eliminarEstudiante');
-    formData.append('idPeriodo', idPeriodo.toString());
+    formData.append('idPeriodo', idPeriodo);
     formData.append('codigoCurso', codigoCurso);
-    formData.append('idEstudiante', idEstudiante.toString());
+    formData.append('cedula', cedula);
     fetcher.submit(formData, { method: 'post' });
     onClose(); // Close the modal after submission
   }
@@ -48,10 +48,10 @@ export function EliminarEstudianteCursoModal({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant='ghost' onClick={onClose}>
             Cancelar
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button variant='destructive' onClick={handleDelete}>
             Sí, eliminar
           </Button>
         </DialogFooter>

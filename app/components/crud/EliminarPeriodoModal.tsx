@@ -11,8 +11,8 @@ import { useFetcher } from '@remix-run/react';
 import { useState } from 'react';
 
 interface FormValues {
-  idPeriodo: number;
-  nombre: string;
+  idPeriodo: string;
+  nombre?: string;
 }
 
 interface EliminarPeriodoModalProps {
@@ -49,10 +49,10 @@ export function EliminarPeriodoModal({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant='ghost' onClick={onClose}>
             Cancelar
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button variant='destructive' onClick={handleDelete}>
             Sí, eliminar
           </Button>
         </DialogFooter>

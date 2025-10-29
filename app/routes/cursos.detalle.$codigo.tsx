@@ -1,33 +1,6 @@
 // Esta pagina deberia ser borrada
-import {
-  useLoaderData,
-  MetaFunction,
-  Form,
-  redirect,
-  useActionData,
-} from '@remix-run/react';
-import {
-  addCurso,
-  deleteCurso,
-  getCursos,
-  updateCurso,
-} from '~/api/controllers/cursos';
-import { cursoColumns } from '~/components/columns/cursos-columns';
-import { DataTableCursos } from '~/components/data-tables/cursos-data-table';
-import { EditarCursoModal } from '~/components/crud/EditarCursoModal';
-import { EliminarCursoModal } from '~/components/crud/EliminarCursoModal';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '~/components/ui/dialog';
-import { Button } from '~/components/ui/button';
-import { Label } from '~/components/ui/label';
-import { Input } from '~/components/ui/input';
+import { useLoaderData, MetaFunction } from '@remix-run/react';
+
 import { ActionFunction, json, LoaderFunction } from '@remix-run/node';
 import { GenerarRelacionParticipantesDialog } from '~/components/Planillas/GenerarRelacionParticipantesDialog';
 
@@ -65,7 +38,7 @@ export default function CursosDetallePage() {
       <h1 className='text-xl font-bold'>Cursos detalleee</h1>
       {/* Use client-side dialog component to generate PDF in the browser */}
       <GenerarRelacionParticipantesDialog
-        idPeriodo={0} // placeholder: set correct periodo when available
+        idPeriodo={'0'} // placeholder: set correct periodo when available
         codigoCurso={String(data)}
         estudiantesInscritos={[]}
         curso={{ nombreCurso: String(data) }}

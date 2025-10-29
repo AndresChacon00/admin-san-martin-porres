@@ -1,9 +1,4 @@
-import {
-  sqliteTable,
-  integer,
-  text,
-  primaryKey,
-} from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, primaryKey } from 'drizzle-orm/sqlite-core';
 import { periodos } from './periodos';
 import { cursos } from './cursos';
 import { estudiantes } from './estudiantes';
@@ -11,7 +6,7 @@ import { estudiantes } from './estudiantes';
 export const estudiantesCursoPeriodo = sqliteTable(
   'estudiantes_curso_periodo',
   {
-    idPeriodo: integer('id_periodo')
+    idPeriodo: text('id_periodo')
       .notNull()
       .references(() => periodos.idPeriodo),
     codigoCurso: text('codigo_curso')

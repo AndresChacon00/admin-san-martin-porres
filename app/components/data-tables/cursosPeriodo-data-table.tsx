@@ -29,7 +29,7 @@ import { EliminarCursoPeriodoModal } from '../crud/EliminarCursoPeriodoModal';
 interface DataTableProps {
   columns: ColumnDef<Curso>[];
   data: Curso[];
-  idPeriodo: number;
+  idPeriodo: string;
 }
 
 export function CursosPeriodosDataTable({
@@ -40,21 +40,28 @@ export function CursosPeriodosDataTable({
   const extendedColumns: ColumnDef<Curso>[] = [
     ...columns,
     {
-      id: 'acciones',
-      header: 'Acciones',
+      id: 'alumnosInscritos',
+      header: 'Alumnos inscritos',
       cell: ({ row }) => {
         const codigo = row.original.codigo;
         return (
+          <Link to={`/periodos/${idPeriodo}/curso/${codigo}`}>
+            <Button variant='default' size='sm' className='link-button'>Ver alumnos</Button>
+          </Link>
+        );
+      },
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      cell: ({ row }) => {
+        return (
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Ellipsis color="gray" aria-label="Opciones" />
+              <Ellipsis color='gray' aria-label='Opciones' />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem asChild>
-                <Link to={`/periodos/${idPeriodo}/curso/${codigo}`}>
-                  Ver alumnos inscritos
-                </Link>
-              </DropdownMenuItem>
+              {/* Ver alumnos moved to its own column */}
               <DropdownMenuItem
                 onClick={() => {
                   setAction('delete');
@@ -80,7 +87,7 @@ export function CursosPeriodosDataTable({
   const [action, setAction] = useState<'edit' | 'delete' | null>(null);
 
   return (
-    <div className="rounded-md border">
+    <div className='rounded-md border'>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -92,7 +99,7 @@ export function CursosPeriodosDataTable({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 );
@@ -116,7 +123,10 @@ export function CursosPeriodosDataTable({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={extendedColumns.length} className="h-24 text-center">
+              <TableCell
+                colSpan={extendedColumns.length}
+                className='h-24 text-center'
+              >
                 Sin resultados.
               </TableCell>
             </TableRow>

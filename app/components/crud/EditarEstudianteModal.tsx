@@ -1,5 +1,6 @@
+import { useState, ChangeEvent, FormEvent, useCallback } from 'react';
 import { useFetcher } from '@remix-run/react';
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
 
 interface FormValues {
   nombre: string;
@@ -34,13 +36,28 @@ interface EditarEstudianteModalProps {
 
 export function EditarEstudianteModal({
   estudiante,
-  open,
+  open: openProp,
   onClose,
 }: EditarEstudianteModalProps) {
-  const fetcher = useFetcher();
   const [values, setValues] = useState<FormValues>(() => ({
     ...estudiante,
   }));
+  const [open, setOpen] = useState<boolean>(!!openProp);
+  const [loading, setLoading] = useState(false);
+  const fetcher = useFetcher();
+
+  const controlled = typeof openProp !== 'undefined';
+  const dialogOpen = controlled ? openProp : open;
+  const setDialogOpen = useCallback(
+    (v: boolean) => {
+      if (controlled) {
+        if (!v) onClose?.();
+      } else {
+        setOpen(v);
+      }
+    },
+    [controlled, onClose]
+  );
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -60,19 +77,118 @@ export function EditarEstudianteModal({
     });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append('actionType', 'editar');
     Object.entries(values).forEach(([key, value]) => {
-      formData.append(key, value.toString());
+      // convert dates to ISO if necessary
+      if (value instanceof Date) formData.append(key, value.toISOString());
+      else formData.append(key, String(value));
     });
-    fetcher.submit(formData, { method: 'post' });
-    onClose(); // Close the modal after submission
+
+    setLoading(true);
+    try {
+      const res = await fetch('/estudiantes', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData,
+      });
+
+      // try headers first
+      const headerMsg = res.headers.get('x-error-message') || res.headers.get('x-message');
+      if (headerMsg && !res.ok) {
+        toast.error(`(${res.status}) ${headerMsg}`);
+        setDialogOpen(false);
+        return;
+      }
+
+      const rawHeader = res.headers.get('x-raw-error');
+      if (rawHeader) {
+        toast.error(`(${res.status}) ${rawHeader}`);
+        setDialogOpen(false);
+        return;
+      }
+
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('text/html') && !res.ok) {
+        const html = await res.text();
+        const uniqueMatch = html.match(/UNIQUE constraint failed:\s*([\w.-]+)/i);
+        if (uniqueMatch) {
+          const full = uniqueMatch[1];
+          const colMatch = full.match(/(?:\.|_)(correo|cedula|email|cedula)/i);
+          const col = colMatch ? colMatch[1].toLowerCase() : full.toLowerCase();
+          const friendly = col.includes('correo') || col.includes('email') ? 'correo' : col.includes('cedula') ? 'cédula' : col;
+          toast.error(`(${res.status}) Estudiante ya existe (${friendly} duplicado)`);
+          setDialogOpen(false);
+          return;
+        }
+        toast.error(`(${res.status}) Error del servidor`);
+        // eslint-disable-next-line no-console
+        console.error('Server HTML response snippet:', html.slice(0, 500));
+        setDialogOpen(false);
+        return;
+      }
+
+      // try parse json
+      let d: { type?: string; message?: string } | null = null;
+      try {
+        d = await res.json();
+      } catch (err) {
+        d = null;
+      }
+
+      if (d && (d.type === 'success' || d.type === 'succes')) {
+        try {
+          window.dispatchEvent(new Event('refreshEstudiantes'));
+        } catch (_) {
+          // ignore in non-browser environments
+        }
+        fetcher.load(window.location.pathname);
+        toast.success(d.message || 'Estudiante actualizado');
+        setDialogOpen(false);
+        return;
+      }
+
+      if (d && d.type === 'error') {
+        toast.error(d.message || 'Ocurrió un error');
+        setDialogOpen(false);
+        return;
+      }
+
+      if (res.ok) {
+        try {
+          window.dispatchEvent(new Event('refreshEstudiantes'));
+        } catch (_) {
+          // ignore in non-browser environments
+        }
+        fetcher.load(window.location.pathname);
+        toast.success('Estudiante actualizado');
+        setDialogOpen(false);
+        return;
+      }
+
+      // fallback
+      toast.error(`(${res.status}) ${res.statusText || 'Ocurrió un error'}`);
+      setDialogOpen(false);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error en fetch editar estudiante:', err);
+      toast.error('Error al comunicarse con el servidor');
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // fetcher-based effect removed: this component now uses direct fetch and handles
+  // success/error/toast/close inside the submit flow.
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Editar estudiante</DialogTitle>
@@ -128,14 +244,23 @@ export function EditarEstudianteModal({
             <Label htmlFor='sexo' className='text-right'>
               Sexo
             </Label>
-            <Input
-              id='sexo'
-              name='sexo'
-              value={values.sexo}
-              onChange={handleChange}
-              className='col-span-3'
-              required
-            />
+            <div className='col-span-3'>
+              <RadioGroup
+                value={String(values.sexo ?? '')}
+                onValueChange={(v) => setValues((p) => ({ ...p, sexo: v }))}
+                className='flex gap-4'
+                aria-label='Sexo'
+              >
+                <div className='flex items-center gap-2'>
+                  <RadioGroupItem value='M' aria-label='Masculino' />
+                  <span>Masculino</span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <RadioGroupItem value='F' aria-label='Femenino' />
+                  <span>Femenino</span>
+                </div>
+              </RadioGroup>
+            </div>
           </div>
           {/* Fecha de Nacimiento */}
           <div className='grid grid-cols-4 items-center gap-4'>
@@ -243,7 +368,9 @@ export function EditarEstudianteModal({
             />
           </div>
           <DialogFooter>
-            <Button type='submit'>Confirmar cambios</Button>
+            <Button type='submit' className='link-button' disabled={loading}>
+              {loading ? 'Guardando...' : 'Confirmar cambios'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

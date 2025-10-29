@@ -23,7 +23,9 @@ export const estudiantesColumns: ColumnDef<Estudiante>[] = [
     header: 'Fecha de Nacimiento',
     accessorFn: (row) => {
       return row.fechaNacimiento
-        ? new Date(row.fechaNacimiento).toLocaleDateString()
+        ? new Date(row.fechaNacimiento).toLocaleDateString('es-VE', {
+            timeZone: 'GMT',
+          })
         : '';
     },
   },

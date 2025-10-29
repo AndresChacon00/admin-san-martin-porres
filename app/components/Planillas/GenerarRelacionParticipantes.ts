@@ -10,7 +10,7 @@ interface Estudiante {
 }
 
 interface PlanillaData {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   estudiantesInscritos: Estudiante[];
   nombreCentro: string;

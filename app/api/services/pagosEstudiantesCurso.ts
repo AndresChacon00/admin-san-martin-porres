@@ -43,7 +43,7 @@ export async function obtenerRecibosPorCursoPeriodo({
   idPeriodo,
   codigoCurso,
 }: {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
 }) {
   return await db
@@ -80,14 +80,14 @@ export async function obtenerRecibosPorCursoPeriodo({
           estudiantesCursoPeriodo.codigoCurso,
         ),
         eq(
-          pagosEstudiantesCurso.idEstudiante,
-          estudiantesCursoPeriodo.idEstudiante,
+          pagosEstudiantesCurso.cedulaEstudiante,
+          estudiantesCursoPeriodo.cedulaEstudiante,
         ),
       ),
     )
     .innerJoin(
       estudiantes,
-      eq(estudiantesCursoPeriodo.idEstudiante, estudiantes.id),
+      eq(estudiantesCursoPeriodo.cedulaEstudiante, estudiantes.cedula),
     )
     .innerJoin(cursos, eq(pagosEstudiantesCurso.codigoCurso, cursos.codigo))
     .where(
@@ -111,7 +111,7 @@ export async function obtenerHistorialPagosEstudiante({
   codigoCurso,
   cedulaEstudiante,
 }: {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   cedulaEstudiante: string;
 }): Promise<PagoEstudiante[]> {
@@ -140,7 +140,7 @@ export async function calcularDeudaEstudiante({
   codigoCurso,
   cedulaEstudiante,
 }: {
-  idPeriodo: number;
+  idPeriodo: string;
   codigoCurso: string;
   cedulaEstudiante: string;
 }): Promise<number> {
@@ -178,9 +178,25 @@ export async function calcularDeudaEstudiante({
   }
 
   const totalPagado = pagos?.totalPagado || 0;
-  const deuda = curso?.precioTotal - totalPagado;
+  // Ensure both values are numbers before arithmetic
+  const totalPagadoNumber = Number(totalPagado ?? 0);
+  const precioTotalNumber =
+    typeof curso.precioTotal === 'number'
+      ? curso.precioTotal
+      : Number(coursePrecioOrZero(curso.precioTotal));
+
+  const deuda = precioTotalNumber - totalPagadoNumber;
 
   return deuda > 0 ? deuda : 0;
+}
+
+// Helper to coerce possible nullable/unknown precio value to number (fallback 0)
+function coursePrecioOrZero(value: unknown) {
+  if (typeof value === 'number') return value;
+  if (value == null) return 0;
+  // convert to string then to number safely
+  const n = Number(String(value));
+  return Number.isFinite(n) ? n : 0;
 }
 
 /**
