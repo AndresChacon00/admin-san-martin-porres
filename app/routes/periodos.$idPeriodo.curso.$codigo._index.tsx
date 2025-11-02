@@ -5,12 +5,15 @@ import {
   MetaFunction,
   useFetcher,
 } from '@remix-run/react';
+import { NotasCursoDialog } from '~/components/Notas/NotasCursoDialog';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import {
   obtenerEstudiantesDeCursoPeriodo,
   inscribirEstudianteCursoPeriodo,
   eliminarEstudianteCursoPeriodo,
+  obtenerNotasCursoPeriodo,
+  actualizarNotasCursoPeriodoController,
 } from '~/api/controllers/estudiantesCursoPeriodo';
 import { getAllEstudiantes } from '~/api/services/estudiantes';
 import { getCursoById } from '~/api/controllers/cursos';
@@ -54,6 +57,9 @@ export const loader: LoaderFunction = async ({ params }) => {
     codigoCurso,
   );
 
+  // Load notas for the course (if any)
+  const notas = await obtenerNotasCursoPeriodo(idPeriodo, codigoCurso);
+
   // Load course details to show the course name in the header
   const curso = await getCursoById(codigoCurso);
 
@@ -89,7 +95,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     }),
   );
 
-  return { estudiantes: estudiantesConDeuda, todosEstudiantes, curso };
+  return { estudiantes: estudiantesConDeuda, todosEstudiantes, curso, notas };
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -124,6 +130,29 @@ export const action: ActionFunction = async ({ request, params }) => {
       type: 'success',
       message: 'Estudiante inscrito en el curso',
     });
+  }
+
+  // Guardar notas (envío desde el dialogo de notas)
+  if (actionType === 'guardarNotas') {
+    const notasRaw = String(formData.get('notas') || '[]');
+    let notasArr: any;
+    try {
+      notasArr = JSON.parse(notasRaw);
+      if (!Array.isArray(notasArr)) throw new Error('Formato inválido');
+    } catch (e) {
+      return json(
+        { type: 'error', message: 'Formato de notas inválido' },
+        { status: 400 },
+      );
+    }
+
+    const res = await actualizarNotasCursoPeriodoController(
+      String(idPeriodo),
+      String(codigoCurso),
+      notasArr,
+    );
+
+    return json(res);
   }
 
   if (actionType === 'agregar') {
@@ -217,6 +246,7 @@ export default function EstudiantesCursoPage() {
     estudiantes: estudiantesInscritos,
     todosEstudiantes,
     curso,
+    notas,
   } = useLoaderData<typeof loader>();
   const { idPeriodo, codigo } = useParams();
 
@@ -239,6 +269,12 @@ export default function EstudiantesCursoPage() {
             codigoCurso={String(codigo)}
             estudiantesInscritos={estudiantesInscritos}
             curso={curso}
+          />
+          {/* Botón para ver/editar notas */}
+          <NotasCursoDialog
+            idPeriodo={String(idPeriodo)}
+            codigoCurso={String(codigo)}
+            initialNotas={Array.isArray(notas) ? notas : []}
           />
           {/* Nuevo botón para ver todos los pagos */}
           <Link to={`./pagos`}>

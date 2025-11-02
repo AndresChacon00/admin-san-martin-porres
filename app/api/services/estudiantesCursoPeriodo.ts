@@ -7,6 +7,73 @@ import { eq, and } from 'drizzle-orm';
 import type { EstudianteCursoPeriodoInsert } from '~/types/estudiantesCursoPeriodo.types';
 
 /**
+ * Get grades (notas) for all students in a given course and period
+ * Returns cedula, student name and the two optional nota fields
+ */
+export async function getNotasPorCursoPeriodo(
+  idPeriodo: string,
+  codigoCurso: string,
+) {
+  return await db
+    .select({
+      cedula: estudiantes.cedula,
+      nombre: estudiantes.nombre,
+      apellido: estudiantes.apellido,
+      notaCuantitativa: estudiantesCursoPeriodo.notaCuantitativa,
+      notaCualitativa: estudiantesCursoPeriodo.notaCualitativa,
+    })
+    .from(estudiantesCursoPeriodo)
+    .innerJoin(
+      estudiantes,
+      eq(estudiantesCursoPeriodo.cedulaEstudiante, estudiantes.cedula),
+    )
+    .where(
+      and(
+        eq(estudiantesCursoPeriodo.idPeriodo, idPeriodo),
+        eq(estudiantesCursoPeriodo.codigoCurso, codigoCurso),
+      ),
+    );
+}
+
+/**
+ * Update multiple students' grades for a given course+period.
+ * `notas` is an array of { cedula: string, notaCuantitativa?: number|null, notaCualitativa?: string|null }
+ */
+export async function actualizarNotasCursoPeriodo(
+  idPeriodo: string,
+  codigoCurso: string,
+  notas: Array<{
+    cedula: string;
+    notaCuantitativa?: number | null;
+    notaCualitativa?: string | null;
+  }>,
+) {
+  // perform updates in a transaction-like sequential way
+  const results: Array<{ cedula: string; ok: boolean; error?: string }> = [];
+  for (const n of notas) {
+    try {
+      await db
+        .update(estudiantesCursoPeriodo)
+        .set({
+          notaCuantitativa: n.notaCuantitativa ?? null,
+          notaCualitativa: n.notaCualitativa ?? null,
+        })
+        .where(
+          and(
+            eq(estudiantesCursoPeriodo.idPeriodo, idPeriodo),
+            eq(estudiantesCursoPeriodo.codigoCurso, codigoCurso),
+            eq(estudiantesCursoPeriodo.cedulaEstudiante, n.cedula),
+          ),
+        );
+      results.push({ cedula: n.cedula, ok: true });
+    } catch (err: unknown) {
+      results.push({ cedula: n.cedula, ok: false, error: String(err) });
+    }
+  }
+  return results;
+}
+
+/**
  * Get all students enrolled in a course within a period
  * @author Roberth
  * @param idPeriodo - The period ID
