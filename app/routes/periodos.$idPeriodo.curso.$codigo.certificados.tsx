@@ -68,7 +68,8 @@ export default function CertificadosPage() {
 
       const nameEl = document.createElement('div');
       nameEl.style.position = 'absolute';
-      nameEl.style.top = '40%';
+      // moved a bit lower so it sits below the center of the template
+  nameEl.style.top = '46%';
       nameEl.style.left = '50%';
       nameEl.style.transform = 'translate(-50%, -50%)';
       nameEl.style.fontSize = '42px';
@@ -79,7 +80,8 @@ export default function CertificadosPage() {
 
       const descEl = document.createElement('div');
       descEl.style.position = 'absolute';
-      descEl.style.top = '52%';
+      // nudge the description slightly lower as requested
+  descEl.style.top = '60%';
       descEl.style.left = '50%';
       descEl.style.transform = 'translate(-50%, -50%)';
       descEl.style.fontSize = '16px';
@@ -89,7 +91,7 @@ export default function CertificadosPage() {
 
       const courseEl = document.createElement('div');
       courseEl.style.position = 'absolute';
-      courseEl.style.top = '62%';
+  courseEl.style.top = '68%';
       courseEl.style.left = '50%';
       courseEl.style.transform = 'translate(-50%, -50%)';
       courseEl.style.fontSize = '36px';
@@ -100,10 +102,10 @@ export default function CertificadosPage() {
       courseEl.textContent = curso?.nombreCurso || codigo;
       container.appendChild(courseEl);
 
-      // firmas area bottom centered
+      // firmas area bottom centered (moved up a bit)
       const firmasEl = document.createElement('div');
       firmasEl.style.position = 'absolute';
-      firmasEl.style.bottom = '8%';
+  firmasEl.style.bottom = '14%';
       firmasEl.style.left = '50%';
       firmasEl.style.transform = 'translateX(-50%)';
       firmasEl.style.width = '80%';
@@ -211,7 +213,7 @@ export default function CertificadosPage() {
             style={{
               width: '100%',
               height: 560,
-              backgroundImage: `url(/certificado-template.png)`,
+              backgroundImage: `url(/plantilla_certificado1.png)`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               position: 'relative',
@@ -220,7 +222,8 @@ export default function CertificadosPage() {
             <div
               style={{
                 position: 'absolute',
-                top: '40%',
+                // moved a touch lower so preview matches generation adjustments
+                top: '46%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
                 fontSize: 28,
@@ -233,7 +236,8 @@ export default function CertificadosPage() {
             <div
               style={{
                 position: 'absolute',
-                top: '52%',
+                // nudge description down a bit as requested
+                top: '60%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
                 fontSize: 14,
@@ -243,7 +247,7 @@ export default function CertificadosPage() {
             <div
               style={{
                 position: 'absolute',
-                top: '62%',
+                top: '68%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
                 fontSize: 22,
@@ -257,7 +261,8 @@ export default function CertificadosPage() {
             <div
               style={{
                 position: 'absolute',
-                bottom: '6%',
+                // raise signatures a bit so they're not too close to the edge
+                bottom: '14%',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 width: '80%',
