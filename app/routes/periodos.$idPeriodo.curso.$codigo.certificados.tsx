@@ -266,203 +266,131 @@ export default function CertificadosPage() {
     }
 
     for (const alumno of alumnos) {
-      // create packet DOM
-      const container = document.createElement('div');
-      container.style.width = '1122px';
-      container.style.height = '793px';
-      container.style.position = 'relative';
-      container.style.fontFamily = 'serif';
-      // background image from public folder (user-provided template)
-      container.style.backgroundImage = `url(/plantilla_certificado1.png)`;
-      container.style.backgroundSize = 'cover';
-      container.style.backgroundPosition = 'center';
+      // target PDF pixel size (matches previous behavior)
+      const targetW = 1122;
+      const targetH = 793;
 
-      const nameEl = document.createElement('div');
-      nameEl.style.position = 'absolute';
-      const np = layout?.name ?? defaultLayout.name;
-      nameEl.style.top = `${np.top}%`;
-      nameEl.style.left = `${np.left}%`;
-      nameEl.style.transform = 'translate(-50%, -50%)';
-      nameEl.style.fontSize = `${np.fontSize}px`;
-      nameEl.style.fontWeight = '700';
-      nameEl.style.textAlign = np.align || 'center';
-      nameEl.textContent = `${alumno.nombre} ${alumno.apellido}`;
-      container.appendChild(nameEl);
-
-      const descEl = document.createElement('div');
-      descEl.style.position = 'absolute';
-      const dp = layout?.description ?? defaultLayout.description;
-      descEl.style.top = `${dp.top}%`;
-      descEl.style.left = `${dp.left}%`;
-      descEl.style.transform = 'translate(-50%, -50%)';
-      descEl.style.fontSize = `${dp.fontSize}px`;
-      descEl.style.textAlign = dp.align || 'center';
-      if (dp.widthPercent) descEl.style.width = `${dp.widthPercent}%`;
-      descEl.textContent = `Por haber cumplido con los contenidos satisfactoriamente correspondiente: ${horas} horas académicas. ${new Date(periodo?.fechaInicio).toLocaleDateString()} hasta ${new Date(periodo?.fechaFin).toLocaleDateString()}`;
-      container.appendChild(descEl);
-
-      const courseEl = document.createElement('div');
-      courseEl.style.position = 'absolute';
-      const cp = layout?.course ?? defaultLayout.course;
-      courseEl.style.top = `${cp.top}%`;
-      courseEl.style.left = `${cp.left}%`;
-      courseEl.style.transform = 'translate(-50%, -50%)';
-      courseEl.style.fontSize = `${cp.fontSize}px`;
-      courseEl.style.fontWeight = '800';
-      courseEl.style.textAlign = cp.align || 'center';
-      courseEl.style.letterSpacing = '2px';
-      courseEl.style.textTransform = 'uppercase';
-      courseEl.textContent = curso?.nombreCurso || codigo;
-      container.appendChild(courseEl);
-
-      // firmas area bottom centered (moved up a bit)
-      const firmasEl = document.createElement('div');
-      firmasEl.style.position = 'absolute';
-      const sPos = layout?.signatures ?? defaultLayout.signatures;
-      // place signatures relative to positions (we center the area at given top)
-      firmasEl.style.top = `${sPos[0]?.top ?? 86}%`;
-      firmasEl.style.left = '50%';
-      firmasEl.style.transform = 'translateX(-50%)';
-      firmasEl.style.width = '80%';
-      firmasEl.style.display = 'flex';
-      firmasEl.style.justifyContent = 'space-around';
-      container.appendChild(firmasEl);
-
-      firmas.forEach((f: string) => {
-        const fEl = document.createElement('div');
-        fEl.style.textAlign = 'center';
-        fEl.style.minWidth = '120px';
-        const line = document.createElement('div');
-        line.style.borderTop = '1px solid #000';
-        line.style.marginBottom = '6px';
-        line.style.width = '180px';
-        fEl.appendChild(line);
-        const label = document.createElement('div');
-        label.style.fontSize = '12px';
-        label.textContent = f;
-        fEl.appendChild(label);
-        firmasEl.appendChild(fEl);
-      });
-
-      document.body.appendChild(container);
-      // capture
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const canvas = await html2canvas(container, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-      // create back side container using layout.back and backTopics
-      const backContainer = document.createElement('div');
-      backContainer.style.width = '1122px';
-      backContainer.style.height = '793px';
-      backContainer.style.position = 'relative';
-      backContainer.style.fontFamily = 'serif';
-      backContainer.style.backgroundColor = '#fff';
-      // optional different background image if you have a reverse template
-      backContainer.style.backgroundImage = `url(/plantilla_certificado_reverso.png)`;
-      backContainer.style.backgroundSize = 'cover';
-      backContainer.style.backgroundPosition = 'center';
-
-      // render back content block
-      const backPos = layout?.back?.content ?? defaultLayout.back.content;
-      const backBlock = document.createElement('div');
-      backBlock.style.position = 'absolute';
-      backBlock.style.top = `${backPos.top}%`;
-      backBlock.style.left = `${backPos.left}%`;
-      backBlock.style.transform = 'translate(-50%, 0)';
-      backBlock.style.width = backPos.widthPercent
-        ? `${backPos.widthPercent}%`
-        : '80%';
-      backBlock.style.fontSize = `${backPos.fontSize || 12}px`;
-      backBlock.style.color = '#000';
-      backBlock.style.lineHeight = '1.3';
-
-      // topics list: render each topic as independent absolutely positioned block using saved topicPositions
-      const topics =
-        backTopics && backTopics.length
-          ? backTopics
-          : (layout?.back?.topicsList ?? []);
-      const positions = layout?.back?.topicPositions ?? [];
-      topics.forEach((t: any, ti: number) => {
-        const pos = positions[ti] ?? {
-          top: (backPos.top || 15) + ti * 8,
-          left: backPos.left || 10,
+      // helper to capture a node and scale it so the resulting canvas matches target dimensions
+      async function captureNode(
+        node: HTMLElement | null,
+        fallbackBuilder?: () => Promise<{
+          canvasW: number;
+          canvasH: number;
+          data: string;
+        }>,
+      ) {
+        if (!node) {
+          if (fallbackBuilder) return fallbackBuilder();
+          throw new Error('No node to capture');
+        }
+        const rect = node.getBoundingClientRect();
+        // compute a uniform scale so width matches target width
+        const scale = Math.max(1, targetW / rect.width);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const canvas = await html2canvas(node, { scale, useCORS: true });
+        return {
+          canvasW: canvas.width,
+          canvasH: canvas.height,
+          data: canvas.toDataURL('image/png'),
         };
-        const tDiv = document.createElement('div');
-        tDiv.style.position = 'absolute';
-        tDiv.style.top = `${pos.top}%`;
-        tDiv.style.left = `${pos.left}%`;
-        tDiv.style.transform = 'translate(-50%, 0)';
-        tDiv.style.width = backPos.widthPercent
-          ? `${backPos.widthPercent}%`
-          : '80%';
-        tDiv.style.color = '#000';
+      }
 
-        const h = document.createElement('div');
-        h.style.fontWeight = '700';
-        h.textContent = t.title;
-        tDiv.appendChild(h);
-        const ul = document.createElement('ul');
-        ul.style.marginLeft = '12px';
-        (t.items || []).filter(Boolean).forEach((it: string) => {
-          const li = document.createElement('li');
-          li.style.fontSize = `${backPos.fontSize || 12}px`;
-          li.textContent = it;
-          ul.appendChild(li);
+      // capture front from the visible preview container when possible
+      let frontResult;
+      try {
+        frontResult = await captureNode(containerRef.current, async () => {
+          // fallback: build minimal front container (old behavior)
+          const container = document.createElement('div');
+          container.style.width = `${targetW}px`;
+          container.style.height = `${targetH}px`;
+          container.style.position = 'relative';
+          container.style.fontFamily = 'serif';
+          container.style.backgroundImage = `url(/plantilla_certificado1.png)`;
+          container.style.backgroundSize = 'cover';
+          container.style.backgroundPosition = 'center';
+          const nameEl = document.createElement('div');
+          const np = layout?.name ?? defaultLayout.name;
+          nameEl.style.position = 'absolute';
+          nameEl.style.top = `${np.top}%`;
+          nameEl.style.left = `${np.left}%`;
+          nameEl.style.transform = 'translate(-50%, -50%)';
+          nameEl.style.fontSize = `${np.fontSize}px`;
+          nameEl.style.fontWeight = '700';
+          nameEl.style.textAlign = np.align || 'center';
+          nameEl.textContent = `${alumno.nombre} ${alumno.apellido}`;
+          container.appendChild(nameEl);
+          document.body.appendChild(container);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const canvas = await html2canvas(container, { scale: 1 });
+          const data = canvas.toDataURL('image/png');
+          document.body.removeChild(container);
+          return { canvasW: canvas.width, canvasH: canvas.height, data };
         });
-        tDiv.appendChild(ul);
-        backContainer.appendChild(tDiv);
-      });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Front capture failed', err);
+        continue;
+      }
 
-      // add stamp elements to back page
-      const stampLabels = ['Sello AVEC', 'Sello FUNDACECASMAR'];
-      const stampPositions = layout?.back?.stampPositions ?? [];
-      stampLabels.forEach((label, si) => {
-        const pos = stampPositions[si] ?? {
-          top: si === 0 ? 78 : 78,
-          left: si === 0 ? 25 : 75,
-        };
-        const sDiv = document.createElement('div');
-        sDiv.style.position = 'absolute';
-        sDiv.style.top = `${pos.top}%`;
-        sDiv.style.left = `${pos.left}%`;
-        sDiv.style.transform = 'translate(-50%, 0)';
-        sDiv.style.textAlign = 'center';
-        sDiv.style.width = '200px';
+      // capture back from the visible preview inner box (the white 90% container)
+      let backResult;
+      try {
+        const previewInner =
+          backPreviewRef.current?.querySelector(':scope > div');
+        backResult = await captureNode(
+          previewInner as HTMLElement | null,
+          async () => {
+            // fallback minimal back
+            const backContainer = document.createElement('div');
+            backContainer.style.width = `${targetW}px`;
+            backContainer.style.height = `${targetH}px`;
+            backContainer.style.position = 'relative';
+            backContainer.style.fontFamily = 'serif';
+            backContainer.style.backgroundColor = '#fff';
+            document.body.appendChild(backContainer);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const canvas2 = await html2canvas(backContainer, { scale: 1 });
+            const data2 = canvas2.toDataURL('image/png');
+            document.body.removeChild(backContainer);
+            return {
+              canvasW: canvas2.width,
+              canvasH: canvas2.height,
+              data: data2,
+            };
+          },
+        );
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Back capture failed', err);
+        continue;
+      }
 
-        const line = document.createElement('div');
-        line.style.borderTop = '2px solid #000';
-        line.style.width = '160px';
-        line.style.margin = '0 auto 6px auto';
-        sDiv.appendChild(line);
-
-        const lbl = document.createElement('div');
-        lbl.style.fontSize = '12px';
-        lbl.style.fontWeight = '700';
-        lbl.textContent = label;
-        sDiv.appendChild(lbl);
-
-        backContainer.appendChild(sDiv);
-      });
-
-      backContainer.appendChild(backBlock);
-
-      document.body.appendChild(backContainer);
-      // capture both canvases
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const canvas2 = await html2canvas(backContainer, { scale: 2 });
-      const imgData2 = canvas2.toDataURL('image/png');
-
-      const pdf = new jsPDF('l', 'pt', [canvas.width, canvas.height]);
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-      // add second page and image
-      pdf.addPage([canvas2.width, canvas2.height]);
-      pdf.addImage(imgData2, 'PNG', 0, 0, canvas2.width, canvas2.height);
+      // build PDF using pixel sizes from captures
+      const pdf = new jsPDF('l', 'px', [
+        frontResult.canvasW,
+        frontResult.canvasH,
+      ]);
+      pdf.addImage(
+        frontResult.data,
+        'PNG',
+        0,
+        0,
+        frontResult.canvasW,
+        frontResult.canvasH,
+      );
+      pdf.addPage([backResult.canvasW, backResult.canvasH]);
+      pdf.addImage(
+        backResult.data,
+        'PNG',
+        0,
+        0,
+        backResult.canvasW,
+        backResult.canvasH,
+      );
       pdf.save(`${alumno.nombre}_${alumno.apellido}_certificado.pdf`);
-
-      // cleanup
-      document.body.removeChild(container);
-      document.body.removeChild(backContainer);
     }
   };
 
