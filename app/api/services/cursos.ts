@@ -4,6 +4,42 @@ import { cursos } from '../tables/cursos';
 import { eq } from 'drizzle-orm';
 
 /**
+ * Read the parsed template layout JSON for a course (if any)
+ */
+export async function getTemplateLayoutFromDb(codigo: string) {
+  try {
+    const rows = await db
+      .select()
+      .from(cursos)
+      .where(eq(cursos.codigo, codigo));
+    const curso = rows && rows.length ? rows[0] : null;
+    const raw = curso ? ((curso as any).templateLayout ?? null) : null;
+    return raw ? JSON.parse(raw as string) : null;
+  } catch (error) {
+    console.error('Error reading template layout from DB', error);
+    return null;
+  }
+}
+
+/**
+ * Save the template layout JSON for a course
+ */
+export async function saveTemplateLayoutInDb(
+  codigo: string,
+  layoutJson: string,
+) {
+  try {
+    const updated = await updateCursoInDb(codigo, {
+      templateLayout: layoutJson,
+    } as unknown as CursoUpdate);
+    return updated;
+  } catch (error) {
+    console.error('Error saving template layout to DB', error);
+    throw error;
+  }
+}
+
+/**
  * Insert a new course into the database
  * @author Roberth
  * @param data

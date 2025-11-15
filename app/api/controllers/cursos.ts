@@ -7,6 +7,10 @@ import {
   updateCursoInDb,
   deleteCursoFromDb,
 } from '../services/cursos';
+import {
+  getTemplateLayoutFromDb,
+  saveTemplateLayoutInDb,
+} from '../services/cursos';
 
 /**
  * Get full list of courses
@@ -45,6 +49,35 @@ export async function getCursoById(codigo: string) {
     return {
       type: 'error',
       message: 'Error al obtener un curso por ID',
+    } as const;
+  }
+}
+
+/**
+ * Controller wrapper: get parsed template layout for a course
+ * Delegates to services layer
+ */
+export async function getTemplateLayout(codigo: string) {
+  try {
+    return await getTemplateLayoutFromDb(codigo);
+  } catch (error) {
+    console.error('Controller: error getting template layout', error);
+    return null;
+  }
+}
+
+/**
+ * Controller wrapper: save template layout JSON for a course
+ * Delegates to services layer
+ */
+export async function saveTemplateLayout(codigo: string, layoutJson: string) {
+  try {
+    return await saveTemplateLayoutInDb(codigo, layoutJson);
+  } catch (error) {
+    console.error('Controller: error saving template layout', error);
+    return {
+      type: 'error',
+      message: 'Error al guardar template layout',
     } as const;
   }
 }
