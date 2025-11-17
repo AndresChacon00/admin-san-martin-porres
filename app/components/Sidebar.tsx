@@ -111,6 +111,12 @@ const itemGroups: SidebarItemGroupT[] = [
         icon: Settings,
         roles: ['admin'],
       },
+      {
+        title: 'Sueldos y salarios',
+        url: '/sueldos-y-salarios',
+        icon: Banknote,
+        roles: ['admin'],
+      },
     ],
   },
 ];
