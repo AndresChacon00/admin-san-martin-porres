@@ -72,6 +72,7 @@ export default function CertificadosPage() {
       { top: 86, left: 25 },
       { top: 86, left: 75 },
     ],
+    signaturesGap: 140,
     back: {
       content: { top: 15, left: 10, widthPercent: 80, fontSize: 12 },
       // default positions for individual topics (indexed array)
@@ -265,110 +266,244 @@ export default function CertificadosPage() {
       return;
     }
 
-    for (const alumno of alumnos) {
-      // target PDF pixel size (matches previous behavior)
-      const targetW = 1122;
-      const targetH = 793;
+    // We'll build front pages programmatically (so generation is independent
+    // of the current UI state like `showBack`) and capture the back once
+    // (reusable for all students in the course).
+    const targetW = 1122;
+    const targetH = 793;
 
-      // helper to capture a node and scale it so the resulting canvas matches target dimensions
-      async function captureNode(
-        node: HTMLElement | null,
-        fallbackBuilder?: () => Promise<{
-          canvasW: number;
-          canvasH: number;
-          data: string;
-        }>,
-      ) {
-        if (!node) {
-          if (fallbackBuilder) return fallbackBuilder();
-          throw new Error('No node to capture');
-        }
-        const rect = node.getBoundingClientRect();
-        // compute a uniform scale so width matches target width
-        const scale = Math.max(1, targetW / rect.width);
+    // build an off-screen front node for a given student
+    async function buildAndCaptureFront(alumno: any) {
+      const node = document.createElement('div');
+      node.style.width = `${targetW}px`;
+      node.style.height = `${targetH}px`;
+      node.style.position = 'relative';
+      node.style.fontFamily = 'serif';
+      node.style.backgroundImage = `url(/plantilla_certificado1.png)`;
+      node.style.backgroundSize = 'cover';
+      node.style.backgroundPosition = 'center';
+
+      // Name
+      const np = layout?.name ?? defaultLayout.name;
+      const nameEl = document.createElement('div');
+      nameEl.style.position = 'absolute';
+      nameEl.style.top = `${np.top}%`;
+      nameEl.style.left = `${np.left}%`;
+      nameEl.style.transform = 'translate(-50%, -50%)';
+      nameEl.style.fontSize = `${np.fontSize}px`;
+      nameEl.style.fontWeight = '700';
+      nameEl.style.textAlign = np.align || 'center';
+      nameEl.textContent = `${alumno.nombre} ${alumno.apellido}`;
+      node.appendChild(nameEl);
+
+      // Description
+      const dp = layout?.description ?? defaultLayout.description;
+      const descEl = document.createElement('div');
+      descEl.style.position = 'absolute';
+      descEl.style.top = `${dp.top}%`;
+      descEl.style.left = `${dp.left}%`;
+      descEl.style.transform = 'translate(-50%, -50%)';
+      descEl.style.fontSize = `${dp.fontSize}px`;
+      descEl.style.textAlign = dp.align || 'center';
+      if (dp.widthPercent) descEl.style.width = `${dp.widthPercent}%`;
+      descEl.textContent = `Por haber cumplido con los contenidos satisfactoriamente correspondiente: ${horas} horas académicas. ${new Date(periodo?.fechaInicio).toLocaleDateString()} hasta ${new Date(periodo?.fechaFin).toLocaleDateString()}`;
+      node.appendChild(descEl);
+
+      // Course
+      const cp = layout?.course ?? defaultLayout.course;
+      const courseEl = document.createElement('div');
+      courseEl.style.position = 'absolute';
+      courseEl.style.top = `${cp.top}%`;
+      courseEl.style.left = `${cp.left}%`;
+      courseEl.style.transform = 'translate(-50%, -50%)';
+      courseEl.style.fontSize = `${cp.fontSize}px`;
+      courseEl.style.fontWeight = '800';
+      courseEl.style.textAlign = cp.align || 'center';
+      courseEl.style.letterSpacing = '2px';
+      courseEl.style.textTransform = 'uppercase';
+      courseEl.textContent = curso?.nombreCurso || codigo;
+      node.appendChild(courseEl);
+
+      // Signatures area: center with configurable gap (matches preview)
+      const sTop = (layout?.signatures?.[0]?.top ??
+        defaultLayout.signatures[0].top) as number;
+      const gap = layout?.signaturesGap ?? defaultLayout.signaturesGap;
+      const firmasEl = document.createElement('div');
+      firmasEl.style.position = 'absolute';
+      firmasEl.style.top = `${sTop}%`;
+      firmasEl.style.left = '50%';
+      firmasEl.style.transform = 'translateX(-50%)';
+      firmasEl.style.display = 'flex';
+      firmasEl.style.justifyContent = 'center';
+      firmasEl.style.gap = `${gap}px`;
+      node.appendChild(firmasEl);
+
+      (firmas || []).forEach((f: string) => {
+        const fEl = document.createElement('div');
+        fEl.style.textAlign = 'center';
+        fEl.style.minWidth = '120px';
+        const line = document.createElement('div');
+        line.style.borderTop = '1px solid #000';
+        line.style.marginBottom = '6px';
+        line.style.width = '180px';
+        fEl.appendChild(line);
+        const label = document.createElement('div');
+        label.style.fontSize = '12px';
+        label.textContent = f;
+        fEl.appendChild(label);
+        firmasEl.appendChild(fEl);
+      });
+
+      // append off-screen, capture, remove
+      node.style.position = 'absolute';
+      node.style.left = '-9999px';
+      document.body.appendChild(node);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const canvas = await html2canvas(node, { scale: 1, useCORS: true });
+      const data = canvas.toDataURL('image/png');
+      document.body.removeChild(node);
+      return { canvasW: canvas.width, canvasH: canvas.height, data };
+    }
+
+    // build and capture back once (reusable for all students)
+    async function buildAndCaptureBack() {
+      const node = document.createElement('div');
+      node.style.width = `${targetW}px`;
+      node.style.height = `${targetH}px`;
+      node.style.position = 'relative';
+      node.style.fontFamily = 'serif';
+      node.style.backgroundColor = '#fff';
+
+      // content block
+      const backPos = layout?.back?.content ?? defaultLayout.back.content;
+      const backBlock = document.createElement('div');
+      backBlock.style.position = 'absolute';
+      backBlock.style.top = `${backPos.top}%`;
+      backBlock.style.left = `${backPos.left}%`;
+      backBlock.style.transform = 'translate(-50%, 0)';
+      backBlock.style.width = backPos.widthPercent
+        ? `${backPos.widthPercent}%`
+        : '80%';
+      backBlock.style.fontSize = `${backPos.fontSize || 12}px`;
+      backBlock.style.color = '#000';
+      node.appendChild(backBlock);
+
+      const topics =
+        backTopics && backTopics.length
+          ? backTopics
+          : (layout?.back?.topicsList ?? []);
+      const positions = layout?.back?.topicPositions ?? [];
+      topics.forEach((t: any, ti: number) => {
+        const pos = positions[ti] ?? {
+          top: (backPos.top || 15) + ti * 8,
+          left: backPos.left || 10,
+        };
+        const tDiv = document.createElement('div');
+        tDiv.style.position = 'absolute';
+        tDiv.style.top = `${pos.top}%`;
+        tDiv.style.left = `${pos.left}%`;
+        tDiv.style.transform = 'translate(-50%, 0)';
+        tDiv.style.width = backPos.widthPercent
+          ? `${backPos.widthPercent}%`
+          : '80%';
+        tDiv.style.color = '#000';
+
+        const h = document.createElement('div');
+        h.style.fontWeight = '700';
+        h.textContent = t.title;
+        tDiv.appendChild(h);
+        const ul = document.createElement('ul');
+        ul.style.marginLeft = '12px';
+        (t.items || []).filter(Boolean).forEach((it: string) => {
+          const li = document.createElement('li');
+          li.style.fontSize = `${backPos.fontSize || 12}px`;
+          li.textContent = it;
+          ul.appendChild(li);
+        });
+        tDiv.appendChild(ul);
+        node.appendChild(tDiv);
+      });
+
+      // stamps
+      const stampLabels = ['Sello AVEC', 'Sello FUNDACECASMAR'];
+      const stampPositions = layout?.back?.stampPositions ?? [];
+      stampLabels.forEach((label, si) => {
+        const pos = stampPositions[si] ?? {
+          top: si === 0 ? 78 : 78,
+          left: si === 0 ? 25 : 75,
+        };
+        const sDiv = document.createElement('div');
+        sDiv.style.position = 'absolute';
+        sDiv.style.top = `${pos.top}%`;
+        sDiv.style.left = `${pos.left}%`;
+        sDiv.style.transform = 'translate(-50%, 0)';
+        sDiv.style.textAlign = 'center';
+        sDiv.style.width = '200px';
+
+        const line = document.createElement('div');
+        line.style.borderTop = '2px solid #000';
+        line.style.width = '160px';
+        line.style.margin = '0 auto 6px auto';
+        sDiv.appendChild(line);
+
+        const lbl = document.createElement('div');
+        lbl.style.fontSize = '12px';
+        lbl.style.fontWeight = '700';
+        lbl.textContent = label;
+        sDiv.appendChild(lbl);
+
+        node.appendChild(sDiv);
+      });
+
+      node.style.position = 'absolute';
+      node.style.left = '-9999px';
+      document.body.appendChild(node);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const canvas = await html2canvas(node, { scale: 1, useCORS: true });
+      const data = canvas.toDataURL('image/png');
+      document.body.removeChild(node);
+      return { canvasW: canvas.width, canvasH: canvas.height, data };
+    }
+
+    let backResult;
+    try {
+      // prefer capturing the rendered back preview if available, else build from layout
+      const previewInner = backPreviewRef.current?.querySelector(
+        ':scope > div',
+      ) as HTMLElement | null;
+      if (previewInner) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const canvas = await html2canvas(node, { scale, useCORS: true });
-        return {
+        const canvas = await html2canvas(previewInner, {
+          scale: 1,
+          useCORS: true,
+        });
+        backResult = {
           canvasW: canvas.width,
           canvasH: canvas.height,
           data: canvas.toDataURL('image/png'),
         };
+      } else {
+        backResult = await buildAndCaptureBack();
       }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Back capture failed', err);
+      return;
+    }
 
-      // capture front from the visible preview container when possible
+    for (const alumno of alumnos) {
       let frontResult;
       try {
-        frontResult = await captureNode(containerRef.current, async () => {
-          // fallback: build minimal front container (old behavior)
-          const container = document.createElement('div');
-          container.style.width = `${targetW}px`;
-          container.style.height = `${targetH}px`;
-          container.style.position = 'relative';
-          container.style.fontFamily = 'serif';
-          container.style.backgroundImage = `url(/plantilla_certificado1.png)`;
-          container.style.backgroundSize = 'cover';
-          container.style.backgroundPosition = 'center';
-          const nameEl = document.createElement('div');
-          const np = layout?.name ?? defaultLayout.name;
-          nameEl.style.position = 'absolute';
-          nameEl.style.top = `${np.top}%`;
-          nameEl.style.left = `${np.left}%`;
-          nameEl.style.transform = 'translate(-50%, -50%)';
-          nameEl.style.fontSize = `${np.fontSize}px`;
-          nameEl.style.fontWeight = '700';
-          nameEl.style.textAlign = np.align || 'center';
-          nameEl.textContent = `${alumno.nombre} ${alumno.apellido}`;
-          container.appendChild(nameEl);
-          document.body.appendChild(container);
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          const canvas = await html2canvas(container, { scale: 1 });
-          const data = canvas.toDataURL('image/png');
-          document.body.removeChild(container);
-          return { canvasW: canvas.width, canvasH: canvas.height, data };
-        });
+        frontResult = await buildAndCaptureFront(alumno);
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error('Front capture failed', err);
         continue;
       }
 
-      // capture back from the visible preview inner box (the white 90% container)
-      let backResult;
-      try {
-        const previewInner =
-          backPreviewRef.current?.querySelector(':scope > div');
-        backResult = await captureNode(
-          previewInner as HTMLElement | null,
-          async () => {
-            // fallback minimal back
-            const backContainer = document.createElement('div');
-            backContainer.style.width = `${targetW}px`;
-            backContainer.style.height = `${targetH}px`;
-            backContainer.style.position = 'relative';
-            backContainer.style.fontFamily = 'serif';
-            backContainer.style.backgroundColor = '#fff';
-            document.body.appendChild(backContainer);
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            const canvas2 = await html2canvas(backContainer, { scale: 1 });
-            const data2 = canvas2.toDataURL('image/png');
-            document.body.removeChild(backContainer);
-            return {
-              canvasW: canvas2.width,
-              canvasH: canvas2.height,
-              data: data2,
-            };
-          },
-        );
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('Back capture failed', err);
-        continue;
-      }
-
-      // build PDF using pixel sizes from captures
       const pdf = new jsPDF('l', 'px', [
         frontResult.canvasW,
         frontResult.canvasH,
@@ -561,184 +696,161 @@ export default function CertificadosPage() {
             }}
             ref={containerRef}
           >
-            {/* Preview / Editor blocks - show draggable handles when editing */}
-            {!showBack && (
-              <>
-                <PreviewBlock
-                  id='name'
-                  containerRef={containerRef}
-                  pos={layout?.name ?? defaultLayout.name}
-                  isEdit={isEdit}
-                  onChange={(id: string, p: { top: number; left: number }) =>
-                    updatePos(id, p)
-                  }
-                >
-                  <div
-                    style={{
-                      fontSize: 28,
-                      fontWeight: 700,
-                      textAlign: 'center',
-                    }}
-                  >
-                    {'Nombre Apellido'}
-                  </div>
-                </PreviewBlock>
-
-                <PreviewBlock
-                  id='description'
-                  containerRef={containerRef}
-                  pos={layout?.description ?? defaultLayout.description}
-                  isEdit={isEdit}
-                  onChange={(id: string, p: { top: number; left: number }) =>
-                    updatePos(id, p)
-                  }
-                >
-                  <div
-                    style={{ fontSize: 14, textAlign: 'center' }}
-                  >{`Por haber cumplido con los contenidos satisfactoriamente correspondiente: ${horas} horas académicas. ${new Date(periodo?.fechaInicio).toLocaleDateString()} hasta ${new Date(periodo?.fechaFin).toLocaleDateString()}`}</div>
-                </PreviewBlock>
-
-                <PreviewBlock
-                  id='course'
-                  containerRef={containerRef}
-                  pos={layout?.course ?? defaultLayout.course}
-                  isEdit={isEdit}
-                  onChange={(id: string, p: { top: number; left: number }) =>
-                    updatePos(id, p)
-                  }
-                >
-                  <div
-                    style={{
-                      fontSize: 22,
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {curso?.nombreCurso || codigo}
-                  </div>
-                </PreviewBlock>
-
-                {/* Signatures area - simple non-draggable area when not editing; when editing allow moving the signature area */}
-                <PreviewBlock
-                  id='signatures'
-                  containerRef={containerRef}
-                  pos={
-                    layout?.signatures?.[0]
-                      ? { top: layout.signatures[0].top, left: 50 }
-                      : defaultLayout.signatures[0]
-                  }
-                  isEdit={isEdit}
-                  onChange={(id: string, p: { top: number; left: number }) =>
-                    updatePos('signatures', { top: p.top, left: p.left })
-                  }
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-around',
-                      width: '80%',
-                    }}
-                  >
-                    {firmas.map((f, i) => (
-                      <div
-                        key={i}
-                        style={{ textAlign: 'center', minWidth: 140 }}
-                      >
-                        <div
-                          style={{
-                            borderTop: '1px solid #000',
-                            width: 180,
-                            marginBottom: 6,
-                          }}
-                        />
-                        <div style={{ fontSize: 12 }}>{f}</div>
-                      </div>
-                    ))}
-                  </div>
-                </PreviewBlock>
-              </>
-            )}
-
-            {showBack && (
-              // Back preview/editor: render on a separate white canvas (not over the front template)
+            {/* Front preview / Editor - always visible (top) */}
+            <PreviewBlock
+              id='name'
+              containerRef={containerRef}
+              pos={layout?.name ?? defaultLayout.name}
+              isEdit={isEdit}
+              onChange={(id: string, p: { top: number; left: number }) =>
+                updatePos(id, p)
+              }
+            >
               <div
                 style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#ffffff',
+                  fontSize: 28,
+                  fontWeight: 700,
+                  textAlign: 'center',
                 }}
-                ref={backPreviewRef}
               >
-                <div
-                  style={{
-                    width: '90%',
-                    height: '90%',
-                    position: 'relative',
-                    border: '1px solid #e5e7eb',
-                    background: '#fff',
-                  }}
-                >
-                  {/* render each topic as an independent draggable block */}
-                  {(backTopics || []).map((t, ti) => (
-                    <PreviewBlock
-                      key={ti}
-                      id={`back_topic_${ti}`}
-                      containerRef={backPreviewRef}
-                      pos={getTopicPos(ti)}
-                      isEdit={isEdit}
-                      onChange={(
-                        _id: string,
-                        p: { top: number; left: number },
-                      ) => updateTopicPos(ti, p)}
-                    >
-                      <div style={{ width: '100%', color: '#000' }}>
-                        <div style={{ fontWeight: 700 }}>{t.title}</div>
-                        <ul style={{ marginLeft: 12 }}>
-                          {t.items.filter(Boolean).map((it, ii) => (
-                            <li key={ii} style={{ fontSize: 12 }}>
-                              {it}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </PreviewBlock>
-                  ))}
-                  {/* Stamps area: two movable stamp placeholders */}
-                  {['Sello AVEC', 'Sello FUNDACECASMAR'].map((label, si) => (
-                    <PreviewBlock
-                      key={`stamp_${si}`}
-                      id={`back_stamp_${si}`}
-                      containerRef={backPreviewRef}
-                      pos={getStampPos(si)}
-                      isEdit={isEdit}
-                      onChange={(
-                        _id: string,
-                        p: { top: number; left: number },
-                      ) => updateStampPos(si, p)}
-                    >
-                      <div style={{ textAlign: 'center' }}>
-                        <div
-                          style={{
-                            borderTop: '2px solid #000',
-                            width: 160,
-                            marginBottom: 6,
-                            marginLeft: 'auto',
-                            marginRight: 'auto',
-                          }}
-                        />
-                        <div style={{ fontSize: 12, fontWeight: 700 }}>
-                          {label}
-                        </div>
-                      </div>
-                    </PreviewBlock>
-                  ))}
-                </div>
+                {'Nombre Apellido'}
               </div>
-            )}
+            </PreviewBlock>
+
+            <PreviewBlock
+              id='description'
+              containerRef={containerRef}
+              pos={layout?.description ?? defaultLayout.description}
+              isEdit={isEdit}
+              onChange={(id: string, p: { top: number; left: number }) =>
+                updatePos(id, p)
+              }
+            >
+              <div
+                style={{ fontSize: 14, textAlign: 'center' }}
+              >{`Por haber cumplido con los contenidos satisfactoriamente correspondiente: ${horas} horas académicas. ${new Date(periodo?.fechaInicio).toLocaleDateString()} hasta ${new Date(periodo?.fechaFin).toLocaleDateString()}`}</div>
+            </PreviewBlock>
+
+            <PreviewBlock
+              id='course'
+              containerRef={containerRef}
+              pos={layout?.course ?? defaultLayout.course}
+              isEdit={isEdit}
+              onChange={(id: string, p: { top: number; left: number }) =>
+                updatePos(id, p)
+              }
+            >
+              <div
+                style={{
+                  fontSize: 22,
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  textAlign: 'center',
+                }}
+              >
+                {curso?.nombreCurso || codigo}
+              </div>
+            </PreviewBlock>
+
+            {/* Signatures area - simple non-draggable area when not editing; when editing allow moving the signature area */}
+            <PreviewBlock
+              id='signatures'
+              containerRef={containerRef}
+              pos={
+                layout?.signatures?.[0]
+                  ? { top: layout.signatures[0].top, left: 50 }
+                  : defaultLayout.signatures[0]
+              }
+              isEdit={isEdit}
+              onChange={(id: string, p: { top: number; left: number }) =>
+                updatePos('signatures', { top: p.top, left: p.left })
+              }
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-around',
+                  width: '80%',
+                }}
+              >
+                {firmas.map((f, i) => (
+                  <div key={i} style={{ textAlign: 'center', minWidth: 140 }}>
+                    <div
+                      style={{
+                        borderTop: '1px solid #000',
+                        width: 180,
+                        marginBottom: 6,
+                      }}
+                    />
+                    <div style={{ fontSize: 12 }}>{f}</div>
+                  </div>
+                ))}
+              </div>
+            </PreviewBlock>
+          </div>
+
+          {/* Back preview / Editor - rendered as a separate box below the front preview */}
+          <div className='border mt-4 p-2' ref={backPreviewRef}>
+            <div
+              style={{
+                width: '100%',
+                height: 360,
+                position: 'relative',
+                border: '1px solid #e5e7eb',
+                background: '#fff',
+                overflow: 'hidden',
+              }}
+            >
+              {(backTopics || []).map((t, ti) => (
+                <PreviewBlock
+                  key={ti}
+                  id={`back_topic_${ti}`}
+                  containerRef={backPreviewRef}
+                  pos={getTopicPos(ti)}
+                  isEdit={isEdit}
+                  onChange={(_id: string, p: { top: number; left: number }) =>
+                    updateTopicPos(ti, p)
+                  }
+                >
+                  <div style={{ width: '100%', color: '#000' }}>
+                    <div style={{ fontWeight: 700 }}>{t.title}</div>
+                    <ul style={{ marginLeft: 12 }}>
+                      {t.items.filter(Boolean).map((it, ii) => (
+                        <li key={ii} style={{ fontSize: 12 }}>
+                          {it}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </PreviewBlock>
+              ))}
+
+              {['Sello AVEC', 'Sello FUNDACECASMAR'].map((label, si) => (
+                <PreviewBlock
+                  key={`stamp_${si}`}
+                  id={`back_stamp_${si}`}
+                  containerRef={backPreviewRef}
+                  pos={getStampPos(si)}
+                  isEdit={isEdit}
+                  onChange={(_id: string, p: { top: number; left: number }) =>
+                    updateStampPos(si, p)
+                  }
+                >
+                  <div style={{ textAlign: 'center' }}>
+                    <div
+                      style={{
+                        borderTop: '2px solid #000',
+                        width: 160,
+                        marginBottom: 6,
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                      }}
+                    />
+                    <div style={{ fontSize: 12, fontWeight: 700 }}>{label}</div>
+                  </div>
+                </PreviewBlock>
+              ))}
+            </div>
           </div>
         </div>
       </div>
