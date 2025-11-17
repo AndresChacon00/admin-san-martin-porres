@@ -132,7 +132,6 @@ export default function CertificadosPage() {
   }
 
   // Back side content (topics & subtopics)
-  const [showBack, setShowBack] = useState(false);
   const [backTopics, setBackTopics] = useState<
     { title: string; items: string[] }[]
   >(
@@ -269,8 +268,14 @@ export default function CertificadosPage() {
     // We'll build front pages programmatically (so generation is independent
     // of the current UI state like `showBack`) and capture the back once
     // (reusable for all students in the course).
-    const targetW = 1122;
-    const targetH = 793;
+    // target page: Letter size landscape (11in x 8.5in). We'll compute
+    // pixel targets using a CSS DPI (96) so the off-screen DOM matches
+    // the PDF aspect ratio.
+    const CSS_DPI = 96;
+    const PAGE_IN_W = 11; // inches (landscape width)
+    const PAGE_IN_H = 8.5; // inches (landscape height)
+    const targetW = Math.round(PAGE_IN_W * CSS_DPI);
+    const targetH = Math.round(PAGE_IN_H * CSS_DPI);
 
     // build an off-screen front node for a given student
     async function buildAndCaptureFront(alumno: any) {
@@ -336,16 +341,25 @@ export default function CertificadosPage() {
       firmasEl.style.display = 'flex';
       firmasEl.style.justifyContent = 'center';
       firmasEl.style.gap = `${gap}px`;
+      firmasEl.style.width = '80%';
       node.appendChild(firmasEl);
+
+      // Distribute signatures evenly depending on how many there are.
+      const sigCount = Math.max(1, (firmas || []).length);
+      const percentPer = Math.floor(80 / sigCount); // each signature cell basis in % of page width
 
       (firmas || []).forEach((f: string) => {
         const fEl = document.createElement('div');
         fEl.style.textAlign = 'center';
-        fEl.style.minWidth = '120px';
+        fEl.style.minWidth = '80px';
+        fEl.style.flex = `0 0 ${percentPer}%`;
         const line = document.createElement('div');
         line.style.borderTop = '1px solid #000';
         line.style.marginBottom = '6px';
-        line.style.width = '180px';
+        // use percentage so it scales with the signature cell
+        line.style.width = '60%';
+        line.style.marginLeft = 'auto';
+        line.style.marginRight = 'auto';
         fEl.appendChild(line);
         const label = document.createElement('div');
         label.style.fontSize = '12px';
@@ -360,7 +374,10 @@ export default function CertificadosPage() {
       document.body.appendChild(node);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const canvas = await html2canvas(node, { scale: 1, useCORS: true });
+      const canvas = await html2canvas(node, {
+        scale: window.devicePixelRatio || 1,
+        useCORS: true,
+      });
       const data = canvas.toDataURL('image/png');
       document.body.removeChild(node);
       return { canvasW: canvas.width, canvasH: canvas.height, data };
@@ -373,7 +390,13 @@ export default function CertificadosPage() {
       node.style.height = `${targetH}px`;
       node.style.position = 'relative';
       node.style.fontFamily = 'serif';
-      node.style.backgroundColor = '#fff';
+      // use the public asset 'plantilla certificado reverso.png' as background
+      // encode the URI to handle the space in the filename
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - encodeURI is available in the browser runtime
+      node.style.backgroundImage = `url("${encodeURI('/plantilla certificado reverso.png')}")`;
+      node.style.backgroundSize = 'cover';
+      node.style.backgroundPosition = 'center';
 
       // content block
       const backPos = layout?.back?.content ?? defaultLayout.back.content;
@@ -461,7 +484,10 @@ export default function CertificadosPage() {
       document.body.appendChild(node);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const canvas = await html2canvas(node, { scale: 1, useCORS: true });
+      const canvas = await html2canvas(node, {
+        scale: window.devicePixelRatio || 1,
+        useCORS: true,
+      });
       const data = canvas.toDataURL('image/png');
       document.body.removeChild(node);
       return { canvasW: canvas.width, canvasH: canvas.height, data };
@@ -477,7 +503,7 @@ export default function CertificadosPage() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const canvas = await html2canvas(previewInner, {
-          scale: 1,
+          scale: window.devicePixelRatio || 1,
           useCORS: true,
         });
         backResult = {
@@ -504,27 +530,12 @@ export default function CertificadosPage() {
         continue;
       }
 
-      const pdf = new jsPDF('l', 'px', [
-        frontResult.canvasW,
-        frontResult.canvasH,
-      ]);
-      pdf.addImage(
-        frontResult.data,
-        'PNG',
-        0,
-        0,
-        frontResult.canvasW,
-        frontResult.canvasH,
-      );
-      pdf.addPage([backResult.canvasW, backResult.canvasH]);
-      pdf.addImage(
-        backResult.data,
-        'PNG',
-        0,
-        0,
-        backResult.canvasW,
-        backResult.canvasH,
-      );
+      // Create PDF in inches as Letter landscape so pages print correctly.
+      const pdf = new jsPDF('l', 'in', [PAGE_IN_W, PAGE_IN_H]);
+      // Add images stretched to full page in inches.
+      pdf.addImage(frontResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
+      pdf.addPage([PAGE_IN_W, PAGE_IN_H]);
+      pdf.addImage(backResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
       pdf.save(`${alumno.nombre}_${alumno.apellido}_certificado.pdf`);
     }
   };
@@ -666,14 +677,7 @@ export default function CertificadosPage() {
               />
               <span>Editar plantilla</span>
             </label>
-            <label className='flex items-center gap-2'>
-              <input
-                type='checkbox'
-                checked={showBack}
-                onChange={() => setShowBack((s) => !s)}
-              />
-              <span>Mostrar reverso</span>
-            </label>
+            {/* Removed "Mostrar reverso" toggle — back preview is always visible below */}
             {isEdit && (
               <div className='ml-4 flex gap-2'>
                 <Button onClick={saveLayout} className='mr-2'>
@@ -769,22 +773,35 @@ export default function CertificadosPage() {
               <div
                 style={{
                   display: 'flex',
-                  justifyContent: 'space-around',
+                  justifyContent: 'center',
+                  gap: `${Math.max(8, Math.floor((layout?.signaturesGap ?? defaultLayout.signaturesGap) / Math.max(1, firmas.length)))}px`,
                   width: '80%',
                 }}
               >
-                {firmas.map((f, i) => (
-                  <div key={i} style={{ textAlign: 'center', minWidth: 140 }}>
+                {firmas.map((f, i) => {
+                  const per = Math.floor(80 / Math.max(1, firmas.length));
+                  return (
                     <div
+                      key={i}
                       style={{
-                        borderTop: '1px solid #000',
-                        width: 180,
-                        marginBottom: 6,
+                        textAlign: 'center',
+                        minWidth: 80,
+                        flex: `0 0 ${per}%`,
                       }}
-                    />
-                    <div style={{ fontSize: 12 }}>{f}</div>
-                  </div>
-                ))}
+                    >
+                      <div
+                        style={{
+                          borderTop: '1px solid #000',
+                          width: '60%',
+                          marginBottom: 6,
+                          marginLeft: 'auto',
+                          marginRight: 'auto',
+                        }}
+                      />
+                      <div style={{ fontSize: 12 }}>{f}</div>
+                    </div>
+                  );
+                })}
               </div>
             </PreviewBlock>
           </div>
@@ -794,10 +811,12 @@ export default function CertificadosPage() {
             <div
               style={{
                 width: '100%',
-                height: 360,
+                height: 560,
                 position: 'relative',
                 border: '1px solid #e5e7eb',
-                background: '#fff',
+                backgroundImage: `url(${encodeURI('/plantilla certificado reverso.png')})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 overflow: 'hidden',
               }}
             >
