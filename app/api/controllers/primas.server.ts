@@ -7,7 +7,7 @@ import {
   getPrimasAntiguedadFromBD,
   getPrimasForEmpleado,
 } from '../services/primas.server';
-import { getConfiguracion } from '../services/sueldos-y-salarios.server';
+import { getSueldoYSalario } from '../services/sueldos-y-salarios.server';
 
 /**
  * Endpoint para obtener todas las primas académicas
@@ -41,8 +41,8 @@ export async function getAllPrimas() {
 export async function getAllPrimasForEmpleado(empleado: EmpleadoForNomina) {
   // Obtener valores configurables
   const [sueldoBaseMinimo, salarioIntegral] = await Promise.all([
-    getConfiguracion('sueldo_minimo'),
-    getConfiguracion('salario_integral'),
+    getSueldoYSalario('sueldo_minimo'),
+    getSueldoYSalario('salario_integral'),
   ]);
   const [primaAcademica, primaAntiguedad, otrasPrimas] = await Promise.all([
     getPrimaAcademicaForEmpleado(empleado),
