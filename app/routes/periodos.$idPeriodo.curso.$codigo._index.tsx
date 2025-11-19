@@ -276,11 +276,16 @@ export default function EstudiantesCursoPage() {
             codigoCurso={String(codigo)}
             initialNotas={Array.isArray(notas) ? notas : []}
           />
+          {/* Botón para ir a certificados */}
+          <Link to={`./certificados`}>
+            <Button className='link-button'>Certificados</Button>
+          </Link>
           {/* Nuevo botón para ver todos los pagos */}
           <Link to={`./pagos`}>
             <Button className='link-button'>Ver todos los pagos</Button>
           </Link>
         </div>
+
         <main className='py-4'>
           <EstudiantesCursoDataTable
             columns={estudiantesCursoColumns}

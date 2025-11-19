@@ -52,7 +52,9 @@ export function GenerarRelacionParticipantesDialog({
   return (
     <Dialog>
       <DialogTrigger>
-        <Button className=''>Generar relación participantes</Button>
+        <Button className='bg-blue-500 hover:bg-blue-700 text-white rounded'>
+          Generar relación participantes
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -75,7 +77,11 @@ export function GenerarRelacionParticipantesDialog({
             />
           </div>
           <DialogFooter>
-            <Button type='button' onClick={handleGeneratePDF}>
+            <Button
+              type='button'
+              onClick={handleGeneratePDF}
+              className='bg-blue-500 hover:bg-blue-700 text-white rounded'
+            >
               Descargar Planilla en PDF
             </Button>
           </DialogFooter>
