@@ -288,6 +288,8 @@ export default function CertificadosPage() {
       node.style.backgroundSize = 'cover';
       node.style.backgroundPosition = 'center';
 
+      // front does not include the registry box (only the back page should show it)
+
       // Name
       const np = layout?.name ?? defaultLayout.name;
       const nameEl = document.createElement('div');
@@ -820,6 +822,58 @@ export default function CertificadosPage() {
                 overflow: 'hidden',
               }}
             >
+              {/* Registro en la EFAVEC - esquina superior derecha */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '9%',
+                  right: '6%',
+                  width: 150,
+                  background: 'rgba(255,255,255,0.95)',
+                  padding: 8,
+                  border: '1px solid #000',
+                  fontSize: 12,
+                  lineHeight: '1.2',
+                }}
+              >
+                <div
+                  style={{
+                    fontWeight: 700,
+                    marginBottom: 6,
+                    textAlign: 'center',
+                  }}
+                >
+                  Registro en la EFAVEC
+                </div>
+                <table
+                  style={{
+                    width: '100%',
+                    fontSize: 12,
+                    borderCollapse: 'collapse',
+                  }}
+                >
+                  <tbody>
+                    <tr>
+                      <td style={{ width: '30%', verticalAlign: 'top' }}>
+                        Libro:
+                      </td>
+                      <td>__________</td>
+                    </tr>
+                    <tr>
+                      <td style={{ verticalAlign: 'top' }}>Folio:</td>
+                      <td>__________</td>
+                    </tr>
+                    <tr>
+                      <td style={{ verticalAlign: 'top' }}>N°:</td>
+                      <td>__________</td>
+                    </tr>
+                    <tr>
+                      <td style={{ verticalAlign: 'top' }}>Fecha:</td>
+                      <td>__________</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
               {(backTopics || []).map((t, ti) => (
                 <PreviewBlock
                   key={ti}
