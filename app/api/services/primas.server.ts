@@ -115,8 +115,14 @@ export async function getPrimaAcademicaForEmpleado(
  * Devuelve el listado de montos por primas generales para un empleado específico
  * @author Gabriel
  * @param empleado Empleado para el cual se calcularán las primas
+ * @param sueldoBaseMinimo Valor actual del sueldo base mínimo
+ * @param salarioIntegral Valor actual del salario integral
  */
-export async function getPrimasForEmpleado(empleado: EmpleadoForNomina) {
+export async function getPrimasForEmpleado(
+  empleado: EmpleadoForNomina,
+  sueldoBaseMinimo: number,
+  salarioIntegral: number
+) {
   const primas = await getAllPrimasFromBD();
   const primasEmpleado = [];
   for (const prima of primas) {
@@ -130,13 +136,13 @@ export async function getPrimasForEmpleado(empleado: EmpleadoForNomina) {
       } else if (prima.campoBase === 'Sueldo Base Mínimo') {
         primasEmpleado.push({
           nombre: prima.nombre,
-          monto: prima.factor * 175,
+          monto: prima.factor * sueldoBaseMinimo,
           tipo: prima.frecuencia,
         });
       } else if (prima.campoBase === 'Salario Integral') {
         primasEmpleado.push({
           nombre: prima.nombre,
-          monto: prima.factor * empleado.sueldo * 1.5, // @todo Revisar si es correcto
+          monto: prima.factor * salarioIntegral, // Ahora configurable
           tipo: prima.frecuencia,
         });
       } else if (prima.campoBase === 'Hijos') {
