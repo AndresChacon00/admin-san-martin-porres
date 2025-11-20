@@ -40,21 +40,28 @@ export function CursosPeriodosDataTable({
   const extendedColumns: ColumnDef<Curso>[] = [
     ...columns,
     {
+      id: 'alumnosInscritos',
+      header: 'Alumnos inscritos',
+      cell: ({ row }) => {
+        const codigo = row.original.codigo;
+        return (
+          <Link to={`/periodos/${idPeriodo}/curso/${codigo}`}>
+            <Button variant='default' size='sm' className='link-button'>Ver alumnos</Button>
+          </Link>
+        );
+      },
+    },
+    {
       id: 'acciones',
       header: 'Acciones',
       cell: ({ row }) => {
-        const codigo = row.original.codigo;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Ellipsis color='gray' aria-label='Opciones' />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem asChild>
-                <Link to={`/periodos/${idPeriodo}/curso/${codigo}`}>
-                  Ver alumnos inscritos
-                </Link>
-              </DropdownMenuItem>
+              {/* Ver alumnos moved to its own column */}
               <DropdownMenuItem
                 onClick={() => {
                   setAction('delete');

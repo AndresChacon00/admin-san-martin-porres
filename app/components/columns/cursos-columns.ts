@@ -5,6 +5,12 @@ export const cursoColumns: ColumnDef<Curso>[] = [
   {
     accessorKey: 'codigo',
     header: 'Código',
+    // display padded numeric codes to 4 digits on the frontend
+    cell: ({ getValue }) => {
+      const v = String(getValue() ?? '');
+      if (/^\d+$/.test(v)) return v.padStart(4, '0');
+      return v;
+    },
   },
   {
     accessorKey: 'nombreCurso',

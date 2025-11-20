@@ -36,6 +36,13 @@ import {
 } from '~/components/ui/dialog';
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '~/components/ui/select';
 // ...existing code... (Input removed)
 import { GenerarRelacionParticipantesDialog } from '~/components/Planillas/GenerarRelacionParticipantesDialog';
 import type { LoaderFunction, ActionFunction } from '@remix-run/node';
@@ -135,7 +142,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   // Guardar notas (envío desde el dialogo de notas)
   if (actionType === 'guardarNotas') {
     const notasRaw = String(formData.get('notas') || '[]');
-    let notasArr: any;
+    let notasArr;
     try {
       notasArr = JSON.parse(notasRaw);
       if (!Array.isArray(notasArr)) throw new Error('Formato inválido');
@@ -310,6 +317,8 @@ function InscribirEstudianteDialog({
 }) {
   const fetcher = useFetcher();
   const [open, setOpen] = useState(false);
+  const [selectedCedula, setSelectedCedula] = useState('');
+  const [filter, setFilter] = useState('');
 
   type FetcherResponse =
     | { type: 'success' | 'error'; message?: string }
@@ -370,19 +379,44 @@ function InscribirEstudianteDialog({
         </DialogHeader>
         <fetcher.Form method='post' onSubmit={handleSubmit}>
           <Label htmlFor='cedula'>Selecciona Estudiante</Label>
-          <select
-            id='cedula'
-            name='cedula'
-            className='w-full rounded border px-2 py-1 mb-4'
-          >
-            <option value=''>-- Selecciona un estudiante --</option>
-            {Array.isArray(todosEstudiantes) &&
-              todosEstudiantes.map((e) => (
-                <option key={e.cedula} value={e.cedula}>
-                  {`${e.cedula} - ${e.nombre} ${e.apellido}`}
-                </option>
-              ))}
-          </select>
+          <div className='mb-2'>
+            <input
+              type='text'
+              placeholder='Buscar por cédula o nombre...'
+              className='w-full rounded border px-2 py-1'
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            />
+          </div>
+          <input type='hidden' name='cedula' value={selectedCedula} />
+          <div className='mb-4'>
+            <Select
+              onValueChange={(v) => setSelectedCedula(String(v))}
+              defaultValue={selectedCedula}
+            >
+              <SelectTrigger id='cedula'>
+                <SelectValue placeholder='-- Selecciona un estudiante --' />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.isArray(todosEstudiantes) &&
+                  todosEstudiantes
+                    .filter((e) => {
+                      if (!filter) return true;
+                      const q = filter.toLowerCase();
+                      return (
+                        String(e.cedula).toLowerCase().includes(q) ||
+                        String(e.nombre).toLowerCase().includes(q) ||
+                        String(e.apellido).toLowerCase().includes(q)
+                      );
+                    })
+                    .map((e) => (
+                      <SelectItem key={e.cedula} value={String(e.cedula)}>
+                        {`${e.cedula} - ${e.nombre} ${e.apellido}`}
+                      </SelectItem>
+                    ))}
+              </SelectContent>
+            </Select>
+          </div>
           <DialogFooter>
             <Button type='submit' className='link-button'>
               Inscribir Estudiante

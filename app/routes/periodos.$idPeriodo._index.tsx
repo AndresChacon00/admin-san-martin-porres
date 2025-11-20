@@ -19,6 +19,13 @@ import {
 
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '~/components/ui/select';
 import { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -93,6 +100,7 @@ export default function CursosPeriodoPage() {
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
   const [openInscribir, setOpenInscribir] = useState(false);
+  const [selectedIdCurso, setSelectedIdCurso] = useState('');
 
   return (
     <>
@@ -160,12 +168,21 @@ export default function CursosPeriodoPage() {
                   <Label htmlFor='idCurso' className='text-right'>
                     Curso
                   </Label>
-                  <select id='idCurso' name='idCurso' className='col-span-3 rounded border px-2 py-1'>
-                    <option value=''>-- Selecciona un curso --</option>
-                    {Array.isArray(availableCursos) && availableCursos.map((c: any) => (
-                      <option key={c.codigo} value={c.codigo}>{c.nombreCurso}</option>
-                    ))}
-                  </select>
+                  <div className='col-span-3'>
+                    <input type='hidden' name='idCurso' value={selectedIdCurso} />
+                    <div className='mb-4'>
+                      <Select onValueChange={(v) => setSelectedIdCurso(String(v))} defaultValue={selectedIdCurso}>
+                        <SelectTrigger id='idCurso'>
+                          <SelectValue placeholder='-- Selecciona un curso --' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.isArray(availableCursos) && availableCursos.map((c: any) => (
+                            <SelectItem key={c.codigo} value={String(c.codigo)}>{c.nombreCurso}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
                 <div className='grid grid-cols-4 items-center gap-4'>
                   <Label htmlFor='horario' className='text-right'>

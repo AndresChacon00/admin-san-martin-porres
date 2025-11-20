@@ -21,11 +21,10 @@ import {
 import { Ellipsis } from 'lucide-react';
 import { Periodo } from '~/types/periodos.types';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Button } from '../ui/button';
+// dialog and button imports removed; modals are used via dedicated components
 import { EditarPeriodoModal } from '../crud/EditarPeriodoModal';
 import { EliminarPeriodoModal } from '../crud/EliminarPeriodoModal';
-import { Link } from '@remix-run/react';
+// Link is not used here anymore; action to view courses moved to a dedicated column
 
 interface DataTableProps {
   columns: ColumnDef<Periodo>[];
@@ -95,11 +94,7 @@ export function PeriodosDataTable({ columns, data }: DataTableProps) {
                       >
                         Eliminar
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={`/periodos/${row.original.idPeriodo}`}>
-                          Ver Cursos
-                        </Link>
-                      </DropdownMenuItem>
+                      {/* 'Ver Cursos' now visible in its own column */}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
