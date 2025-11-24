@@ -13,8 +13,8 @@ export async function getTemplateLayoutFromDb(codigo: string) {
       .from(cursos)
       .where(eq(cursos.codigo, codigo));
     const curso = rows && rows.length ? rows[0] : null;
-    const raw = curso ? ((curso as any).templateLayout ?? null) : null;
-    return raw ? JSON.parse(raw as string) : null;
+    const raw = curso ? (curso.templateLayout ?? null) : null;
+    return raw ? JSON.parse(raw || '{}') : null;
   } catch (error) {
     console.error('Error reading template layout from DB', error);
     return null;

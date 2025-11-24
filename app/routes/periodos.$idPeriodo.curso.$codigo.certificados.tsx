@@ -1,29 +1,40 @@
-import type { LoaderFunction, ActionFunction } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import type { ActionFunction, LoaderFunctionArgs } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import { useLoaderData, useParams, useFetcher } from '@remix-run/react';
 import React, { useState, useRef } from 'react';
 import { obtenerEstudiantesDeCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
-import { getCursoById } from '~/api/controllers/cursos';
 import {
+  getCursoById,
   getTemplateLayout,
   saveTemplateLayout,
 } from '~/api/controllers/cursos';
 import { getPeriodoById } from '~/api/controllers/periodos';
 import { Button } from '~/components/ui/button';
 
-export const loader: LoaderFunction = async ({ params }) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const idPeriodo = String(params.idPeriodo || '');
   const codigo = String(params.codigo || '');
   if (!idPeriodo || !codigo)
     throw new Response('Faltan parámetros', { status: 400 });
 
-  const estudiantes = await obtenerEstudiantesDeCursoPeriodo(idPeriodo, codigo);
-  const curso = await getCursoById(codigo);
-  const periodo = await getPeriodoById(idPeriodo);
-  const templateLayout = await getTemplateLayout(codigo);
+  const [estudiantes, curso, periodo, templateLayout] = await Promise.all([
+    obtenerEstudiantesDeCursoPeriodo(idPeriodo, codigo),
+    getCursoById(codigo),
+    getPeriodoById(idPeriodo),
+    getTemplateLayout(codigo),
+  ]);
 
-  return json({ estudiantes, curso, periodo, templateLayout });
-};
+  if ('type' in estudiantes || 'type' in curso || 'type' in periodo) {
+    return redirect(`/periodos/${idPeriodo}/curso/${codigo}`);
+  }
+
+  return json({
+    estudiantes,
+    curso,
+    periodo,
+    templateLayout,
+  });
+}
 
 export const action: ActionFunction = async ({ request, params }) => {
   const codigo = String(params.codigo || '');
@@ -44,7 +55,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function CertificadosPage() {
   const { estudiantes, curso, periodo, templateLayout } =
     useLoaderData<typeof loader>();
-  const { idPeriodo, codigo } = useParams();
+  const { codigo } = useParams();
   const fetcher = useFetcher();
 
   const [selected, setSelected] = useState<Record<string, boolean>>(() => ({}));
@@ -86,11 +97,9 @@ export default function CertificadosPage() {
         { top: 78, left: 75 },
       ],
     },
-  } as any;
+  };
 
-  const [layout, setLayout] = useState<any>(
-    () => templateLayout ?? defaultLayout,
-  );
+  const [layout, setLayout] = useState(() => templateLayout ?? defaultLayout);
 
   const toggle = (cedula: string) => {
     setSelected((s) => ({ ...s, [cedula]: !s[cedula] }));
@@ -259,7 +268,7 @@ export default function CertificadosPage() {
       import('jspdf'),
     ]);
 
-    const alumnos = (estudiantes || []).filter((e: any) => selected[e.cedula]);
+    const alumnos = estudiantes.filter((e) => selected[e.cedula]);
     if (!alumnos.length) {
       alert('Selecciona al menos un estudiante');
       return;
@@ -278,7 +287,7 @@ export default function CertificadosPage() {
     const targetH = Math.round(PAGE_IN_H * CSS_DPI);
 
     // build an off-screen front node for a given student
-    async function buildAndCaptureFront(alumno: any) {
+    async function buildAndCaptureFront(alumno: (typeof estudiantes)[number]) {
       const node = document.createElement('div');
       node.style.width = `${targetW}px`;
       node.style.height = `${targetH}px`;
@@ -328,7 +337,7 @@ export default function CertificadosPage() {
       courseEl.style.textAlign = cp.align || 'center';
       courseEl.style.letterSpacing = '2px';
       courseEl.style.textTransform = 'uppercase';
-      courseEl.textContent = curso?.nombreCurso || codigo;
+      courseEl.textContent = curso?.nombreCurso || '';
       node.appendChild(courseEl);
 
       // Signatures area: center with configurable gap (matches preview)
@@ -549,7 +558,7 @@ export default function CertificadosPage() {
         <div className='w-1/3 border p-2 h-[600px] overflow-auto'>
           <h3 className='font-semibold'>Estudiantes</h3>
           <ul>
-            {(estudiantes || []).map((e: any) => (
+            {estudiantes.map((e) => (
               <li key={e.cedula} className='flex items-center gap-2 py-1'>
                 <input
                   type='checkbox'
@@ -631,8 +640,12 @@ export default function CertificadosPage() {
 
         <div className='w-2/3'>
           <div className='mb-4'>
-            <label className='block'>Horas académicas</label>
+            <label htmlFor='horas' className='block'>
+              Horas académicas
+            </label>
             <input
+              id='horas'
+              name='horas'
               type='number'
               value={horas}
               onChange={(e) => setHoras(Number(e.target.value))}
@@ -966,7 +979,9 @@ function PreviewBlock({
     dragging.current = false;
     try {
       (e.target as Element).releasePointerCapture(e.pointerId);
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
 
   return (
