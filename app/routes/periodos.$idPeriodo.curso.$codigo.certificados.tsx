@@ -96,6 +96,7 @@ export default function CertificadosPage() {
         { top: 78, left: 25 },
         { top: 78, left: 75 },
       ],
+      topicsList: [],
     },
   };
 
@@ -112,24 +113,29 @@ export default function CertificadosPage() {
     setFirmas((f) => f.filter((_, idx) => idx !== i));
 
   function updatePos(id: string, newPos: { top: number; left: number }) {
-    setLayout((prev: any) => {
+    setLayout((prev) => {
       // support nested keys like 'back.content'
       if (id.includes('.')) {
         const parts = id.split('.');
         if (parts.length === 2) {
           const [p1, p2] = parts;
+
           return {
             ...prev,
             [p1]: {
-              ...(prev[p1] || {}),
-              [p2]: { ...((prev[p1] && prev[p1][p2]) || {}), ...newPos },
+              ...((prev[p1] as object) || {}),
+              [p2]: {
+                ...((prev[p1] && (prev[p1] as Record<string, object>)[p2]) ||
+                  {}),
+                ...newPos,
+              },
             },
           };
         }
       }
       return {
         ...prev,
-        [id]: { ...(prev[id] || {}), ...newPos },
+        [id]: { ...((prev[id] as object) || {}), ...newPos },
       };
     });
   }
@@ -155,7 +161,7 @@ export default function CertificadosPage() {
     const positions = layout?.back?.topicPositions ?? [];
     if (positions[index]) return positions[index];
     // fallback compute: base top from content top + spacing
-    const base = (layout?.back?.content?.top ??
+    const base = (layout.back?.content?.top ??
       defaultLayout.back.content.top) as number;
     return {
       top: base + index * 8,
@@ -167,7 +173,7 @@ export default function CertificadosPage() {
     index: number,
     newPos: { top: number; left: number },
   ) {
-    setLayout((prev: any) => {
+    setLayout((prev) => {
       const next = { ...prev };
       next.back = { ...(next.back || {}) };
       const arr = Array.isArray(next.back.topicPositions)
@@ -190,7 +196,7 @@ export default function CertificadosPage() {
     index: number,
     newPos: { top: number; left: number },
   ) {
-    setLayout((prev: any) => {
+    setLayout((prev) => {
       const next = { ...prev };
       next.back = { ...(next.back || {}) };
       const arr = Array.isArray(next.back.stampPositions)
@@ -428,7 +434,7 @@ export default function CertificadosPage() {
           ? backTopics
           : (layout?.back?.topicsList ?? []);
       const positions = layout?.back?.topicPositions ?? [];
-      topics.forEach((t: any, ti: number) => {
+      topics.forEach((t, ti: number) => {
         const pos = positions[ti] ?? {
           top: (backPos.top || 15) + ti * 8,
           left: backPos.left || 10,
