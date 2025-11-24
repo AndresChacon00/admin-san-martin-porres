@@ -2,6 +2,8 @@ import {
   getEstudiantesByCursoPeriodo,
   inscribirEstudianteEnCursoPeriodo,
   eliminarEstudianteDeCursoPeriodo,
+  getNotasPorCursoPeriodo,
+  actualizarNotasCursoPeriodo,
 } from '../services/estudiantesCursoPeriodo';
 
 // Fallback DB access in controller to handle cases where service may be stale
@@ -139,5 +141,46 @@ export async function eliminarEstudianteCursoPeriodo(
   } catch (error) {
     console.error('Error al eliminar estudiante del curso del periodo:', error);
     return { type: 'error', message: 'No se pudo eliminar el estudiante' };
+  }
+}
+
+/**
+ * Obtener notas de todos los estudiantes de un curso en un periodo
+ */
+export async function obtenerNotasCursoPeriodo(
+  idPeriodo: string,
+  codigoCurso: string,
+) {
+  try {
+    return await getNotasPorCursoPeriodo(idPeriodo, codigoCurso);
+  } catch (err) {
+    console.error('Error al obtener notas:', err);
+    return { type: 'error', message: 'No se pudieron obtener las notas' };
+  }
+}
+
+/**
+ * Actualizar notas de estudiantes para un curso/periodo
+ * `notas` expected: Array<{ cedula, notaCuantitativa?, notaCualitativa? }>
+ */
+export async function actualizarNotasCursoPeriodoController(
+  idPeriodo: string,
+  codigoCurso: string,
+  notas: Array<{
+    cedula: string;
+    notaCuantitativa?: number | null;
+    notaCualitativa?: string | null;
+  }>,
+) {
+  try {
+    const res = await actualizarNotasCursoPeriodo(
+      idPeriodo,
+      codigoCurso,
+      notas,
+    );
+    return { type: 'success', result: res };
+  } catch (err) {
+    console.error('Error al actualizar notas:', err);
+    return { type: 'error', message: 'No se pudieron actualizar las notas' };
   }
 }

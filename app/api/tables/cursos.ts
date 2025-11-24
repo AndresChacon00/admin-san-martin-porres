@@ -6,4 +6,5 @@ export const cursos = sqliteTable('cursos', {
   descripcion: text('descripcion'),
   estado: integer('estado').default(1), // 1 for active, 0 for inactive
   precioTotal: real('precio_total'),
+  templateLayout: text('template_layout'),
 });
