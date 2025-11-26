@@ -1,6 +1,11 @@
 import type { ActionFunction, LoaderFunctionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
-import { useLoaderData, useParams, useFetcher } from '@remix-run/react';
+import {
+  useLoaderData,
+  useParams,
+  useFetcher,
+  MetaFunction,
+} from '@remix-run/react';
 import React, { useState, useRef } from 'react';
 import { obtenerEstudiantesDeCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
 import {
@@ -10,6 +15,14 @@ import {
 } from '~/api/controllers/cursos';
 import { getPeriodoById } from '~/api/controllers/periodos';
 import { Button } from '~/components/ui/button';
+import { ArrowLeft, Check, Trash } from 'lucide-react';
+import { Input } from '~/components/ui/input';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Layout } from '~/types/certificados.types';
+
+export const meta: MetaFunction = () => {
+  return [{ title: 'Certificados | San Martín de Porres' }];
+};
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const idPeriodo = String(params.idPeriodo || '');
@@ -65,6 +78,7 @@ export default function CertificadosPage() {
     'Instructor',
   ]);
   const [isEdit, setIsEdit] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const backPreviewRef = useRef<HTMLDivElement | null>(null);
@@ -98,9 +112,11 @@ export default function CertificadosPage() {
       ],
       topicsList: [],
     },
-  };
+  } satisfies Layout;
 
-  const [layout, setLayout] = useState(() => templateLayout ?? defaultLayout);
+  const [layout, setLayout] = useState<Layout>(
+    () => templateLayout ?? defaultLayout,
+  );
 
   const toggle = (cedula: string) => {
     setSelected((s) => ({ ...s, [cedula]: !s[cedula] }));
@@ -560,145 +576,148 @@ export default function CertificadosPage() {
   return (
     <div className='p-6'>
       <h2 className='text-xl font-bold mb-4'>Generación de Certificados</h2>
-      <div className='flex gap-6'>
-        <div className='w-1/3 border p-2 h-[600px] overflow-auto'>
-          <h3 className='font-semibold'>Estudiantes</h3>
-          <ul>
-            {estudiantes.map((e) => (
-              <li key={e.cedula} className='flex items-center gap-2 py-1'>
-                <input
-                  type='checkbox'
-                  checked={!!selected[e.cedula]}
-                  onChange={() => toggle(e.cedula)}
-                />
-                <div>
-                  {e.nombre} {e.apellido} — {e.cedula}
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div className='mt-4'>
-            <h4 className='font-semibold mb-2'>
-              Temario (reverso del certificado)
+
+      <div className='mb-4 flex items-center gap-3'>
+        <Button
+          onClick={() => setStep(1)}
+          className={`px-3 py-1 ${step === 1 ? 'bg-blue-600 text-white' : 'bg-neutral-400'}`}
+        >
+          1. Plantilla
+        </Button>
+        <Button
+          onClick={() => setStep(2)}
+          className={`px-3 py-1 ${step === 2 ? 'bg-blue-600 text-white' : 'bg-neutral-400'}`}
+        >
+          2. Estudiantes
+        </Button>
+        <div className='ml-auto'>
+          <span className='text-sm text-slate-500'>Paso {step} de 2</span>
+        </div>
+      </div>
+
+      {step === 1 ? (
+        // Step 1: plantilla, horas, firmas, edición y vista previa
+        <div className='flex flex-col space-y-5'>
+          <div>
+            <label htmlFor='horas' className='block'>
+              Horas académicas
+            </label>
+            <Input
+              id='horas'
+              name='horas'
+              type='number'
+              min='0'
+              value={horas}
+              onChange={(e) => setHoras(Number(e.target.value))}
+              className='border px-2 py-1 w-40'
+            />
+          </div>
+
+          <div>
+            <h4 className='hover:cursor-default'>
+              Firmas (se mostrarán centradas abajo)
             </h4>
+            {firmas.map((f, i) => (
+              <div key={i} className='flex gap-2 items-center mb-2'>
+                <Input
+                  value={f}
+                  onChange={(e) => updateFirma(i, e.target.value)}
+                  className='border px-2 py-1 flex-1'
+                  placeholder='Título de la firma'
+                />
+                <Button
+                  onClick={() => removeFirma(i)}
+                  className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded'
+                >
+                  <Trash />
+                </Button>
+              </div>
+            ))}
+            <div className='mt-2'>
+              <Button
+                onClick={addFirma}
+                className='px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded'
+              >
+                Agregar firma
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <h4 className='mb-2'>Temario (reverso del certificado)</h4>
             <div className='space-y-3'>
               {backTopics.map((t, ti) => (
-                <div key={ti} className='border p-2 rounded'>
+                <div key={ti} className='border p-3 rounded-md'>
                   <div className='flex gap-2 items-center mb-2'>
-                    <input
+                    <Input
                       className='border px-2 py-1 flex-1'
                       value={t.title}
                       onChange={(e) => updateTopicTitle(ti, e.target.value)}
                     />
-                    <button
+                    <Button
                       onClick={() => removeTopic(ti)}
-                      className='px-2 py-1 bg-red-500 text-white rounded'
+                      className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded'
                     >
-                      Eliminar
-                    </button>
+                      <Trash />
+                    </Button>
                   </div>
                   <div className='space-y-2'>
                     {t.items.map((it, ii) => (
                       <div key={ii} className='flex gap-2 items-center'>
-                        <input
+                        <Input
                           className='border px-2 py-1 flex-1'
                           value={it}
                           onChange={(e) =>
                             updateSubtopic(ti, ii, e.target.value)
                           }
+                          placeholder='Subtema'
                         />
-                        <button
+                        <Button
                           onClick={() => removeSubtopic(ti, ii)}
-                          className='px-2 py-1 bg-gray-300 rounded'
+                          className='px-2 py-1 bg-gray-400 hover:bg-gray-500 rounded'
                         >
-                          Borrar
-                        </button>
+                          <Trash />
+                        </Button>
                       </div>
                     ))}
                     <div>
-                      <button
+                      <Button
                         onClick={() => addSubtopic(ti)}
-                        className='px-2 py-1 bg-blue-600 text-white rounded'
+                        className='px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded'
                       >
                         Agregar subtema
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
               ))}
               <div className='flex gap-2'>
-                <button
+                <Button
                   onClick={addTopic}
-                  className='px-3 py-1 bg-green-600 text-white rounded'
+                  className='px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded'
                 >
                   Agregar tema
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={saveLayoutAndTopics}
-                  className='px-3 py-1 bg-indigo-600 text-white rounded'
+                  className='px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded'
                 >
                   Guardar temas (reverso)
-                </button>
+                </Button>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div className='w-2/3'>
-          <div className='mb-4'>
-            <label htmlFor='horas' className='block'>
-              Horas académicas
-            </label>
-            <input
-              id='horas'
-              name='horas'
-              type='number'
-              value={horas}
-              onChange={(e) => setHoras(Number(e.target.value))}
-              className='border px-2 py-1'
-            />
-          </div>
-
-          <div className='mb-4'>
-            <h4 className='font-semibold'>
-              Firmas (se mostrarán centradas abajo)
-            </h4>
-            {firmas.map((f, i) => (
-              <div key={i} className='flex gap-2 items-center mb-1'>
-                <input
-                  value={f}
-                  onChange={(e) => updateFirma(i, e.target.value)}
-                  className='border px-2 py-1 flex-1'
-                />
-                <button
-                  onClick={() => removeFirma(i)}
-                  className='px-2 py-1 bg-red-500 text-white rounded'
-                >
-                  Eliminar
-                </button>
-              </div>
-            ))}
-            <div className='mt-2'>
-              <button
-                onClick={addFirma}
-                className='px-3 py-1 bg-green-600 text-white rounded'
-              >
-                Agregar firma
-              </button>
             </div>
           </div>
 
           <div className='mb-4 flex items-center gap-3'>
-            <Button onClick={generar}>Generar PDF para seleccionados</Button>
-            <label className='flex items-center gap-2'>
-              <input
-                type='checkbox'
+            <label htmlFor='isEdit' className='flex items-center gap-2'>
+              <Checkbox
+                id='isEdit'
+                name='isEdit'
                 checked={isEdit}
-                onChange={() => setIsEdit((s) => !s)}
+                onCheckedChange={() => setIsEdit((s) => !s)}
               />
               <span>Editar plantilla</span>
             </label>
-            {/* Removed "Mostrar reverso" toggle — back preview is always visible below */}
             {isEdit && (
               <div className='ml-4 flex gap-2'>
                 <Button onClick={saveLayout} className='mr-2'>
@@ -707,6 +726,11 @@ export default function CertificadosPage() {
                 <Button onClick={saveLayoutAndTopics}>Guardar + temas</Button>
               </div>
             )}
+            <div className='ml-auto'>
+              <Button onClick={() => setStep(2)}>
+                Siguiente: Estudiantes →
+              </Button>
+            </div>
           </div>
 
           <div
@@ -721,7 +745,6 @@ export default function CertificadosPage() {
             }}
             ref={containerRef}
           >
-            {/* Front preview / Editor - always visible (top) */}
             <PreviewBlock
               id='name'
               containerRef={containerRef}
@@ -777,7 +800,6 @@ export default function CertificadosPage() {
               </div>
             </PreviewBlock>
 
-            {/* Signatures area - simple non-draggable area when not editing; when editing allow moving the signature area */}
             <PreviewBlock
               id='signatures'
               containerRef={containerRef}
@@ -827,7 +849,6 @@ export default function CertificadosPage() {
             </PreviewBlock>
           </div>
 
-          {/* Back preview / Editor - rendered as a separate box below the front preview */}
           <div className='border mt-4 p-2' ref={backPreviewRef}>
             <div
               style={{
@@ -841,7 +862,6 @@ export default function CertificadosPage() {
                 overflow: 'hidden',
               }}
             >
-              {/* Registro en la EFAVEC - esquina superior derecha */}
               <div
                 style={{
                   position: 'absolute',
@@ -945,12 +965,119 @@ export default function CertificadosPage() {
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        // Step 2: selección de estudiantes y generación
+        <div className='flex gap-5'>
+          <div className='w-1/3 border p-2 overflow-auto rounded-md'>
+            <div className='flex items-center justify-between'>
+              <h3 className='font-semibold'>Estudiantes</h3>
+              <div className='flex gap-2'>
+                <Button
+                  onClick={() => {
+                    const all: Record<string, boolean> = {};
+                    estudiantes.forEach((e) => (all[e.cedula] = true));
+                    setSelected(all);
+                  }}
+                >
+                  Seleccionar todos
+                </Button>
+                <Button onClick={() => setSelected({})}>Limpiar</Button>
+              </div>
+            </div>
+            <ul className='mt-3'>
+              {estudiantes.map((e) => (
+                <li key={e.cedula} className='flex items-center gap-2 py-2'>
+                  <label className='items-center flex'>
+                    <Checkbox
+                      checked={!!selected[e.cedula]}
+                      onCheckedChange={() => toggle(e.cedula)}
+                      className='mr-3'
+                    />
+                    {e.nombre} {e.apellido} - {e.cedula}
+                  </label>
+                </li>
+              ))}
+            </ul>
+
+            <div className='mt-4 flex flex-col gap-2'>
+              <Button
+                onClick={generar}
+                className='bg-green-600 hover:bg-green-700'
+              >
+                <Check /> Generar certificados
+              </Button>
+              <Button onClick={() => setStep(1)}>
+                <ArrowLeft /> Anterior: Plantilla
+              </Button>
+            </div>
+          </div>
+
+          <div className='w-2/3'>
+            <p className='font-semibold mb-2'>Vista previa</p>
+            <div
+              className='border'
+              style={{
+                width: '100%',
+                height: 640,
+                backgroundImage: `url(/plantilla_certificado1.png)`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                position: 'relative',
+              }}
+              ref={containerRef}
+            >
+              {/* reuse some preview blocks for quick visual */}
+              <PreviewBlock
+                id='name_preview'
+                containerRef={containerRef}
+                pos={layout?.name ?? defaultLayout.name}
+                isEdit={false}
+                onChange={() => {}}
+              >
+                <div style={{ fontSize: 28, fontWeight: 700 }}>
+                  Nombre Apellido
+                </div>
+              </PreviewBlock>
+              <PreviewBlock
+                id='course_preview'
+                containerRef={containerRef}
+                pos={layout?.course ?? defaultLayout.course}
+                isEdit={false}
+                onChange={() => {}}
+              >
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {curso?.nombreCurso || codigo}
+                </div>
+              </PreviewBlock>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 /** Draggable preview wrapper component used only in this route **/
+type PreviewBlockProps = {
+  id: string;
+  pos: {
+    top?: number;
+    left?: number;
+    widthPercent?: number;
+    fontSize?: number;
+  };
+  onChange: (id: string, p: { top: number; left: number }) => void;
+  children: React.ReactNode;
+  containerRef: React.RefObject<HTMLElement | null>;
+  isEdit?: boolean;
+};
+
 function PreviewBlock({
   id,
   pos,
@@ -958,7 +1085,7 @@ function PreviewBlock({
   children,
   containerRef,
   isEdit,
-}: any) {
+}: PreviewBlockProps) {
   const dragging = useRef(false);
   const origin = useRef({ x: 0, y: 0 });
 
@@ -974,8 +1101,10 @@ function PreviewBlock({
     const dy = e.clientY - origin.current.y;
     origin.current = { x: e.clientX, y: e.clientY };
     const rect = containerRef.current.getBoundingClientRect();
-    const leftPx = (pos.left / 100) * rect.width + dx;
-    const topPx = (pos.top / 100) * rect.height + dy;
+    const leftPct = (pos.left ?? 50) as number;
+    const topPct = (pos.top ?? 50) as number;
+    const leftPx = (leftPct / 100) * rect.width + dx;
+    const topPx = (topPct / 100) * rect.height + dy;
     const newLeft = Math.max(0, Math.min(100, (leftPx / rect.width) * 100));
     const newTop = Math.max(0, Math.min(100, (topPx / rect.height) * 100));
     onChange(id, { top: newTop, left: newLeft });
