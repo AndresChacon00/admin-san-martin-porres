@@ -6,7 +6,8 @@ import {
   useFetcher,
   MetaFunction,
 } from '@remix-run/react';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { toast } from 'sonner';
 import { obtenerEstudiantesDeCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
 import {
   getCursoById,
@@ -79,6 +80,34 @@ export default function CertificadosPage() {
   ]);
   const [isEdit, setIsEdit] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
+  const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    if (fetcher.state === 'submitting') {
+      setSaving(true);
+      return;
+    }
+
+    // when fetcher becomes idle and we were saving, show result
+    if (fetcher.state === 'idle' && saving) {
+      setSaving(false);
+      const d = fetcher.data as Record<string, unknown> | undefined;
+      const ok = d && (d['ok'] === true || d['success'] === true);
+      const msg =
+        (d && (d['message'] as string)) ?? (d && (d['msg'] as string));
+      if (ok) {
+        toast.success(msg || 'Plantilla guardada');
+      } else {
+        toast.error(msg || 'Error guardando plantilla');
+      }
+    }
+  }, [fetcher.state, saving, fetcher.data]);
+
+  type Html2CanvasFn = (
+    node: HTMLElement,
+    options?: { scale?: number; useCORS?: boolean },
+  ) => Promise<HTMLCanvasElement>;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const backPreviewRef = useRef<HTMLDivElement | null>(null);
@@ -159,6 +188,7 @@ export default function CertificadosPage() {
   function saveLayout() {
     const fd = new FormData();
     fd.set('layout', JSON.stringify(layout));
+    setSaving(true);
     fetcher.submit(fd, { method: 'post' });
   }
 
@@ -280,25 +310,13 @@ export default function CertificadosPage() {
     setLayout(merged);
     const fd = new FormData();
     fd.set('layout', JSON.stringify(merged));
+    setSaving(true);
     fetcher.submit(fd, { method: 'post' });
   }
 
   const generar = async () => {
-    // dynamic import to avoid including in server bundle
-    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-      import('html2canvas'),
-      import('jspdf'),
-    ]);
-
-    const alumnos = estudiantes.filter((e) => selected[e.cedula]);
-    if (!alumnos.length) {
-      alert('Selecciona al menos un estudiante');
-      return;
-    }
-
-    // We'll build front pages programmatically (so generation is independent
-    // of the current UI state like `showBack`) and capture the back once
-    // (reusable for all students in the course).
+    if (generating) return;
+    setGenerating(true);
     // target page: Letter size landscape (11in x 8.5in). We'll compute
     // pixel targets using a CSS DPI (96) so the off-screen DOM matches
     // the PDF aspect ratio.
@@ -308,8 +326,10 @@ export default function CertificadosPage() {
     const targetW = Math.round(PAGE_IN_W * CSS_DPI);
     const targetH = Math.round(PAGE_IN_H * CSS_DPI);
 
-    // build an off-screen front node for a given student
-    async function buildAndCaptureFront(alumno: (typeof estudiantes)[number]) {
+    const buildAndCaptureFront = async (
+      alumno: (typeof estudiantes)[number],
+      html2canvas: Html2CanvasFn,
+    ) => {
       const node = document.createElement('div');
       node.style.width = `${targetW}px`;
       node.style.height = `${targetH}px`;
@@ -405,8 +425,7 @@ export default function CertificadosPage() {
       node.style.position = 'absolute';
       node.style.left = '-9999px';
       document.body.appendChild(node);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // call html2canvas (typed as unknown) by casting at call site
       const canvas = await html2canvas(node, {
         scale: window.devicePixelRatio || 1,
         useCORS: true,
@@ -414,10 +433,10 @@ export default function CertificadosPage() {
       const data = canvas.toDataURL('image/png');
       document.body.removeChild(node);
       return { canvasW: canvas.width, canvasH: canvas.height, data };
-    }
+    };
 
     // build and capture back once (reusable for all students)
-    async function buildAndCaptureBack() {
+    const buildAndCaptureBack = async (html2canvas: Html2CanvasFn) => {
       const node = document.createElement('div');
       node.style.width = `${targetW}px`;
       node.style.height = `${targetH}px`;
@@ -450,16 +469,18 @@ export default function CertificadosPage() {
           ? backTopics
           : (layout?.back?.topicsList ?? []);
       const positions = layout?.back?.topicPositions ?? [];
+      console.log({ topics, positions });
       topics.forEach((t, ti: number) => {
         const pos = positions[ti] ?? {
           top: (backPos.top || 15) + ti * 8,
           left: backPos.left || 10,
         };
+        console.log(pos);
         const tDiv = document.createElement('div');
         tDiv.style.position = 'absolute';
         tDiv.style.top = `${pos.top}%`;
         tDiv.style.left = `${pos.left}%`;
-        tDiv.style.transform = 'translate(-50%, 0)';
+        // tDiv.style.transform = 'translate(-50%, 0)';
         tDiv.style.width = backPos.widthPercent
           ? `${backPos.widthPercent}%`
           : '80%';
@@ -515,8 +536,6 @@ export default function CertificadosPage() {
       node.style.position = 'absolute';
       node.style.left = '-9999px';
       document.body.appendChild(node);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const canvas = await html2canvas(node, {
         scale: window.devicePixelRatio || 1,
         useCORS: true,
@@ -524,52 +543,84 @@ export default function CertificadosPage() {
       const data = canvas.toDataURL('image/png');
       document.body.removeChild(node);
       return { canvasW: canvas.width, canvasH: canvas.height, data };
-    }
+    };
 
-    let backResult;
+    // dynamic import to avoid including in server bundle
     try {
-      // prefer capturing the rendered back preview if available, else build from layout
-      const previewInner = backPreviewRef.current?.querySelector(
-        ':scope > div',
-      ) as HTMLElement | null;
-      if (previewInner) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const canvas = await html2canvas(previewInner, {
-          scale: window.devicePixelRatio || 1,
-          useCORS: true,
-        });
-        backResult = {
-          canvasW: canvas.width,
-          canvasH: canvas.height,
-          data: canvas.toDataURL('image/png'),
-        };
-      } else {
-        backResult = await buildAndCaptureBack();
-      }
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Back capture failed', err);
-      return;
-    }
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
 
-    for (const alumno of alumnos) {
-      let frontResult;
+      const alumnos = estudiantes.filter((e) => selected[e.cedula]);
+      if (!alumnos.length) {
+        toast.error('Selecciona al menos un estudiante');
+        setGenerating(false);
+        return;
+      }
+
+      let backResult;
       try {
-        frontResult = await buildAndCaptureFront(alumno);
+        // prefer capturing the rendered back preview if available, else build from layout
+        const previewInner = backPreviewRef.current?.querySelector(
+          ':scope > div',
+        ) as HTMLElement | null;
+        if (previewInner) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const canvas = await html2canvas(previewInner, {
+            scale: window.devicePixelRatio || 1,
+            useCORS: true,
+          });
+          backResult = {
+            canvasW: canvas.width,
+            canvasH: canvas.height,
+            data: canvas.toDataURL('image/png'),
+          };
+        } else {
+          backResult = await buildAndCaptureBack(html2canvas);
+        }
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error('Front capture failed', err);
-        continue;
+        console.error('Back capture failed', err);
+        setGenerating(false);
+        toast.error('Error preparando vista reverso');
+        return;
+      }
+      let successCount = 0;
+      let failCount = 0;
+      for (const alumno of alumnos) {
+        let frontResult;
+        try {
+          frontResult = await buildAndCaptureFront(alumno, html2canvas);
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('Front capture failed', err);
+          failCount++;
+          continue;
+        }
+
+        try {
+          // Create PDF in inches as Letter landscape so pages print correctly.
+          const pdf = new jsPDF('l', 'in', [PAGE_IN_W, PAGE_IN_H]);
+          // Add images stretched to full page in inches.
+          pdf.addImage(frontResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
+          pdf.addPage([PAGE_IN_W, PAGE_IN_H]);
+          pdf.addImage(backResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
+          pdf.save(`${alumno.nombre}_${alumno.apellido}_certificado.pdf`);
+          successCount++;
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('PDF save failed', err);
+          failCount++;
+        }
       }
 
-      // Create PDF in inches as Letter landscape so pages print correctly.
-      const pdf = new jsPDF('l', 'in', [PAGE_IN_W, PAGE_IN_H]);
-      // Add images stretched to full page in inches.
-      pdf.addImage(frontResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
-      pdf.addPage([PAGE_IN_W, PAGE_IN_H]);
-      pdf.addImage(backResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
-      pdf.save(`${alumno.nombre}_${alumno.apellido}_certificado.pdf`);
+      if (successCount > 0)
+        toast.success(`${successCount} certificados generados`);
+      if (failCount > 0) toast.error(`${failCount} certificados fallaron`);
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -644,7 +695,9 @@ export default function CertificadosPage() {
           </div>
 
           <div>
-            <h4 className='mb-2'>Temario (reverso del certificado)</h4>
+            <h4 className='mb-2 hover:cursor-default'>
+              Temario (reverso del certificado)
+            </h4>
             <div className='space-y-3'>
               {backTopics.map((t, ti) => (
                 <div key={ti} className='border p-3 rounded-md'>
@@ -701,7 +754,14 @@ export default function CertificadosPage() {
                 <Button
                   onClick={saveLayoutAndTopics}
                   className='px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded'
+                  disabled={saving}
                 >
+                  {saving && (
+                    <span
+                      className='inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin'
+                      aria-hidden
+                    />
+                  )}
                   Guardar temas (reverso)
                 </Button>
               </div>
@@ -720,10 +780,24 @@ export default function CertificadosPage() {
             </label>
             {isEdit && (
               <div className='ml-4 flex gap-2'>
-                <Button onClick={saveLayout} className='mr-2'>
+                <Button onClick={saveLayout} className='mr-2' disabled={saving}>
+                  {saving && (
+                    <span
+                      className='inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin'
+                      aria-hidden
+                    />
+                  )}
                   Guardar plantilla
                 </Button>
-                <Button onClick={saveLayoutAndTopics}>Guardar + temas</Button>
+                <Button onClick={saveLayoutAndTopics} disabled={saving}>
+                  {saving && (
+                    <span
+                      className='inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin'
+                      aria-hidden
+                    />
+                  )}
+                  Guardar + temas
+                </Button>
               </div>
             )}
             <div className='ml-auto'>
@@ -1003,7 +1077,14 @@ export default function CertificadosPage() {
               <Button
                 onClick={generar}
                 className='bg-green-600 hover:bg-green-700'
+                disabled={generating}
               >
+                {generating && (
+                  <span
+                    className='inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin'
+                    aria-hidden
+                  />
+                )}
                 <Check /> Generar certificados
               </Button>
               <Button onClick={() => setStep(1)}>
