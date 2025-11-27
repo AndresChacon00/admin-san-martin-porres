@@ -60,6 +60,24 @@ export async function addPeriodo(data: PeriodoInsert) {
     return newPeriodo;
   } catch (error) {
     console.error('Error al añadir un periodo: ', error);
+    const err = error as any;
+    const msg = err?.message || String(err);
+    const isUnique =
+      String(msg).toLowerCase().includes('unique') ||
+      String(msg).toLowerCase().includes('constraint') ||
+      String(err?.code || '').includes('SQLITE_CONSTRAINT') ||
+      err?.rawCode === 1555;
+
+    if (isUnique) {
+      const id = (data as any)?.idPeriodo || '';
+      return {
+        type: 'error',
+        message: id
+          ? `El id de periodo ${String(id)} ya está registrado`
+          : 'El id del periodo ya está registrado',
+      } as const;
+    }
+
     return {
       type: 'error',
       message: 'Error al añadir un periodo',

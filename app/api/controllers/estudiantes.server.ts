@@ -58,9 +58,27 @@ export async function addEstudiante(data: EstudianteInsert) {
     return newEstudiante;
   } catch (error) {
     console.error('Error al añadir un estudiante: ', error);
+    // Detect SQLite unique constraint on cedula and return a clearer message
+    const err = error as any;
+    const msg = err?.message || String(err);
+    const isUniqueConstraint =
+      msg.includes('UNIQUE constraint failed') ||
+      String(err?.code || '').includes('SQLITE_CONSTRAINT') ||
+      err?.rawCode === 1555;
+
+    if (isUniqueConstraint) {
+      const ced = (data as any)?.cedula ?? '';
+      return {
+        type: 'error',
+        message: ced
+          ? `La cédula ${String(ced)} ya está registrada`
+          : 'La cédula ya está registrada',
+      } as const;
+    }
+
     return {
       type: 'error',
-      message: 'Error al añadir un estudiantee',
+      message: 'Error al añadir un estudiante',
     } as const;
   }
 }

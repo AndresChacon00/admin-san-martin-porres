@@ -65,6 +65,23 @@ export function EditarPeriodoModal({
     e.preventDefault();
     setIsSaving(true);
     try {
+      // Client-side validation: ensure fechaFin >= fechaInicio
+      const fi = values.fechaInicio;
+      const ff = values.fechaFin;
+      if (typeof fi === 'string' && typeof ff === 'string') {
+        const d1 = new Date(fi);
+        const d2 = new Date(ff);
+        if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
+          toast.error('Fechas inválidas');
+          setIsSaving(false);
+          return;
+        }
+        if (d2 < d1) {
+          toast.error('La fecha de fin debe ser posterior a la fecha de inicio');
+          setIsSaving(false);
+          return;
+        }
+      }
       const formData = new FormData();
       formData.append('actionType', 'editar');
       Object.entries(values).forEach(([key, value]) => {
