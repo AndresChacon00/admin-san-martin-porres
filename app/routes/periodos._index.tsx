@@ -54,11 +54,35 @@ export const action: ActionFunction = async ({ request }) => {
         return { error: 'Datos inválidos' };
       }
 
-      await addPeriodo({
+      // Validate that fechaFin is not before fechaInicio
+      try {
+        const d1 = new Date(String(fechaInicio));
+        const d2 = new Date(String(fechaFin));
+        if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
+          if (wantsJson) return json({ type: 'error', message: 'Fechas inválidas' }, { status: 400 });
+          return { error: 'Fechas inválidas' };
+        }
+        if (d2 < d1) {
+          if (wantsJson) return json({ type: 'error', message: 'La fecha de fin debe ser posterior a la fecha de inicio' }, { status: 400 });
+          return { error: 'La fecha de fin debe ser posterior a la fecha de inicio' };
+        }
+      } catch (e) {
+        if (wantsJson) return json({ type: 'error', message: 'Fechas inválidas' }, { status: 400 });
+        return { error: 'Fechas inválidas' };
+      }
+
+      const result = await addPeriodo({
         idPeriodo,
         fechaInicio: new Date(fechaInicio),
         fechaFin: new Date(fechaFin),
       });
+
+      // If service/controller returned structured error, propagate it
+      if (result && typeof result === 'object' && 'type' in result && (result as any).type === 'error') {
+        const msg = (result as any).message || 'Error al añadir un periodo';
+        if (wantsJson) return json({ type: 'error', message: msg }, { status: 400 });
+        return { error: msg };
+      }
 
       if (wantsJson) return json({ type: 'success', message: 'Periodo agregado' });
       return null;
@@ -79,6 +103,23 @@ export const action: ActionFunction = async ({ request }) => {
         return { error: 'Datos inválidos' };
       }
 
+      // Validate dates when editing as well
+      try {
+        const d1 = new Date(String(fechaInicio));
+        const d2 = new Date(String(fechaFin));
+        if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
+          if (wantsJson) return json({ type: 'error', message: 'Fechas inválidas' }, { status: 400 });
+          return { error: 'Fechas inválidas' };
+        }
+        if (d2 < d1) {
+          if (wantsJson) return json({ type: 'error', message: 'La fecha de fin debe ser posterior a la fecha de inicio' }, { status: 400 });
+          return { error: 'La fecha de fin debe ser posterior a la fecha de inicio' };
+        }
+      } catch (e) {
+        if (wantsJson) return json({ type: 'error', message: 'Fechas inválidas' }, { status: 400 });
+        return { error: 'Fechas inválidas' };
+      }
+
       await updatePeriodo(idPeriodoRaw, {
         fechaInicio: new Date(fechaInicio),
         fechaFin: new Date(fechaFin),
@@ -89,14 +130,14 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     if (actionType === 'eliminar') {
-      const idPeriodo = Number(formData.get('idPeriodo'));
-
-      if (isNaN(idPeriodo)) {
+      // idPeriodo is a string like '2025-2024' in this app; treat as string
+      const idPeriodoRaw = formData.get('idPeriodo');
+      if (typeof idPeriodoRaw !== 'string' || idPeriodoRaw.trim() === '') {
         if (wantsJson) return json({ type: 'error', message: 'ID inválido' }, { status: 400 });
         return { error: 'ID inválido' };
       }
 
-      await deletePeriodo(String(idPeriodo));
+      await deletePeriodo(idPeriodoRaw);
 
       if (wantsJson) return json({ type: 'success', message: 'Periodo eliminado' });
       return null;
@@ -175,6 +216,21 @@ export default function PeriodosPage() {
                   const form = e.currentTarget as HTMLFormElement;
                   const fd = new FormData(form);
                   fd.append('actionType', 'agregar');
+                  // Client-side validation: ensure fechaFin >= fechaInicio
+                  const fi = fd.get('fechaInicio');
+                  const ff = fd.get('fechaFin');
+                  if (typeof fi === 'string' && typeof ff === 'string') {
+                    const d1 = new Date(fi);
+                    const d2 = new Date(ff);
+                    if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
+                      toast.error('Fechas inválidas');
+                      return;
+                    }
+                    if (d2 < d1) {
+                      toast.error('La fecha de fin debe ser posterior a la fecha de inicio');
+                      return;
+                    }
+                  }
                   const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
                   if (btn) btn.disabled = true;
                   try {
@@ -200,11 +256,51 @@ export default function PeriodosPage() {
                       fetcher.load(window.location.pathname);
                       setOpen(false);
                     } else {
-                      const data = (await res.json().catch(() => undefined)) as
-                        | { message?: string }
-                        | undefined;
-                      const text = await res.text().catch(() => '');
-                      toast.error(data?.message || text || 'Error agregando periodo');
+                      // Try robust extraction: prefer JSON.message, then headers, then text
+                      let parsed: { message?: string; error?: string } | undefined;
+                      try {
+                        parsed = await res.clone().json();
+                      } catch {
+                        parsed = undefined;
+                      }
+                      const headerMsg =
+                        res.headers.get('x-error-message') ||
+                        res.headers.get('x-message') ||
+                        res.headers.get('x-user-message');
+                      let text = '';
+                      try {
+                        text = await res.text();
+                      } catch {
+                        text = '';
+                      }
+                      // If response is HTML (dev overlay or error page), avoid showing full HTML in toast
+                      let msg = parsed?.message || parsed?.error || headerMsg || '';
+                      const isHtml = /^ ?\s*<\!doctype\s+/i.test(text) || /<html[\s>]/i.test(text) || /<body[\s>]/i.test(text);
+                      if (isHtml) {
+                        // Try to extract our specific server message (e.g., "El id de periodo X ya está registrado")
+                        const specificMatch = text.match(/El id de periodo\s*([\w-]+)\s+ya est[aá]\s+registrad/i);
+                        if (specificMatch) {
+                          msg = `El id de periodo ${specificMatch[1]} ya está registrado`;
+                        } else {
+                          // Try to detect SQLite UNIQUE constraint mentions
+                          const uniqueMatch = text.match(/UNIQUE constraint failed:\s*([\w.]+)/i) || text.match(/UNIQUE constraint failed\s*:\s*([\w.\s,]+)/i);
+                          if (uniqueMatch) {
+                            const full = uniqueMatch[1];
+                            const idMatch = full.match(/(?:\.|_)(idPeriodo|id_periodo|id-periodo)/i);
+                            msg = idMatch ? `El id del periodo ya está registrado` : 'Error de constraint en la base de datos (valor duplicado)';
+                          } else {
+                            msg = 'Error agregando periodo (ver consola para detalles)';
+                          }
+                        }
+                        // Log full HTML to console for debugging
+                        // eslint-disable-next-line no-console
+                        console.error('Agregar Periodo HTML response (truncated):', text.slice(0, 2000));
+                      } else {
+                        msg = msg || text || 'Error agregando periodo';
+                        // eslint-disable-next-line no-console
+                        console.debug('Agregar Periodo error response', { status: res.status, parsed, headerMsg, text });
+                      }
+                      toast.error(msg || 'Error agregando periodo');
                     }
                   } catch (err) {
                     // eslint-disable-next-line no-console

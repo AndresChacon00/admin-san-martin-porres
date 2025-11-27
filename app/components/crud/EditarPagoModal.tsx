@@ -11,6 +11,13 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '~/components/ui/select';
 
 import { PagoEstudianteUpdate } from '~/types/pagosEstudiantesCurso.types';
 
@@ -128,17 +135,22 @@ export function EditarPagoModal({
             <Label htmlFor="tipoPago" className="text-right">
               Tipo de Pago
             </Label>
-            <select
-              id="tipoPago"
-              name="tipoPago"
-              value={values.tipoPago}
-              onChange={handleChange}
-              className="col-span-3 border rounded px-2 py-1"
-              required
-            >
-              <option value="Efectivo">Efectivo</option>
-              <option value="Transferencia">Transferencia</option>
-            </select>
+            <div className="col-span-3">
+              <Select
+                defaultValue={values.tipoPago ?? 'Efectivo'}
+                onValueChange={(v) =>
+                  setValues((prev) => ({ ...prev, tipoPago: String(v) }))
+                }
+              >
+                <SelectTrigger id="tipoPago" className="w-full">
+                  <SelectValue placeholder="-- Seleccione tipo de pago --" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Efectivo">Efectivo</SelectItem>
+                  <SelectItem value="Transferencia">Transferencia</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Comprobante */}

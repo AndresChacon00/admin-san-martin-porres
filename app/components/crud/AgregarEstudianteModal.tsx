@@ -77,6 +77,7 @@ export function AgregarEstudianteModal() {
         // First, try to read helpful headers that the server may set even when the body is empty
         const headerMsg = res.headers.get('x-error-message') || res.headers.get('x-message');
         if (headerMsg && !res.ok) {
+          // Prefer server-provided header message (already user-friendly in many controllers)
           toast.error(`(${res.status}) ${headerMsg}`);
           setOpen(false);
           setLoading(false);
@@ -88,14 +89,26 @@ export function AgregarEstudianteModal() {
         if (contentType.includes('text/html') && !res.ok) {
           try {
             const html = await res.text();
-            // Heuristic: look for SQLite UNIQUE constraint message using regex (case-insensitive)
-            const uniqueMatch = html.match(/UNIQUE constraint failed:\s*([\w.-]+)/i);
+            // Heuristics: try to detect common DB or controller messages inside HTML
+            // 1) Prefer controller-friendly Spanish messages emitted in server logs or bodies
+            const cedulaMsgMatch = html.match(/La c[eé]dula\s+(\d{4,})\s+ya est[aá]\s+registrad/i);
+            if (cedulaMsgMatch) {
+              toast.error(`(${res.status}) La cédula ${cedulaMsgMatch[1]} ya está registrada`);
+              setOpen(false);
+              setLoading(false);
+              return;
+            }
+            // 2) SQLite UNIQUE constraint detection
+            const uniqueMatch = html.match(/UNIQUE constraint failed:\s*([\w.]+)/i) || html.match(/UNIQUE constraint failed\s*:\s*([\w.\s,]+)/i);
             if (uniqueMatch) {
-              const full = uniqueMatch[1]; // e.g. estudiantes.correo
-              const colMatch = full.match(/(?:\.|_)(correo|cedula|email|cedula)/i);
+              const full = uniqueMatch[1]; // e.g. estudiantes.cedula
+              const colMatch = full.match(/(?:\.|_)(correo|cedula|email)/i);
               const col = colMatch ? colMatch[1].toLowerCase() : full.toLowerCase();
               const friendly = col.includes('correo') || col.includes('email') ? 'correo' : col.includes('cedula') ? 'cédula' : col;
-              toast.error(`(${res.status}) Estudiante ya existe (${friendly} duplicado)`);
+              // If we have the cedula the user tried to submit, use it for a clearer message
+              const attempted = values?.cedula || null;
+              const cedulaText = attempted ? ` La cédula ${attempted} ya está registrada` : ` ${friendly} duplicado`;
+              toast.error(`(${res.status}) Estudiante ya existe.${cedulaText}`);
               setOpen(false);
               setLoading(false);
               return;
@@ -138,7 +151,13 @@ export function AgregarEstudianteModal() {
         // If server provided a raw error header, show it (this will include DB error details)
         const rawHeader = res.headers.get('x-raw-error');
         if (rawHeader) {
-          toast.error(`(${res.status}) ${rawHeader}`);
+          // try to extract friendly message from raw header
+          const cedMatch = rawHeader.match(/La c[eé]dula\s+(\d{4,})\s+ya est[aá]\s+registrad/i);
+          if (cedMatch) {
+            toast.error(`(${res.status}) La cédula ${cedMatch[1]} ya está registrada`);
+          } else {
+            toast.error(`(${res.status}) ${rawHeader}`);
+          }
           setOpen(false);
           setLoading(false);
           return;
@@ -170,8 +189,14 @@ export function AgregarEstudianteModal() {
           if (extracted) {
             const isErrorType = typeof d === 'object' && d !== null && 'type' in d && (d as { type?: string }).type === 'error';
             if (isErrorType || !res.ok) {
-              const label = `(${res.status}) ${extracted}`;
-              toast.error(label);
+              // If the server already returned a friendly Spanish message like
+              // "La cédula 123 ya está registrada" prefer that.
+              const cedMatch = String(extracted).match(/La c[eé]dula\s*(\d{4,})/i);
+              if (cedMatch) {
+                toast.error(`(${res.status}) La cédula ${cedMatch[1]} ya está registrada`);
+              } else {
+                toast.error(`(${res.status}) ${extracted}`);
+              }
               setOpen(false);
               return;
             }
