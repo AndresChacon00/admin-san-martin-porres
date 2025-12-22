@@ -15,10 +15,8 @@ import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 
 interface FormValues {
-  codigo: string;
   nombreCurso: string;
   descripcion: string;
-  estado: number;
   precioTotal: number;
 }
 
@@ -31,10 +29,8 @@ interface EditarCursoModalProps {
 export function EditarCursoModal({ curso, open, onClose }: EditarCursoModalProps) {
   const cursoSafe = curso as unknown as Partial<Record<string, unknown>>;
   const [values, setValues] = useState<FormValues>(() => ({
-    codigo: String(cursoSafe.codigo ?? ''),
     nombreCurso: String(cursoSafe.nombreCurso ?? ''),
     descripcion: String(cursoSafe.descripcion ?? ''),
-    estado: Number(cursoSafe.estado ?? 1),
     precioTotal: Number(cursoSafe.precioTotal ?? 0),
   }));
 
@@ -52,6 +48,8 @@ export function EditarCursoModal({ curso, open, onClose }: EditarCursoModalProps
     try {
       const formData = new FormData();
       formData.append('actionType', 'editar');
+      // codigo se envía como hidden desde props (no editable)
+      formData.append('codigo', String(cursoSafe.codigo ?? ''));
       Object.entries(values).forEach(([key, value]) => {
         formData.append(key, value.toString());
       });
@@ -102,19 +100,7 @@ export function EditarCursoModal({ curso, open, onClose }: EditarCursoModalProps
           <DialogDescription>Modifica los datos del curso</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          {/* Código (non-editable) */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="codigo" className="text-right">
-              Código
-            </Label>
-            <Input
-              id="codigo"
-              name="codigo"
-              value={values.codigo}
-              readOnly
-              className="col-span-3"
-            />
-          </div>
+          <input type="hidden" name="codigo" value={String(cursoSafe.codigo ?? '')} />
           {/* Nombre del Curso */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="nombreCurso" className="text-right">
@@ -140,21 +126,6 @@ export function EditarCursoModal({ curso, open, onClose }: EditarCursoModalProps
               value={values.descripcion}
               onChange={handleChange}
               className="col-span-3"
-            />
-          </div>
-          {/* Estado */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="estado" className="text-right">
-              Estado
-            </Label>
-            <Input
-              id="estado"
-              name="estado"
-              type="number"
-              value={values.estado}
-              onChange={handleChange}
-              className="col-span-3"
-              required
             />
           </div>
           {/* Precio Total */}

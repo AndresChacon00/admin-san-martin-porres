@@ -1,4 +1,4 @@
-import { useLoaderData, useParams } from '@remix-run/react';
+import { useLoaderData, useParams, useFetcher } from '@remix-run/react';
 import { getRecibosPorCursoPeriodo, editarPago, eliminarPago } from '~/api/controllers/pagosEstudiantesCursos';
 import { getCursoById } from '~/api/controllers/cursos';
 import { DataTablePagosEstudiantes } from '~/components/data-tables/pagosEstudiantes-data-table';
@@ -6,7 +6,7 @@ import type { LoaderFunction, ActionFunction } from '@remix-run/node';
 import { pagosColumns } from '~/components/columns/pagos-estudiante';
 import ReciboEstudiante from '~/components/ReciboEstudiantes';
 import { imprimirRecibo } from '~/components/ImprimirRecibo';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as React from 'react';
 
 export const loader: LoaderFunction = async ({ params }) => {
@@ -26,10 +26,10 @@ export const loader: LoaderFunction = async ({ params }) => {
 export const action: ActionFunction = async ({ request, params }) => {
     const formData = await request.formData();
     const actionType = formData.get('actionType');
-    const idPeriodo = Number(params.idPeriodo);
-    const codigoCurso = params.codigo;
+    const idPeriodo = params.idPeriodo as string | undefined;
+    const codigoCurso = params.codigo as string | undefined;
   
-    if (!codigoCurso || isNaN(idPeriodo)) {
+    if (!codigoCurso || !idPeriodo) {
       return { error: 'Datos inválidos' };
     }
   
@@ -68,6 +68,8 @@ export const action: ActionFunction = async ({ request, params }) => {
       if (result.type === 'error') {
         return { error: result.message };
       }
+
+      return { type: 'success', message: 'Pago eliminado' };
     }
   
     return null;
@@ -104,6 +106,7 @@ export default function PagosCursoPage() {
   const curso = loaderData.curso;
   const { idPeriodo, codigo } = useParams();
   const [selectedPagoId, setSelectedPagoId] = useState<number | null>(null);
+  const fetcher = useFetcher();
 
   const handleGenerateReceipt = (idPago: number) => {
     console.log('Generating receipt for ID:', idPago);
@@ -123,6 +126,19 @@ export default function PagosCursoPage() {
       setSelectedPagoId(null);
     }
   }, [selectedPago]);
+
+  // Allow child modals to trigger a refresh
+  useEffect(() => {
+    const handler = () => {
+      try {
+        fetcher.load(window.location.pathname);
+      } catch (_) {
+        // ignore
+      }
+    };
+    window.addEventListener('refreshPagos', handler);
+    return () => window.removeEventListener('refreshPagos', handler);
+  }, [fetcher]);
 
   console.log('Pagos:', pagos);
 
