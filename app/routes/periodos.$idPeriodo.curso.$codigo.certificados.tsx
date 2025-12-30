@@ -1,29 +1,54 @@
-import type { LoaderFunction, ActionFunction } from '@remix-run/node';
-import { json } from '@remix-run/node';
-import { useLoaderData, useParams, useFetcher } from '@remix-run/react';
-import React, { useState, useRef } from 'react';
-import { obtenerEstudiantesDeCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
-import { getCursoById } from '~/api/controllers/cursos';
+import type { ActionFunction, LoaderFunctionArgs } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import {
+  useLoaderData,
+  useParams,
+  useFetcher,
+  MetaFunction,
+} from '@remix-run/react';
+import React, { useState, useRef, useEffect } from 'react';
+import { toast } from 'sonner';
+import { obtenerEstudiantesDeCursoPeriodo } from '~/api/controllers/estudiantesCursoPeriodo';
+import {
+  getCursoById,
   getTemplateLayout,
   saveTemplateLayout,
 } from '~/api/controllers/cursos';
 import { getPeriodoById } from '~/api/controllers/periodos';
 import { Button } from '~/components/ui/button';
+import { ArrowLeft, Check, Trash } from 'lucide-react';
+import { Input } from '~/components/ui/input';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Layout } from '~/types/certificados.types';
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const meta: MetaFunction = () => {
+  return [{ title: 'Certificados | San Martín de Porres' }];
+};
+
+export async function loader({ params }: LoaderFunctionArgs) {
   const idPeriodo = String(params.idPeriodo || '');
   const codigo = String(params.codigo || '');
   if (!idPeriodo || !codigo)
     throw new Response('Faltan parámetros', { status: 400 });
 
-  const estudiantes = await obtenerEstudiantesDeCursoPeriodo(idPeriodo, codigo);
-  const curso = await getCursoById(codigo);
-  const periodo = await getPeriodoById(idPeriodo);
-  const templateLayout = await getTemplateLayout(codigo);
+  const [estudiantes, curso, periodo, templateLayout] = await Promise.all([
+    obtenerEstudiantesDeCursoPeriodo(idPeriodo, codigo),
+    getCursoById(codigo),
+    getPeriodoById(idPeriodo),
+    getTemplateLayout(codigo),
+  ]);
 
-  return json({ estudiantes, curso, periodo, templateLayout });
-};
+  if ('type' in estudiantes || 'type' in curso || 'type' in periodo) {
+    return redirect(`/periodos/${idPeriodo}/curso/${codigo}`);
+  }
+
+  return json({
+    estudiantes,
+    curso,
+    periodo,
+    templateLayout,
+  });
+}
 
 export const action: ActionFunction = async ({ request, params }) => {
   const codigo = String(params.codigo || '');
@@ -44,7 +69,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function CertificadosPage() {
   const { estudiantes, curso, periodo, templateLayout } =
     useLoaderData<typeof loader>();
-  const { idPeriodo, codigo } = useParams();
+  const { codigo } = useParams();
   const fetcher = useFetcher();
 
   const [selected, setSelected] = useState<Record<string, boolean>>(() => ({}));
@@ -54,6 +79,35 @@ export default function CertificadosPage() {
     'Instructor',
   ]);
   const [isEdit, setIsEdit] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    if (fetcher.state === 'submitting') {
+      setSaving(true);
+      return;
+    }
+
+    // when fetcher becomes idle and we were saving, show result
+    if (fetcher.state === 'idle' && saving) {
+      setSaving(false);
+      const d = fetcher.data as Record<string, unknown> | undefined;
+      const ok = d && (d['ok'] === true || d['success'] === true);
+      const msg =
+        (d && (d['message'] as string)) ?? (d && (d['msg'] as string));
+      if (ok) {
+        toast.success(msg || 'Plantilla guardada');
+      } else {
+        toast.error(msg || 'Error guardando plantilla');
+      }
+    }
+  }, [fetcher.state, saving, fetcher.data]);
+
+  type Html2CanvasFn = (
+    node: HTMLElement,
+    options?: { scale?: number; useCORS?: boolean },
+  ) => Promise<HTMLCanvasElement>;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const backPreviewRef = useRef<HTMLDivElement | null>(null);
@@ -85,10 +139,11 @@ export default function CertificadosPage() {
         { top: 78, left: 25 },
         { top: 78, left: 75 },
       ],
+      topicsList: [],
     },
-  } as any;
+  } satisfies Layout;
 
-  const [layout, setLayout] = useState<any>(
+  const [layout, setLayout] = useState<Layout>(
     () => templateLayout ?? defaultLayout,
   );
 
@@ -103,24 +158,29 @@ export default function CertificadosPage() {
     setFirmas((f) => f.filter((_, idx) => idx !== i));
 
   function updatePos(id: string, newPos: { top: number; left: number }) {
-    setLayout((prev: any) => {
+    setLayout((prev) => {
       // support nested keys like 'back.content'
       if (id.includes('.')) {
         const parts = id.split('.');
         if (parts.length === 2) {
           const [p1, p2] = parts;
+
           return {
             ...prev,
             [p1]: {
-              ...(prev[p1] || {}),
-              [p2]: { ...((prev[p1] && prev[p1][p2]) || {}), ...newPos },
+              ...((prev[p1] as object) || {}),
+              [p2]: {
+                ...((prev[p1] && (prev[p1] as Record<string, object>)[p2]) ||
+                  {}),
+                ...newPos,
+              },
             },
           };
         }
       }
       return {
         ...prev,
-        [id]: { ...(prev[id] || {}), ...newPos },
+        [id]: { ...((prev[id] as object) || {}), ...newPos },
       };
     });
   }
@@ -128,6 +188,7 @@ export default function CertificadosPage() {
   function saveLayout() {
     const fd = new FormData();
     fd.set('layout', JSON.stringify(layout));
+    setSaving(true);
     fetcher.submit(fd, { method: 'post' });
   }
 
@@ -146,7 +207,7 @@ export default function CertificadosPage() {
     const positions = layout?.back?.topicPositions ?? [];
     if (positions[index]) return positions[index];
     // fallback compute: base top from content top + spacing
-    const base = (layout?.back?.content?.top ??
+    const base = (layout.back?.content?.top ??
       defaultLayout.back.content.top) as number;
     return {
       top: base + index * 8,
@@ -158,7 +219,7 @@ export default function CertificadosPage() {
     index: number,
     newPos: { top: number; left: number },
   ) {
-    setLayout((prev: any) => {
+    setLayout((prev) => {
       const next = { ...prev };
       next.back = { ...(next.back || {}) };
       const arr = Array.isArray(next.back.topicPositions)
@@ -181,7 +242,7 @@ export default function CertificadosPage() {
     index: number,
     newPos: { top: number; left: number },
   ) {
-    setLayout((prev: any) => {
+    setLayout((prev) => {
       const next = { ...prev };
       next.back = { ...(next.back || {}) };
       const arr = Array.isArray(next.back.stampPositions)
@@ -249,25 +310,13 @@ export default function CertificadosPage() {
     setLayout(merged);
     const fd = new FormData();
     fd.set('layout', JSON.stringify(merged));
+    setSaving(true);
     fetcher.submit(fd, { method: 'post' });
   }
 
   const generar = async () => {
-    // dynamic import to avoid including in server bundle
-    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-      import('html2canvas'),
-      import('jspdf'),
-    ]);
-
-    const alumnos = (estudiantes || []).filter((e: any) => selected[e.cedula]);
-    if (!alumnos.length) {
-      alert('Selecciona al menos un estudiante');
-      return;
-    }
-
-    // We'll build front pages programmatically (so generation is independent
-    // of the current UI state like `showBack`) and capture the back once
-    // (reusable for all students in the course).
+    if (generating) return;
+    setGenerating(true);
     // target page: Letter size landscape (11in x 8.5in). We'll compute
     // pixel targets using a CSS DPI (96) so the off-screen DOM matches
     // the PDF aspect ratio.
@@ -277,8 +326,10 @@ export default function CertificadosPage() {
     const targetW = Math.round(PAGE_IN_W * CSS_DPI);
     const targetH = Math.round(PAGE_IN_H * CSS_DPI);
 
-    // build an off-screen front node for a given student
-    async function buildAndCaptureFront(alumno: any) {
+    const buildAndCaptureFront = async (
+      alumno: (typeof estudiantes)[number],
+      html2canvas: Html2CanvasFn,
+    ) => {
       const node = document.createElement('div');
       node.style.width = `${targetW}px`;
       node.style.height = `${targetH}px`;
@@ -328,7 +379,7 @@ export default function CertificadosPage() {
       courseEl.style.textAlign = cp.align || 'center';
       courseEl.style.letterSpacing = '2px';
       courseEl.style.textTransform = 'uppercase';
-      courseEl.textContent = curso?.nombreCurso || codigo;
+      courseEl.textContent = curso?.nombreCurso || '';
       node.appendChild(courseEl);
 
       // Signatures area: center with configurable gap (matches preview)
@@ -374,8 +425,7 @@ export default function CertificadosPage() {
       node.style.position = 'absolute';
       node.style.left = '-9999px';
       document.body.appendChild(node);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // call html2canvas (typed as unknown) by casting at call site
       const canvas = await html2canvas(node, {
         scale: window.devicePixelRatio || 1,
         useCORS: true,
@@ -383,10 +433,10 @@ export default function CertificadosPage() {
       const data = canvas.toDataURL('image/png');
       document.body.removeChild(node);
       return { canvasW: canvas.width, canvasH: canvas.height, data };
-    }
+    };
 
     // build and capture back once (reusable for all students)
-    async function buildAndCaptureBack() {
+    const buildAndCaptureBack = async (html2canvas: Html2CanvasFn) => {
       const node = document.createElement('div');
       node.style.width = `${targetW}px`;
       node.style.height = `${targetH}px`;
@@ -419,16 +469,18 @@ export default function CertificadosPage() {
           ? backTopics
           : (layout?.back?.topicsList ?? []);
       const positions = layout?.back?.topicPositions ?? [];
-      topics.forEach((t: any, ti: number) => {
+      console.log({ topics, positions });
+      topics.forEach((t, ti: number) => {
         const pos = positions[ti] ?? {
           top: (backPos.top || 15) + ti * 8,
           left: backPos.left || 10,
         };
+        console.log(pos);
         const tDiv = document.createElement('div');
         tDiv.style.position = 'absolute';
         tDiv.style.top = `${pos.top}%`;
         tDiv.style.left = `${pos.left}%`;
-        tDiv.style.transform = 'translate(-50%, 0)';
+        // tDiv.style.transform = 'translate(-50%, 0)';
         tDiv.style.width = backPos.widthPercent
           ? `${backPos.widthPercent}%`
           : '80%';
@@ -484,8 +536,6 @@ export default function CertificadosPage() {
       node.style.position = 'absolute';
       node.style.left = '-9999px';
       document.body.appendChild(node);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const canvas = await html2canvas(node, {
         scale: window.devicePixelRatio || 1,
         useCORS: true,
@@ -493,201 +543,268 @@ export default function CertificadosPage() {
       const data = canvas.toDataURL('image/png');
       document.body.removeChild(node);
       return { canvasW: canvas.width, canvasH: canvas.height, data };
-    }
+    };
 
-    let backResult;
+    // dynamic import to avoid including in server bundle
     try {
-      // prefer capturing the rendered back preview if available, else build from layout
-      const previewInner = backPreviewRef.current?.querySelector(
-        ':scope > div',
-      ) as HTMLElement | null;
-      if (previewInner) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const canvas = await html2canvas(previewInner, {
-          scale: window.devicePixelRatio || 1,
-          useCORS: true,
-        });
-        backResult = {
-          canvasW: canvas.width,
-          canvasH: canvas.height,
-          data: canvas.toDataURL('image/png'),
-        };
-      } else {
-        backResult = await buildAndCaptureBack();
-      }
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Back capture failed', err);
-      return;
-    }
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
 
-    for (const alumno of alumnos) {
-      let frontResult;
+      const alumnos = estudiantes.filter((e) => selected[e.cedula]);
+      if (!alumnos.length) {
+        toast.error('Selecciona al menos un estudiante');
+        setGenerating(false);
+        return;
+      }
+
+      let backResult;
       try {
-        frontResult = await buildAndCaptureFront(alumno);
+        // prefer capturing the rendered back preview if available, else build from layout
+        const previewInner = backPreviewRef.current?.querySelector(
+          ':scope > div',
+        ) as HTMLElement | null;
+        if (previewInner) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const canvas = await html2canvas(previewInner, {
+            scale: window.devicePixelRatio || 1,
+            useCORS: true,
+          });
+          backResult = {
+            canvasW: canvas.width,
+            canvasH: canvas.height,
+            data: canvas.toDataURL('image/png'),
+          };
+        } else {
+          backResult = await buildAndCaptureBack(html2canvas);
+        }
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error('Front capture failed', err);
-        continue;
+        console.error('Back capture failed', err);
+        setGenerating(false);
+        toast.error('Error preparando vista reverso');
+        return;
+      }
+      let successCount = 0;
+      let failCount = 0;
+      for (const alumno of alumnos) {
+        let frontResult;
+        try {
+          frontResult = await buildAndCaptureFront(alumno, html2canvas);
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('Front capture failed', err);
+          failCount++;
+          continue;
+        }
+
+        try {
+          // Create PDF in inches as Letter landscape so pages print correctly.
+          const pdf = new jsPDF('l', 'in', [PAGE_IN_W, PAGE_IN_H]);
+          // Add images stretched to full page in inches.
+          pdf.addImage(frontResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
+          pdf.addPage([PAGE_IN_W, PAGE_IN_H]);
+          pdf.addImage(backResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
+          pdf.save(`${alumno.nombre}_${alumno.apellido}_certificado.pdf`);
+          successCount++;
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('PDF save failed', err);
+          failCount++;
+        }
       }
 
-      // Create PDF in inches as Letter landscape so pages print correctly.
-      const pdf = new jsPDF('l', 'in', [PAGE_IN_W, PAGE_IN_H]);
-      // Add images stretched to full page in inches.
-      pdf.addImage(frontResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
-      pdf.addPage([PAGE_IN_W, PAGE_IN_H]);
-      pdf.addImage(backResult.data, 'PNG', 0, 0, PAGE_IN_W, PAGE_IN_H);
-      pdf.save(`${alumno.nombre}_${alumno.apellido}_certificado.pdf`);
+      if (successCount > 0)
+        toast.success(`${successCount} certificados generados`);
+      if (failCount > 0) toast.error(`${failCount} certificados fallaron`);
+    } finally {
+      setGenerating(false);
     }
   };
 
   return (
     <div className='p-6'>
       <h2 className='text-xl font-bold mb-4'>Generación de Certificados</h2>
-      <div className='flex gap-6'>
-        <div className='w-1/3 border p-2 h-[600px] overflow-auto'>
-          <h3 className='font-semibold'>Estudiantes</h3>
-          <ul>
-            {(estudiantes || []).map((e: any) => (
-              <li key={e.cedula} className='flex items-center gap-2 py-1'>
-                <input
-                  type='checkbox'
-                  checked={!!selected[e.cedula]}
-                  onChange={() => toggle(e.cedula)}
+
+      <div className='mb-4 flex items-center gap-3'>
+        <Button
+          onClick={() => setStep(1)}
+          className={`px-3 py-1 ${step === 1 ? 'bg-blue-600 text-white' : 'bg-neutral-400'}`}
+        >
+          1. Plantilla
+        </Button>
+        <Button
+          onClick={() => setStep(2)}
+          className={`px-3 py-1 ${step === 2 ? 'bg-blue-600 text-white' : 'bg-neutral-400'}`}
+        >
+          2. Estudiantes
+        </Button>
+        <div className='ml-auto'>
+          <span className='text-sm text-slate-500'>Paso {step} de 2</span>
+        </div>
+      </div>
+
+      {step === 1 ? (
+        // Step 1: plantilla, horas, firmas, edición y vista previa
+        <div className='flex flex-col space-y-5'>
+          <div>
+            <label htmlFor='horas' className='block'>
+              Horas académicas
+            </label>
+            <Input
+              id='horas'
+              name='horas'
+              type='number'
+              min='0'
+              value={horas}
+              onChange={(e) => setHoras(Number(e.target.value))}
+              className='border px-2 py-1 w-40'
+            />
+          </div>
+
+          <div>
+            <h4 className='hover:cursor-default'>
+              Firmas (se mostrarán centradas abajo)
+            </h4>
+            {firmas.map((f, i) => (
+              <div key={i} className='flex gap-2 items-center mb-2'>
+                <Input
+                  value={f}
+                  onChange={(e) => updateFirma(i, e.target.value)}
+                  className='border px-2 py-1 flex-1'
+                  placeholder='Título de la firma'
                 />
-                <div>
-                  {e.nombre} {e.apellido} — {e.cedula}
-                </div>
-              </li>
+                <Button
+                  onClick={() => removeFirma(i)}
+                  className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded'
+                >
+                  <Trash />
+                </Button>
+              </div>
             ))}
-          </ul>
-          <div className='mt-4'>
-            <h4 className='font-semibold mb-2'>
+            <div className='mt-2'>
+              <Button
+                onClick={addFirma}
+                className='px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded'
+              >
+                Agregar firma
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <h4 className='mb-2 hover:cursor-default'>
               Temario (reverso del certificado)
             </h4>
             <div className='space-y-3'>
               {backTopics.map((t, ti) => (
-                <div key={ti} className='border p-2 rounded'>
+                <div key={ti} className='border p-3 rounded-md'>
                   <div className='flex gap-2 items-center mb-2'>
-                    <input
+                    <Input
                       className='border px-2 py-1 flex-1'
                       value={t.title}
                       onChange={(e) => updateTopicTitle(ti, e.target.value)}
                     />
-                    <button
+                    <Button
                       onClick={() => removeTopic(ti)}
-                      className='px-2 py-1 bg-red-500 text-white rounded'
+                      className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded'
                     >
-                      Eliminar
-                    </button>
+                      <Trash />
+                    </Button>
                   </div>
                   <div className='space-y-2'>
                     {t.items.map((it, ii) => (
                       <div key={ii} className='flex gap-2 items-center'>
-                        <input
+                        <Input
                           className='border px-2 py-1 flex-1'
                           value={it}
                           onChange={(e) =>
                             updateSubtopic(ti, ii, e.target.value)
                           }
+                          placeholder='Subtema'
                         />
-                        <button
+                        <Button
                           onClick={() => removeSubtopic(ti, ii)}
-                          className='px-2 py-1 bg-gray-300 rounded'
+                          className='px-2 py-1 bg-gray-400 hover:bg-gray-500 rounded'
                         >
-                          Borrar
-                        </button>
+                          <Trash />
+                        </Button>
                       </div>
                     ))}
                     <div>
-                      <button
+                      <Button
                         onClick={() => addSubtopic(ti)}
-                        className='px-2 py-1 bg-blue-600 text-white rounded'
+                        className='px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded'
                       >
                         Agregar subtema
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
               ))}
               <div className='flex gap-2'>
-                <button
+                <Button
                   onClick={addTopic}
-                  className='px-3 py-1 bg-green-600 text-white rounded'
+                  className='px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded'
                 >
                   Agregar tema
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={saveLayoutAndTopics}
-                  className='px-3 py-1 bg-indigo-600 text-white rounded'
+                  className='px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded'
+                  disabled={saving}
                 >
+                  {saving && (
+                    <span
+                      className='inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin'
+                      aria-hidden
+                    />
+                  )}
                   Guardar temas (reverso)
-                </button>
+                </Button>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div className='w-2/3'>
-          <div className='mb-4'>
-            <label className='block'>Horas académicas</label>
-            <input
-              type='number'
-              value={horas}
-              onChange={(e) => setHoras(Number(e.target.value))}
-              className='border px-2 py-1'
-            />
-          </div>
-
-          <div className='mb-4'>
-            <h4 className='font-semibold'>
-              Firmas (se mostrarán centradas abajo)
-            </h4>
-            {firmas.map((f, i) => (
-              <div key={i} className='flex gap-2 items-center mb-1'>
-                <input
-                  value={f}
-                  onChange={(e) => updateFirma(i, e.target.value)}
-                  className='border px-2 py-1 flex-1'
-                />
-                <button
-                  onClick={() => removeFirma(i)}
-                  className='px-2 py-1 bg-red-500 text-white rounded'
-                >
-                  Eliminar
-                </button>
-              </div>
-            ))}
-            <div className='mt-2'>
-              <button
-                onClick={addFirma}
-                className='px-3 py-1 bg-green-600 text-white rounded'
-              >
-                Agregar firma
-              </button>
             </div>
           </div>
 
           <div className='mb-4 flex items-center gap-3'>
-            <Button onClick={generar}>Generar PDF para seleccionados</Button>
-            <label className='flex items-center gap-2'>
-              <input
-                type='checkbox'
+            <label htmlFor='isEdit' className='flex items-center gap-2'>
+              <Checkbox
+                id='isEdit'
+                name='isEdit'
                 checked={isEdit}
-                onChange={() => setIsEdit((s) => !s)}
+                onCheckedChange={() => setIsEdit((s) => !s)}
               />
               <span>Editar plantilla</span>
             </label>
-            {/* Removed "Mostrar reverso" toggle — back preview is always visible below */}
             {isEdit && (
               <div className='ml-4 flex gap-2'>
-                <Button onClick={saveLayout} className='mr-2'>
+                <Button onClick={saveLayout} className='mr-2' disabled={saving}>
+                  {saving && (
+                    <span
+                      className='inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin'
+                      aria-hidden
+                    />
+                  )}
                   Guardar plantilla
                 </Button>
-                <Button onClick={saveLayoutAndTopics}>Guardar + temas</Button>
+                <Button onClick={saveLayoutAndTopics} disabled={saving}>
+                  {saving && (
+                    <span
+                      className='inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin'
+                      aria-hidden
+                    />
+                  )}
+                  Guardar + temas
+                </Button>
               </div>
             )}
+            <div className='ml-auto'>
+              <Button onClick={() => setStep(2)}>
+                Siguiente: Estudiantes →
+              </Button>
+            </div>
           </div>
 
           <div
@@ -702,7 +819,6 @@ export default function CertificadosPage() {
             }}
             ref={containerRef}
           >
-            {/* Front preview / Editor - always visible (top) */}
             <PreviewBlock
               id='name'
               containerRef={containerRef}
@@ -758,7 +874,6 @@ export default function CertificadosPage() {
               </div>
             </PreviewBlock>
 
-            {/* Signatures area - simple non-draggable area when not editing; when editing allow moving the signature area */}
             <PreviewBlock
               id='signatures'
               containerRef={containerRef}
@@ -808,7 +923,6 @@ export default function CertificadosPage() {
             </PreviewBlock>
           </div>
 
-          {/* Back preview / Editor - rendered as a separate box below the front preview */}
           <div className='border mt-4 p-2' ref={backPreviewRef}>
             <div
               style={{
@@ -822,58 +936,6 @@ export default function CertificadosPage() {
                 overflow: 'hidden',
               }}
             >
-              {/* Registro en la EFAVEC - esquina superior derecha */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '9%',
-                  right: '6%',
-                  width: 150,
-                  background: 'rgba(255,255,255,0.95)',
-                  padding: 8,
-                  border: '1px solid #000',
-                  fontSize: 12,
-                  lineHeight: '1.2',
-                }}
-              >
-                <div
-                  style={{
-                    fontWeight: 700,
-                    marginBottom: 6,
-                    textAlign: 'center',
-                  }}
-                >
-                  Registro en la EFAVEC
-                </div>
-                <table
-                  style={{
-                    width: '100%',
-                    fontSize: 12,
-                    borderCollapse: 'collapse',
-                  }}
-                >
-                  <tbody>
-                    <tr>
-                      <td style={{ width: '30%', verticalAlign: 'top' }}>
-                        Libro:
-                      </td>
-                      <td>__________</td>
-                    </tr>
-                    <tr>
-                      <td style={{ verticalAlign: 'top' }}>Folio:</td>
-                      <td>__________</td>
-                    </tr>
-                    <tr>
-                      <td style={{ verticalAlign: 'top' }}>N°:</td>
-                      <td>__________</td>
-                    </tr>
-                    <tr>
-                      <td style={{ verticalAlign: 'top' }}>Fecha:</td>
-                      <td>__________</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
               {(backTopics || []).map((t, ti) => (
                 <PreviewBlock
                   key={ti}
@@ -926,12 +988,126 @@ export default function CertificadosPage() {
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        // Step 2: selección de estudiantes y generación
+        <div className='flex gap-5'>
+          <div className='w-1/3 border p-2 overflow-auto rounded-md'>
+            <div className='flex items-center justify-between'>
+              <h3 className='font-semibold'>Estudiantes</h3>
+              <div className='flex gap-2'>
+                <Button
+                  onClick={() => {
+                    const all: Record<string, boolean> = {};
+                    estudiantes.forEach((e) => (all[e.cedula] = true));
+                    setSelected(all);
+                  }}
+                >
+                  Seleccionar todos
+                </Button>
+                <Button onClick={() => setSelected({})}>Limpiar</Button>
+              </div>
+            </div>
+            <ul className='mt-3'>
+              {estudiantes.map((e) => (
+                <li key={e.cedula} className='flex items-center gap-2 py-2'>
+                  <label className='items-center flex'>
+                    <Checkbox
+                      checked={!!selected[e.cedula]}
+                      onCheckedChange={() => toggle(e.cedula)}
+                      className='mr-3'
+                    />
+                    {e.nombre} {e.apellido} - {e.cedula}
+                  </label>
+                </li>
+              ))}
+            </ul>
+
+            <div className='mt-4 flex flex-col gap-2'>
+              <Button
+                onClick={generar}
+                className='bg-green-600 hover:bg-green-700'
+                disabled={generating}
+              >
+                {generating && (
+                  <span
+                    className='inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin'
+                    aria-hidden
+                  />
+                )}
+                <Check /> Generar certificados
+              </Button>
+              <Button onClick={() => setStep(1)}>
+                <ArrowLeft /> Anterior: Plantilla
+              </Button>
+            </div>
+          </div>
+
+          <div className='w-2/3'>
+            <p className='font-semibold mb-2'>Vista previa</p>
+            <div
+              className='border'
+              style={{
+                width: '100%',
+                height: 640,
+                backgroundImage: `url(/plantilla_certificado1.png)`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                position: 'relative',
+              }}
+              ref={containerRef}
+            >
+              {/* reuse some preview blocks for quick visual */}
+              <PreviewBlock
+                id='name_preview'
+                containerRef={containerRef}
+                pos={layout?.name ?? defaultLayout.name}
+                isEdit={false}
+                onChange={() => {}}
+              >
+                <div style={{ fontSize: 28, fontWeight: 700 }}>
+                  Nombre Apellido
+                </div>
+              </PreviewBlock>
+              <PreviewBlock
+                id='course_preview'
+                containerRef={containerRef}
+                pos={layout?.course ?? defaultLayout.course}
+                isEdit={false}
+                onChange={() => {}}
+              >
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {curso?.nombreCurso || codigo}
+                </div>
+              </PreviewBlock>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 /** Draggable preview wrapper component used only in this route **/
+type PreviewBlockProps = {
+  id: string;
+  pos: {
+    top?: number;
+    left?: number;
+    widthPercent?: number;
+    fontSize?: number;
+  };
+  onChange: (id: string, p: { top: number; left: number }) => void;
+  children: React.ReactNode;
+  containerRef: React.RefObject<HTMLElement | null>;
+  isEdit?: boolean;
+};
+
 function PreviewBlock({
   id,
   pos,
@@ -939,7 +1115,7 @@ function PreviewBlock({
   children,
   containerRef,
   isEdit,
-}: any) {
+}: PreviewBlockProps) {
   const dragging = useRef(false);
   const origin = useRef({ x: 0, y: 0 });
 
@@ -955,8 +1131,10 @@ function PreviewBlock({
     const dy = e.clientY - origin.current.y;
     origin.current = { x: e.clientX, y: e.clientY };
     const rect = containerRef.current.getBoundingClientRect();
-    const leftPx = (pos.left / 100) * rect.width + dx;
-    const topPx = (pos.top / 100) * rect.height + dy;
+    const leftPct = (pos.left ?? 50) as number;
+    const topPct = (pos.top ?? 50) as number;
+    const leftPx = (leftPct / 100) * rect.width + dx;
+    const topPx = (topPct / 100) * rect.height + dy;
     const newLeft = Math.max(0, Math.min(100, (leftPx / rect.width) * 100));
     const newTop = Math.max(0, Math.min(100, (topPx / rect.height) * 100));
     onChange(id, { top: newTop, left: newLeft });
@@ -966,7 +1144,9 @@ function PreviewBlock({
     dragging.current = false;
     try {
       (e.target as Element).releasePointerCapture(e.pointerId);
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
 
   return (

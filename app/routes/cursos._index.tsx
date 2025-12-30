@@ -2,7 +2,6 @@ import {
   useLoaderData,
   MetaFunction,
   redirect,
-  useActionData,
   useFetcher,
   useRevalidator,
 } from '@remix-run/react';
@@ -47,14 +46,15 @@ export const action: ActionFunction = async ({ request }) => {
     const actionType = formData.get('actionType');
     const accept = request.headers.get('accept') || '';
     const xreq = request.headers.get('x-requested-with') || '';
-    const wantsJson = accept.includes('application/json') || xreq === 'XMLHttpRequest';
+    const wantsJson =
+      accept.includes('application/json') || xreq === 'XMLHttpRequest';
 
     if (actionType === 'agregar') {
       const codigo = formData.get('codigo');
       const nombreCurso = formData.get('nombreCurso');
       const descripcion = formData.get('descripcion');
       const estado = Number(formData.get('estado'));
-  const precioTotal = Number(formData.get('precioTotal'));
+      const precioTotal = Number(formData.get('precioTotal'));
 
       // codigo can be omitted; the service will generate one if missing.
       if (
@@ -64,7 +64,11 @@ export const action: ActionFunction = async ({ request }) => {
         isNaN(precioTotal) ||
         precioTotal < 0
       ) {
-        if (wantsJson) return json({ type: 'error', message: 'Datos inválidos' }, { status: 400 });
+        if (wantsJson)
+          return json(
+            { type: 'error', message: 'Datos inválidos' },
+            { status: 400 },
+          );
         return json({ error: 'Datos inválidos' }, { status: 400 });
       }
 
@@ -74,11 +78,13 @@ export const action: ActionFunction = async ({ request }) => {
         estado,
         precioTotal,
       };
-      if (typeof codigo === 'string' && codigo.trim() !== '') cursoPayload.codigo = codigo;
+      if (typeof codigo === 'string' && codigo.trim() !== '')
+        cursoPayload.codigo = codigo;
 
       await addCurso(cursoPayload);
 
-      if (wantsJson) return json({ type: 'success', message: 'Curso agregado' });
+      if (wantsJson)
+        return json({ type: 'success', message: 'Curso agregado' });
     }
 
     if (actionType === 'editar') {
@@ -96,7 +102,11 @@ export const action: ActionFunction = async ({ request }) => {
         isNaN(precioTotal) ||
         precioTotal < 0
       ) {
-        if (wantsJson) return json({ type: 'error', message: 'Datos inválidos' }, { status: 400 });
+        if (wantsJson)
+          return json(
+            { type: 'error', message: 'Datos inválidos' },
+            { status: 400 },
+          );
         return json({ error: 'Datos inválidos' }, { status: 400 });
       }
 
@@ -107,20 +117,26 @@ export const action: ActionFunction = async ({ request }) => {
         precioTotal,
       });
 
-      if (wantsJson) return json({ type: 'success', message: 'Curso actualizado' });
+      if (wantsJson)
+        return json({ type: 'success', message: 'Curso actualizado' });
     }
 
     if (actionType === 'eliminar') {
       const codigo = formData.get('codigo');
 
       if (typeof codigo !== 'string') {
-        if (wantsJson) return json({ type: 'error', message: 'Código inválido' }, { status: 400 });
+        if (wantsJson)
+          return json(
+            { type: 'error', message: 'Código inválido' },
+            { status: 400 },
+          );
         return json({ error: 'Código inválido' }, { status: 400 });
       }
 
       await deleteCurso(codigo);
 
-      if (wantsJson) return json({ type: 'success', message: 'Curso eliminado' });
+      if (wantsJson)
+        return json({ type: 'success', message: 'Curso eliminado' });
     }
 
     return redirect('/cursos');
@@ -180,7 +196,9 @@ export default function CursosPage() {
       <div className='py-4 w-3/4'>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className='link-button' onClick={() => setOpen(true)}>Agregar Curso </Button>
+            <Button className='link-button' onClick={() => setOpen(true)}>
+              Agregar Curso{' '}
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -225,7 +243,9 @@ export default function CursosPage() {
                       | { message?: string }
                       | undefined;
                     const text = await res.text().catch(() => '');
-                    toast.error(data?.message || text || 'Error agregando curso');
+                    toast.error(
+                      data?.message || text || 'Error agregando curso',
+                    );
                   }
                 } catch (err) {
                   // eslint-disable-next-line no-console
@@ -239,7 +259,7 @@ export default function CursosPage() {
               <input type='hidden' name='actionType' value='agregar' />
               <div className='grid gap-4 py-4'>
                 {/* Código */}
-                  {/* Código: se generará automáticamente en el servidor (no es necesario completar) */}
+                {/* Código: se generará automáticamente en el servidor (no es necesario completar) */}
                 {/* Nombre del Curso */}
                 <div className='grid grid-cols-4 items-center gap-4'>
                   <Label htmlFor='nombreCurso' className='text-right'>
@@ -280,14 +300,18 @@ export default function CursosPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type='submit' className='link-button' disabled={isAdding}>
+                <Button
+                  type='submit'
+                  className='link-button'
+                  disabled={isAdding}
+                >
                   {isAdding ? 'Agregando...' : 'Agregar Curso'}
                 </Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
-        <main className='py-4 px-4'>
+        <main className='py-4 pr-4'>
           {'type' in data && data.type === 'error' && (
             <p>Ocurrió un error cargando los datos</p>
           )}

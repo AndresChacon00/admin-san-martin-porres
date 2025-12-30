@@ -6,8 +6,6 @@ import {
   createCursoInDb,
   updateCursoInDb,
   deleteCursoFromDb,
-} from '../services/cursos';
-import {
   getTemplateLayoutFromDb,
   saveTemplateLayoutInDb,
 } from '../services/cursos';

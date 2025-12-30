@@ -24,9 +24,7 @@ import { EditarCursoModal } from '../crud/EditarCursoModal';
 import { EliminarCursoModal } from '../crud/EliminarCursoModal';
 import { Curso } from '~/types/cursos.types';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Button } from '../ui/button';
+import { Dialog } from '../ui/dialog';
 
 interface DataTableProps {
   columns: ColumnDef<Curso>[];
@@ -98,7 +96,6 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
                       >
                         Eliminar
                       </DropdownMenuItem>
-                      <DropdownMenuItem></DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

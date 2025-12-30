@@ -2,19 +2,22 @@ import type { CursoInsert, CursoUpdate } from '~/types/cursos.types';
 import db from '../db';
 import { cursos } from '../tables/cursos';
 import { eq } from 'drizzle-orm';
+import { Layout } from '~/types/certificados.types';
 
 /**
  * Read the parsed template layout JSON for a course (if any)
  */
-export async function getTemplateLayoutFromDb(codigo: string) {
+export async function getTemplateLayoutFromDb(
+  codigo: string,
+): Promise<Layout | null> {
   try {
     const rows = await db
       .select()
       .from(cursos)
       .where(eq(cursos.codigo, codigo));
     const curso = rows && rows.length ? rows[0] : null;
-    const raw = curso ? ((curso as any).templateLayout ?? null) : null;
-    return raw ? JSON.parse(raw as string) : null;
+    const raw = curso ? (curso.templateLayout ?? null) : null;
+    return raw ? JSON.parse(raw || '{}') : null;
   } catch (error) {
     console.error('Error reading template layout from DB', error);
     return null;
@@ -58,10 +61,10 @@ export async function createCursoInDb(data: Partial<CursoInsert>) {
     // Fetch existing codes and compute the next numeric code
     const rows = await db.select({ codigo: cursos.codigo }).from(cursos);
     const existingCodes = new Set<string>(
-      rows.map((r: any) => String(r.codigo ?? '')),
+      rows.map((r) => String(r.codigo ?? '')),
     );
     const numericValues = rows
-      .map((r: any) => String(r.codigo ?? '').trim())
+      .map((r) => String(r.codigo ?? '').trim())
       .filter((c: string) => /^\d+$/.test(c))
       .map((c: string) => parseInt(c, 10));
 

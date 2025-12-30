@@ -23,5 +23,12 @@ export const cursoColumns: ColumnDef<Curso>[] = [
   {
     accessorKey: 'precioTotal',
     header: 'Precio Total',
+    cell: ({ getValue }) => {
+      const value = getValue<number>();
+      return value.toLocaleString('es-ES', {
+        style: 'currency',
+        currency: 'REF',
+      });
+    },
   },
 ];
