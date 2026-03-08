@@ -282,6 +282,13 @@ function StepOneForm({
   goToNext: () => void;
   step: number;
 }) {
+  const maxBirthDate = useMemo(() => {
+    const today = new Date();
+    // Restringir la fecha para que el empleado tenga al menos 18 años
+    today.setFullYear(today.getFullYear() - 18);
+    return today.toISOString().split('T')[0];
+  }, []);
+
   return (
     <Form {...formStepOne}>
       <form
@@ -296,7 +303,7 @@ function StepOneForm({
             <FormItem>
               <RequiredLabel>Cédula</RequiredLabel>
               <FormControl>
-                <Input {...field} placeholder='Ejemplo: V12345678' />
+                <Input {...field} placeholder='Ejemplo: V12345678' maxLength={9}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -324,7 +331,7 @@ function StepOneForm({
             <FormItem>
               <RequiredLabel>Fecha de nacimiento</RequiredLabel>
               <FormControl>
-                <Input {...field} type='date' />
+                <Input {...field} type='date' max={maxBirthDate} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -418,7 +425,7 @@ function StepOneForm({
                 </Tooltip>
               </div>
               <FormControl>
-                <Input {...field} type='number' />
+                <Input {...field} type='number' min={0}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -491,7 +498,10 @@ function StepTwoForm({
             <FormItem>
               <RequiredLabel>Fecha de ingreso al AVEC</RequiredLabel>
               <FormControl>
-                <Input {...field} type='date' />
+                <Input 
+                  {...field} 
+                  type='date' 
+                  max={new Date().toISOString().split('T')[0]}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -505,7 +515,11 @@ function StepTwoForm({
             <FormItem>
               <RequiredLabel>Fecha de ingreso al plantel</RequiredLabel>
               <FormControl>
-                <Input {...field} type='date' />
+                <Input 
+                  {...field} 
+                  type='date' 
+                  max={new Date().toISOString().split('T')[0]}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -603,7 +617,7 @@ function StepTwoForm({
             <FormItem>
               <FormLabel>Número de lapsos aprobados</FormLabel>
               <FormControl>
-                <Input {...field} type='number' />
+                <Input {...field} type='number' min={0}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -631,7 +645,7 @@ function StepTwoForm({
             <FormItem>
               <RequiredLabel>Años de experiencia laboral</RequiredLabel>
               <FormControl>
-                <Input {...field} type='number' />
+                <Input {...field} type='number' min={0}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -845,7 +859,7 @@ function StepThreeForm({
             <FormItem>
               <RequiredLabel>Horas Semanales</RequiredLabel>
               <FormControl>
-                <Input {...field} type='number' />
+                <Input {...field} type='number' min={0}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -859,7 +873,7 @@ function StepThreeForm({
             <FormItem>
               <RequiredLabel>Sueldo</RequiredLabel>
               <FormControl>
-                <Input {...field} type='number' step='0.01' />
+                <Input {...field} type='number' step='0.01' min={0}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -873,7 +887,7 @@ function StepThreeForm({
             <FormItem>
               <RequiredLabel>Contribución por Discapacidad</RequiredLabel>
               <FormControl>
-                <Input {...field} type='number' step='0.01' />
+                <Input {...field} type='number' step='0.01' min={0}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -889,7 +903,7 @@ function StepThreeForm({
                 Contribución por Discapacidad de Hijos
               </RequiredLabel>
               <FormControl>
-                <Input {...field} type='number' step='0.01' />
+                <Input {...field} type='number' step='0.01' min={0}/>
               </FormControl>
               <FormMessage />
             </FormItem>
