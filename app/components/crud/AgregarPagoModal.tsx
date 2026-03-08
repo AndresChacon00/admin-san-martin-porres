@@ -119,6 +119,7 @@ export function AgregarPagoModal({
               onChange={handleChange}
               className="col-span-3"
               required
+              placeholder='Efectivo, pago móvil, transferencia'
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -131,6 +132,7 @@ export function AgregarPagoModal({
               value={values.comprobante}
               onChange={handleChange}
               className="col-span-3"
+              placeholder='Ej: Número de referencia'
             />
           </div>
           <DialogFooter>

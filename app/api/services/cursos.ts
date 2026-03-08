@@ -92,9 +92,9 @@ export async function createCursoInDb(data: Partial<CursoInsert>) {
   const toInsert: CursoInsert = {
     codigo,
     nombreCurso: (data.nombreCurso as string) || '',
-    descripcion: (data.descripcion as string) || null,
+    descripcion: (data.descripcion as string) || '',
     estado: typeof data.estado === 'number' ? data.estado : 1,
-    precioTotal: (data.precioTotal as number) || null,
+    precioTotal: (data.precioTotal as number) || 0,
   } as unknown as CursoInsert;
 
   const newCurso = await db.insert(cursos).values(toInsert).returning();
