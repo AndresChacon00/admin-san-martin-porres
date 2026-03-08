@@ -36,6 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect('/');
   }
   const data = await getProfesores();
+  console.log(data);
   return data;
 }
 

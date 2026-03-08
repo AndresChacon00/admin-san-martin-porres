@@ -2,7 +2,8 @@ import db from '../db';
 import { profesores } from '../tables/profesores';
 import { empleados } from '../tables/empleados';
 import type { EmpleadoInsert, EmpleadoUpdate } from '~/types/empleados.types';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, getTableColumns } from 'drizzle-orm';
+import { cargos } from '../tables/cargos';
 import {
   createEmpleado,
   getSingleEmpleado,
@@ -23,15 +24,19 @@ export const getProfesores = async () => {
       .orderBy(profesores.id);
 
     const empleadosList = await db
-      .select()
+      .select({
+        ...getTableColumns(empleados),
+        nombreCargo: cargos.nombreCargo,
+      })
       .from(empleados)
-      .orderBy(empleados.id)
+      .innerJoin(cargos, eq(cargos.id, empleados.cargo))
       .where(
         inArray(
           empleados.id,
           profesoresList.map((p) => p.id),
         ),
-      );
+      )
+      .orderBy(empleados.id);
 
     return empleadosList;
   } catch (error) {
@@ -65,7 +70,7 @@ export const addProfesor = async (data: EmpleadoInsert) => {
       .from(empleados)
       .where(eq(empleados.cedula, data.cedula))
       .limit(1);
-    
+
     let empleadoId;
     if (existingEmpleado.length > 0) {
       empleadoId = existingEmpleado[0].id;
