@@ -96,7 +96,8 @@ export default function NuevoPagoNominaPage() {
           'sueldoBaseMensual',
         ) as HTMLInputElement;
         if (input) {
-          input.value = String(empleado.sueldo);
+          const sueldoNum = Number(empleado.sueldo);
+          input.value = Number.isFinite(sueldoNum) ? sueldoNum.toFixed(2) : '';
         }
       }
       primasEmpleadoFetcher.load(`/primas-empleado/${empleadoId}`);
@@ -118,7 +119,8 @@ export default function NuevoPagoNominaPage() {
       fields.forEach(({ id, value }) => {
         const input = document.getElementById(id) as HTMLInputElement;
         if (input) {
-          input.value = value.toString();
+          const num = Number(value);
+          input.value = Number.isFinite(num) ? num.toFixed(2) : '';
         }
       });
     }

@@ -1,4 +1,5 @@
-import { eq, desc } from 'drizzle-orm';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { desc } from 'drizzle-orm';
 import db from '../db';
 import { estudiantes } from '../tables/estudiantes';
 import {
@@ -92,7 +93,7 @@ export async function addEstudiante(data: EstudianteInsert) {
 export async function updateEstudiante(cedula: string, data: EstudianteUpdate) {
   try {
     const updatedEstudiante = await updateEstudianteInDb(cedula, data);
-    return updateEstudiante;
+    return updatedEstudiante;
   } catch (error) {
     console.error('Error al actualizar un estudiante: ', error);
     return {

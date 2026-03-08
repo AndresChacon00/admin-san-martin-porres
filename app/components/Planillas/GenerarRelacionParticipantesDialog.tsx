@@ -11,8 +11,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
-import { Form, json, useLoaderData } from '@remix-run/react';
-import { getCursoById } from '~/api/controllers/cursos';
+import { Form } from '@remix-run/react';
 
 interface Estudiante {
   cedula: string;
@@ -26,7 +25,7 @@ interface GenerarRelacionParticipantesDialogProps {
   idPeriodo: string;
   codigoCurso: string;
   estudiantesInscritos: Estudiante[];
-  curso: any;
+  curso: unknown;
 }
 
 export function GenerarRelacionParticipantesDialog({
@@ -66,7 +65,7 @@ export function GenerarRelacionParticipantesDialog({
         </DialogHeader>
         <Form method='post'>
           {/* Coordinador General */}
-          <div className='grid grid-cols-4 items-center gap-4'>
+          <div className='grid grid-cols-4 items-center gap-4 pb-4'>
             <Label htmlFor='coordinadorGeneral' className='text-right'>
               Coordinador general
             </Label>

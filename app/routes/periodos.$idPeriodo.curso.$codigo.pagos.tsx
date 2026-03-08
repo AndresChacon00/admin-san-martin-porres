@@ -2,12 +2,16 @@ import { useLoaderData, useParams, useFetcher } from '@remix-run/react';
 import { getRecibosPorCursoPeriodo, editarPago, eliminarPago } from '~/api/controllers/pagosEstudiantesCursos';
 import { getCursoById } from '~/api/controllers/cursos';
 import { DataTablePagosEstudiantes } from '~/components/data-tables/pagosEstudiantes-data-table';
-import type { LoaderFunction, ActionFunction } from '@remix-run/node';
+import type { LoaderFunction, ActionFunction, MetaFunction } from '@remix-run/node';
 import { pagosColumns } from '~/components/columns/pagos-estudiante';
 import ReciboEstudiante from '~/components/ReciboEstudiantes';
 import { imprimirRecibo } from '~/components/ImprimirRecibo';
 import { useState, useEffect } from 'react';
 import * as React from 'react';
+
+export const meta: MetaFunction = () => {
+  return [{ title: 'Pagos del curso | San Martín de Porres' }];
+};
 
 export const loader: LoaderFunction = async ({ params }) => {
   const idPeriodo = params.idPeriodo as string | undefined;

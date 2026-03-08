@@ -44,7 +44,6 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
   numeroTransferencia,
   monto,
   observaciones,
-  logoSrc,
 }) => {
   const currentDate = new Date().toLocaleDateString();
 
@@ -53,7 +52,10 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
     const today = new Date();
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
       age--;
     }
     return age;
@@ -62,9 +64,14 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
   const calculatedAge = calculateAge(fechaNacimiento);
 
   return (
-    <div style={styles.receiptContainer} id="recibo">
-      <div style={styles.logoContainer}><img src='/logo-fit.png' alt="Logo Curso" style={styles.logo} /></div>
-       <h3 style={styles.centerText}>FUNDACIÓN AMIGOS DEL CENTRO DE CAPACITACIÓN SAN MARTIN DE PORRES <br/> FUNDACECASMAR</h3>
+    <div style={styles.receiptContainer} id='recibo'>
+      <div style={styles.logoContainer}>
+        <img src='/logo-fit.png' alt='Logo Curso' style={styles.logo} />
+      </div>
+      <h3 style={styles.centerText}>
+        FUNDACIÓN AMIGOS DEL CENTRO DE CAPACITACIÓN SAN MARTIN DE PORRES <br />{' '}
+        FUNDACECASMAR
+      </h3>
 
       <div style={styles.row}>
         <div style={styles.column}>FUNDACECASMAR</div>
@@ -81,14 +88,18 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
         <div style={styles.column}>FECHA: {currentDate}</div>
       </div>
 
-      <div style={{ ...styles.fullWidth, ...styles.blueBackground }}>DATOS DEL PARTICIPANTE</div>
+      <div style={{ ...styles.fullWidth, ...styles.blueBackground }}>
+        DATOS DEL PARTICIPANTE
+      </div>
 
       <div style={styles.row}>
         <div style={styles.column}>NOMBRE: {nombre}</div>
         <div style={styles.column}>APELLIDO: {apellido}</div>
         <div style={styles.column}>CEDULA: {cedula}</div>
         <div style={styles.column}>SEXO: {sexo}</div>
-        <div style={styles.column}>FECHA DE NACIMIENTO: {fechaNacimiento}</div>
+        <div style={styles.column}>
+          FECHA DE NACIMIENTO: {new Date(fechaNacimiento).toLocaleDateString()}
+        </div>
       </div>
 
       <div style={styles.row}>
@@ -98,7 +109,9 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
         <div style={styles.column}>CORREO: {correo}</div>
       </div>
 
-      <div style={styles.fullWidth}>DIRECCION Y PUNTO DE REFERENCIA: {direccion}</div>
+      <div style={styles.fullWidth}>
+        DIRECCION Y PUNTO DE REFERENCIA: {direccion}
+      </div>
 
       <div style={styles.row}>
         <div style={styles.column}>ULTIMO AÑO CURSADO: {ultimoAñoCursado}</div>
@@ -107,11 +120,17 @@ const ReciboEstudiante: React.FC<ReceiptProps> = ({
 
       <div style={styles.fullWidth}>PERIODO: {periodo}</div>
 
-      <div style={{ ...styles.fullWidth, ...styles.blueBackground }}>DATOS DE LA TRANSFERENCIA</div>
+      <div style={{ ...styles.fullWidth, ...styles.blueBackground }}>
+        DATOS DE LA TRANSFERENCIA
+      </div>
 
       <div style={styles.row}>
-        <div style={styles.column}>FECHA PAGO: {fechaPago}</div>
-        <div style={styles.column}>NÚMERO DE TRANSFERENCIA: {numeroTransferencia}</div>
+        <div style={styles.column}>
+          FECHA PAGO: {new Date(fechaPago).toLocaleDateString()}
+        </div>
+        <div style={styles.column}>
+          NÚMERO DE TRANSFERENCIA: {numeroTransferencia}
+        </div>
         <div style={styles.column}>MONTO: {monto}</div>
       </div>
 

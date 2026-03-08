@@ -50,7 +50,7 @@ export function AgregarEstudianteModal() {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-  setValues((prev) => ({ ...prev, [name]: value }));
+    setValues((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -75,7 +75,8 @@ export function AgregarEstudianteModal() {
         });
 
         // First, try to read helpful headers that the server may set even when the body is empty
-        const headerMsg = res.headers.get('x-error-message') || res.headers.get('x-message');
+        const headerMsg =
+          res.headers.get('x-error-message') || res.headers.get('x-message');
         if (headerMsg && !res.ok) {
           // Prefer server-provided header message (already user-friendly in many controllers)
           toast.error(`(${res.status}) ${headerMsg}`);
@@ -91,30 +92,47 @@ export function AgregarEstudianteModal() {
             const html = await res.text();
             // Heuristics: try to detect common DB or controller messages inside HTML
             // 1) Prefer controller-friendly Spanish messages emitted in server logs or bodies
-            const cedulaMsgMatch = html.match(/La c[eé]dula\s+(\d{4,})\s+ya est[aá]\s+registrad/i);
+            const cedulaMsgMatch = html.match(
+              /La c[eé]dula\s+(\d{4,})\s+ya est[aá]\s+registrad/i,
+            );
             if (cedulaMsgMatch) {
-              toast.error(`(${res.status}) La cédula ${cedulaMsgMatch[1]} ya está registrada`);
+              toast.error(
+                `(${res.status}) La cédula ${cedulaMsgMatch[1]} ya está registrada`,
+              );
               setOpen(false);
               setLoading(false);
               return;
             }
             // 2) SQLite UNIQUE constraint detection
-            const uniqueMatch = html.match(/UNIQUE constraint failed:\s*([\w.]+)/i) || html.match(/UNIQUE constraint failed\s*:\s*([\w.\s,]+)/i);
+            const uniqueMatch =
+              html.match(/UNIQUE constraint failed:\s*([\w.]+)/i) ||
+              html.match(/UNIQUE constraint failed\s*:\s*([\w.\s,]+)/i);
             if (uniqueMatch) {
               const full = uniqueMatch[1]; // e.g. estudiantes.cedula
               const colMatch = full.match(/(?:\.|_)(correo|cedula|email)/i);
-              const col = colMatch ? colMatch[1].toLowerCase() : full.toLowerCase();
-              const friendly = col.includes('correo') || col.includes('email') ? 'correo' : col.includes('cedula') ? 'cédula' : col;
+              const col = colMatch
+                ? colMatch[1].toLowerCase()
+                : full.toLowerCase();
+              const friendly =
+                col.includes('correo') || col.includes('email')
+                  ? 'correo'
+                  : col.includes('cedula')
+                    ? 'cédula'
+                    : col;
               // If we have the cedula the user tried to submit, use it for a clearer message
               const attempted = values?.cedula || null;
-              const cedulaText = attempted ? ` La cédula ${attempted} ya está registrada` : ` ${friendly} duplicado`;
+              const cedulaText = attempted
+                ? ` La cédula ${attempted} ya está registrada`
+                : ` ${friendly} duplicado`;
               toast.error(`(${res.status}) Estudiante ya existe.${cedulaText}`);
               setOpen(false);
               setLoading(false);
               return;
             }
             // otherwise show a short generic message without the raw HTML
-            toast.error(`(${res.status}) Error del servidor (ver consola para detalles)`);
+            toast.error(
+              `(${res.status}) Error del servidor (ver consola para detalles)`,
+            );
             // also log the HTML snippet to console for debugging
             // eslint-disable-next-line no-console
             console.error('Server HTML response snippet:', html.slice(0, 500));
@@ -152,9 +170,13 @@ export function AgregarEstudianteModal() {
         const rawHeader = res.headers.get('x-raw-error');
         if (rawHeader) {
           // try to extract friendly message from raw header
-          const cedMatch = rawHeader.match(/La c[eé]dula\s+(\d{4,})\s+ya est[aá]\s+registrad/i);
+          const cedMatch = rawHeader.match(
+            /La c[eé]dula\s+(\d{4,})\s+ya est[aá]\s+registrad/i,
+          );
           if (cedMatch) {
-            toast.error(`(${res.status}) La cédula ${cedMatch[1]} ya está registrada`);
+            toast.error(
+              `(${res.status}) La cédula ${cedMatch[1]} ya está registrada`,
+            );
           } else {
             toast.error(`(${res.status}) ${rawHeader}`);
           }
@@ -162,18 +184,18 @@ export function AgregarEstudianteModal() {
           setLoading(false);
           return;
         }
-            // If the server returned JSON with {type: ...} handle it
-          if (d && (d.type === 'success' || d.type === 'succes')) {
-            toast.success(d.message || 'Estudiante agregado');
-            setOpen(false);
-            try {
-              window.dispatchEvent(new Event('refreshEstudiantes'));
-            } catch (_) {
-              // ignore in non-browser environments
-            }
-            fetcher.load(window.location.pathname);
-            return;
+        // If the server returned JSON with {type: ...} handle it
+        if (d && (d.type === 'success' || d.type === 'succes')) {
+          toast.success(d.message || 'Estudiante agregado');
+          setOpen(false);
+          try {
+            window.dispatchEvent(new Event('refreshEstudiantes'));
+          } catch (_) {
+            // ignore in non-browser environments
           }
+          fetcher.load(window.location.pathname);
+          return;
+        }
 
         // If server returned JSON error or any JSON body with a message
         if (d) {
@@ -183,17 +205,26 @@ export function AgregarEstudianteModal() {
           else if (Array.isArray(d)) extracted = JSON.stringify(d);
           else if (typeof d === 'object' && d !== null) {
             const dd = d as { type?: string; message?: string; error?: string };
-            extracted = dd.message || dd.error || (dd.type ? JSON.stringify(dd) : null);
+            extracted =
+              dd.message || dd.error || (dd.type ? JSON.stringify(dd) : null);
           }
 
           if (extracted) {
-            const isErrorType = typeof d === 'object' && d !== null && 'type' in d && (d as { type?: string }).type === 'error';
+            const isErrorType =
+              typeof d === 'object' &&
+              d !== null &&
+              'type' in d &&
+              (d as { type?: string }).type === 'error';
             if (isErrorType || !res.ok) {
               // If the server already returned a friendly Spanish message like
               // "La cédula 123 ya está registrada" prefer that.
-              const cedMatch = String(extracted).match(/La c[eé]dula\s*(\d{4,})/i);
+              const cedMatch = String(extracted).match(
+                /La c[eé]dula\s*(\d{4,})/i,
+              );
               if (cedMatch) {
-                toast.error(`(${res.status}) La cédula ${cedMatch[1]} ya está registrada`);
+                toast.error(
+                  `(${res.status}) La cédula ${cedMatch[1]} ya está registrada`,
+                );
               } else {
                 toast.error(`(${res.status}) ${extracted}`);
               }
@@ -205,7 +236,8 @@ export function AgregarEstudianteModal() {
 
         // If we couldn't parse JSON/text, try reading error message from headers
         if (!d && !textBody) {
-          const headerMsg = res.headers.get('x-error-message') || res.headers.get('x-message');
+          const headerMsg =
+            res.headers.get('x-error-message') || res.headers.get('x-message');
           if (headerMsg) {
             toast.error(`(${res.status}) ${headerMsg}`);
             setOpen(false);
@@ -228,11 +260,16 @@ export function AgregarEstudianteModal() {
         }
 
         // At this point response is not ok and we didn't get a structured JSON error
-        const fallbackMsg = d ? ((d as { message?: string; error?: string }).message || (d as { message?: string; error?: string }).error) : textBody;
+        const fallbackMsg = d
+          ? (d as { message?: string; error?: string }).message ||
+            (d as { message?: string; error?: string }).error
+          : textBody;
         if (fallbackMsg) {
           toast.error(`(${res.status}) ${fallbackMsg}`);
         } else {
-          toast.error(`(${res.status}) ${res.statusText || 'Ocurrió un error inesperado'}`);
+          toast.error(
+            `(${res.status}) ${res.statusText || 'Ocurrió un error inesperado'}`,
+          );
         }
         setOpen(false);
       } catch (err: unknown) {
@@ -250,17 +287,19 @@ export function AgregarEstudianteModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="link-button" onClick={() => setOpen(true)}>Agregar Estudiante</Button>
+        <Button className='link-button' onClick={() => setOpen(true)}>
+          Agregar Estudiante
+        </Button>
       </DialogTrigger>
       <DialogContent>
-    {/* using controlled open state to close the dialog on submit result */}
+        {/* using controlled open state to close the dialog on submit result */}
         <DialogHeader>
           <DialogTitle>Agregar estudiante</DialogTitle>
           <DialogDescription>
             Ingresa los datos del nuevo estudiante.
           </DialogDescription>
         </DialogHeader>
-  <form onSubmit={handleSubmit} className='grid gap-4 py-4'>
+        <form onSubmit={handleSubmit} className='grid gap-4 py-4'>
           {/* Nombre */}
           <div className='grid grid-cols-4 items-center gap-4'>
             <Label htmlFor='nombre' className='text-right'>
