@@ -82,7 +82,8 @@ export const action: ActionFunction = async ({ request }) => {
         return json(
           {
             type: 'error',
-            message: 'La fecha de nacimiento debe ser anterior a la fecha actual',
+            message:
+              'La fecha de nacimiento debe ser anterior a la fecha actual',
           },
           { status: 400 },
         );
@@ -93,7 +94,8 @@ export const action: ActionFunction = async ({ request }) => {
         return json(
           {
             type: 'error',
-            message: 'La fecha de nacimiento no puede generar una edad negativa',
+            message:
+              'La fecha de nacimiento no puede generar una edad negativa',
           },
           { status: 400 },
         );

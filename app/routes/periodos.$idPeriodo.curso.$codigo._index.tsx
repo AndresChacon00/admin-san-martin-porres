@@ -401,7 +401,11 @@ function InscribirEstudianteDialog({
                       <CommandItem
                         key={e.cedula}
                         value={String(e.cedula)}
-                        keywords={[String(e.nombre), String(e.apellido), `${e.nombre} ${e.apellido}`]}
+                        keywords={[
+                          String(e.nombre),
+                          String(e.apellido),
+                          `${e.nombre} ${e.apellido}`,
+                        ]}
                         onSelect={() => {
                           setSelectedCedula(String(e.cedula));
                           setFilter(`${e.cedula} - ${e.nombre} ${e.apellido}`);
