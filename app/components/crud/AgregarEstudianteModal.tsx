@@ -21,7 +21,6 @@ interface FormValues {
   cedula: string;
   sexo: string;
   fechaNacimiento: string;
-  edad: string;
   religion: string;
   telefono: string;
   correo: string;
@@ -38,7 +37,6 @@ export function AgregarEstudianteModal() {
     cedula: '',
     sexo: '',
     fechaNacimiento: '',
-    edad: '',
     religion: '',
     telefono: '',
     correo: '',
@@ -47,6 +45,7 @@ export function AgregarEstudianteModal() {
   });
   // errors state unused for now
   const [loading, setLoading] = useState(false);
+  const maxBirthDate = new Date().toISOString().split('T')[0];
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -55,6 +54,19 @@ export function AgregarEstudianteModal() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const birthDate = new Date(`${values.fechaNacimiento}T00:00:00`);
+    if (!values.fechaNacimiento || Number.isNaN(birthDate.getTime())) {
+      toast.error('Ingresa una fecha de nacimiento válida');
+      return;
+    }
+    if (birthDate >= today) {
+      toast.error('La fecha de nacimiento debe ser anterior a la fecha actual');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('actionType', 'agregar');
     Object.entries(values).forEach(([key, value]) => {
@@ -380,22 +392,7 @@ export function AgregarEstudianteModal() {
               type='date'
               value={values.fechaNacimiento}
               onChange={handleChange}
-              className='col-span-3'
-              required
-            />
-          </div>
-
-          {/* Edad */}
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <Label htmlFor='edad' className='text-right'>
-              Edad
-            </Label>
-            <Input
-              id='edad'
-              name='edad'
-              type='number'
-              value={values.edad}
-              onChange={handleChange}
+              max={maxBirthDate}
               className='col-span-3'
               required
             />

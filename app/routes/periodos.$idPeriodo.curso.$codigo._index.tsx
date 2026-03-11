@@ -37,12 +37,13 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '~/components/ui/select';
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from '~/components/ui/command';
 // ...existing code... (Input removed)
 import { GenerarRelacionParticipantesDialog } from '~/components/Planillas/GenerarRelacionParticipantesDialog';
 import type { LoaderFunction, ActionFunction } from '@remix-run/node';
@@ -358,6 +359,10 @@ function InscribirEstudianteDialog({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!selectedCedula) {
+      toast.error('Selecciona un estudiante para inscribir');
+      return;
+    }
     const form = new FormData(e.target as HTMLFormElement);
     form.append('actionType', 'inscribir');
     form.append('idPeriodo', idPeriodo);
@@ -379,43 +384,35 @@ function InscribirEstudianteDialog({
         </DialogHeader>
         <fetcher.Form method='post' onSubmit={handleSubmit}>
           <Label htmlFor='cedula'>Selecciona Estudiante</Label>
-          <div className='mb-2'>
-            <input
-              type='text'
-              placeholder='Buscar por cédula o nombre...'
-              className='w-full rounded border px-2 py-1'
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            />
-          </div>
           <input type='hidden' name='cedula' value={selectedCedula} />
           <div className='mb-4'>
-            <Select
-              onValueChange={(v) => setSelectedCedula(String(v))}
-              defaultValue={selectedCedula}
-            >
-              <SelectTrigger id='cedula'>
-                <SelectValue placeholder='-- Selecciona un estudiante --' />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.isArray(todosEstudiantes) &&
-                  todosEstudiantes
-                    .filter((e) => {
-                      if (!filter) return true;
-                      const q = filter.toLowerCase();
-                      return (
-                        String(e.cedula).toLowerCase().includes(q) ||
-                        String(e.nombre).toLowerCase().includes(q) ||
-                        String(e.apellido).toLowerCase().includes(q)
-                      );
-                    })
-                    .map((e) => (
-                      <SelectItem key={e.cedula} value={String(e.cedula)}>
+            <Command className='rounded-lg border'>
+              <CommandInput
+                id='cedula'
+                placeholder='Buscar por cédula o nombre...'
+                value={filter}
+                onValueChange={setFilter}
+              />
+              <CommandList className='max-h-56'>
+                <CommandEmpty>No se encontraron estudiantes.</CommandEmpty>
+                <CommandGroup>
+                  {Array.isArray(todosEstudiantes) &&
+                    todosEstudiantes.map((e) => (
+                      <CommandItem
+                        key={e.cedula}
+                        value={String(e.cedula)}
+                        keywords={[String(e.nombre), String(e.apellido), `${e.nombre} ${e.apellido}`]}
+                        onSelect={() => {
+                          setSelectedCedula(String(e.cedula));
+                          setFilter(`${e.cedula} - ${e.nombre} ${e.apellido}`);
+                        }}
+                      >
                         {`${e.cedula} - ${e.nombre} ${e.apellido}`}
-                      </SelectItem>
+                      </CommandItem>
                     ))}
-              </SelectContent>
-            </Select>
+                </CommandGroup>
+              </CommandList>
+            </Command>
           </div>
           <DialogFooter>
             <Button type='submit' className='link-button'>

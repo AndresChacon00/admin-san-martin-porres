@@ -41,7 +41,6 @@ export const action: ActionFunction = async ({ request }) => {
       const cedula = formData.get('cedula');
       const sexo = formData.get('sexo');
       const fechaNacimiento = formData.get('fechaNacimiento');
-      const edad = formData.get('edad');
       const religion = formData.get('religion');
       const telefono = formData.get('telefono');
       const correo = formData.get('correo');
@@ -54,7 +53,6 @@ export const action: ActionFunction = async ({ request }) => {
         typeof cedula !== 'string' ||
         typeof sexo !== 'string' ||
         typeof fechaNacimiento !== 'string' ||
-        typeof edad !== 'string' ||
         typeof religion !== 'string' ||
         typeof telefono !== 'string' ||
         typeof correo !== 'string' ||
@@ -67,13 +65,47 @@ export const action: ActionFunction = async ({ request }) => {
         );
       }
 
+      const birthDate = new Date(fechaNacimiento);
+      if (Number.isNaN(birthDate.getTime())) {
+        return json(
+          { type: 'error', message: 'Fecha de nacimiento inválida' },
+          { status: 400 },
+        );
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const birthDateNormalized = new Date(birthDate);
+      birthDateNormalized.setHours(0, 0, 0, 0);
+
+      if (birthDateNormalized >= today) {
+        return json(
+          {
+            type: 'error',
+            message: 'La fecha de nacimiento debe ser anterior a la fecha actual',
+          },
+          { status: 400 },
+        );
+      }
+
+      const edadCalculada = calculateAge(birthDate);
+      if (edadCalculada < 0) {
+        return json(
+          {
+            type: 'error',
+            message: 'La fecha de nacimiento no puede generar una edad negativa',
+          },
+          { status: 400 },
+        );
+      }
+
       const result = await addEstudiante({
         nombre,
         apellido,
         cedula,
         sexo,
-        fechaNacimiento: new Date(fechaNacimiento),
-        edad: Number(edad),
+        fechaNacimiento: birthDate,
+        edad: edadCalculada,
         religion,
         telefono,
         correo,
