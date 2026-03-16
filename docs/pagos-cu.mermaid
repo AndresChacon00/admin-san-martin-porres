@@ -1,0 +1,24 @@
+flowchart LR
+    Actor([👤 Usuario])
+    
+    subgraph Módulo Nómina
+        N1(Cargar un Pago de Nómina)
+        N2(Generar Recibo de Pago)
+    end
+    
+    subgraph Módulo Programa Alimentario
+        PA1(Cargar un Pago Alimentario)
+        PA2(Generar Recibo de Pago)
+    end
+
+    subgraph Módulo Evaluación de Desempeño
+        ED1(Cargar un Pago de Desempeño)
+        ED2(Generar Recibo de Pago)
+    end
+    
+    Actor --> N1
+    Actor --> N2
+    Actor --> PA1
+    Actor --> PA2
+    Actor --> ED1
+    Actor --> ED2

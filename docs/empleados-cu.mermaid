@@ -1,0 +1,16 @@
+flowchart LR
+    Actor([👤 Usuario])
+    
+    subgraph Módulo Empleados
+        UC1(Registrar Empleado)
+        UC2(Importar desde Excel)
+        UC3(Exportar a Excel)
+        UC4(Ver y Editar Empleado)
+        UC5(Eliminar Empleado)
+    end
+    
+    Actor --> UC1
+    Actor --> UC2
+    Actor --> UC3
+    Actor --> UC4
+    Actor --> UC5
