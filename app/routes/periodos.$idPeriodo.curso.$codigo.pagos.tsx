@@ -1,13 +1,29 @@
-import { useLoaderData, useParams, useFetcher } from '@remix-run/react';
-import { getRecibosPorCursoPeriodo, editarPago, eliminarPago } from '~/api/controllers/pagosEstudiantesCursos';
+import { useLoaderData, useParams, useFetcher, Link } from '@remix-run/react';
+import {
+  getRecibosPorCursoPeriodo,
+  editarPago,
+  eliminarPago,
+} from '~/api/controllers/pagosEstudiantesCursos';
 import { getCursoById } from '~/api/controllers/cursos';
 import { DataTablePagosEstudiantes } from '~/components/data-tables/pagosEstudiantes-data-table';
-import type { LoaderFunction, ActionFunction, MetaFunction } from '@remix-run/node';
+import type {
+  LoaderFunction,
+  ActionFunction,
+  MetaFunction,
+} from '@remix-run/node';
 import { pagosColumns } from '~/components/columns/pagos-estudiante';
 import ReciboEstudiante from '~/components/ReciboEstudiantes';
 import { imprimirRecibo } from '~/components/ImprimirRecibo';
 import { useState, useEffect } from 'react';
 import * as React from 'react';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Pagos del curso | San Martín de Porres' }];
@@ -28,56 +44,56 @@ export const loader: LoaderFunction = async ({ params }) => {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
-    const formData = await request.formData();
-    const actionType = formData.get('actionType');
-    const idPeriodo = params.idPeriodo as string | undefined;
-    const codigoCurso = params.codigo as string | undefined;
-  
-    if (!codigoCurso || !idPeriodo) {
+  const formData = await request.formData();
+  const actionType = formData.get('actionType');
+  const idPeriodo = params.idPeriodo as string | undefined;
+  const codigoCurso = params.codigo as string | undefined;
+
+  if (!codigoCurso || !idPeriodo) {
+    return { error: 'Datos inválidos' };
+  }
+
+  if (actionType === 'editar') {
+    const idPago = Number(formData.get('idPago'));
+    const monto = Number(formData.get('monto'));
+    const fecha = formData.get('fecha') as string;
+    const tipoPago = formData.get('tipoPago') as string;
+    const comprobante = formData.get('comprobante') as string;
+
+    if (isNaN(idPago) || isNaN(monto) || !fecha || !tipoPago) {
       return { error: 'Datos inválidos' };
     }
-  
-    if (actionType === 'editar') {
-      const idPago = Number(formData.get('idPago'));
-      const monto = Number(formData.get('monto'));
-      const fecha = formData.get('fecha') as string;
-      const tipoPago = formData.get('tipoPago') as string;
-      const comprobante = formData.get('comprobante') as string;
-  
-      if (isNaN(idPago) || isNaN(monto) || !fecha || !tipoPago) {
-        return { error: 'Datos inválidos' };
-      }
-  
-      const result = await editarPago(idPago, {
-        monto,
-        fecha: new Date(fecha),
-        tipoPago,
-        comprobante,
-      });
-  
-      if (result.type === 'error') {
-        return { error: result.message };
-      }
-    }
-  
-    if (actionType === 'eliminar') {
-      const idPago = Number(formData.get('idPago'));
-  
-      if (isNaN(idPago)) {
-        return { error: 'ID de pago inválido' };
-      }
-  
-      const result = await eliminarPago(idPago);
-  
-      if (result.type === 'error') {
-        return { error: result.message };
-      }
 
-      return { type: 'success', message: 'Pago eliminado' };
+    const result = await editarPago(idPago, {
+      monto,
+      fecha: new Date(fecha),
+      tipoPago,
+      comprobante,
+    });
+
+    if (result.type === 'error') {
+      return { error: result.message };
     }
-  
-    return null;
-  };
+  }
+
+  if (actionType === 'eliminar') {
+    const idPago = Number(formData.get('idPago'));
+
+    if (isNaN(idPago)) {
+      return { error: 'ID de pago inválido' };
+    }
+
+    const result = await eliminarPago(idPago);
+
+    if (result.type === 'error') {
+      return { error: result.message };
+    }
+
+    return { type: 'success', message: 'Pago eliminado' };
+  }
+
+  return null;
+};
 
 export default function PagosCursoPage() {
   type PagoRecibo = {
@@ -105,10 +121,16 @@ export default function PagosCursoPage() {
   };
 
   type CursoSmall = { codigo: string; nombreCurso?: string };
-  const loaderData = useLoaderData<{ pagos: PagoRecibo[]; curso?: CursoSmall }>();
+  const loaderData = useLoaderData<{
+    pagos: PagoRecibo[];
+    curso?: CursoSmall;
+  }>();
   const pagos = loaderData.pagos ?? [];
   const curso = loaderData.curso;
   const { idPeriodo, codigo } = useParams();
+  const periodoPath = `/periodos/${encodeURIComponent(String(idPeriodo ?? ''))}`;
+  const cursoPath = `${periodoPath}/curso/${encodeURIComponent(String(codigo ?? ''))}`;
+  const cursoLabel = curso?.nombreCurso ?? codigo;
   const [selectedPagoId, setSelectedPagoId] = useState<number | null>(null);
   const fetcher = useFetcher();
 
@@ -118,13 +140,17 @@ export default function PagosCursoPage() {
   };
 
   const selectedPago = selectedPagoId
-    ? pagos.find((pago: PagoRecibo) => pago.idPago === selectedPagoId) ?? null
+    ? (pagos.find((pago: PagoRecibo) => pago.idPago === selectedPagoId) ?? null)
     : null;
 
   // Trigger imprimirRecibo when selectedPagoId changes
   React.useEffect(() => {
     if (selectedPago) {
-      console.log('Calling imprimirRecibo with:', selectedPago.cedula, selectedPago.fecha);
+      console.log(
+        'Calling imprimirRecibo with:',
+        selectedPago.cedula,
+        selectedPago.fecha,
+      );
       imprimirRecibo(selectedPago.cedula, selectedPago.fecha);
       // Reset the state after printing
       setSelectedPagoId(null);
@@ -148,34 +174,67 @@ export default function PagosCursoPage() {
 
   return (
     <>
-  <h1 className="text-xl font-bold">Historial de Pagos del Curso {curso?.nombreCurso ?? codigo} - Periodo {idPeriodo}</h1>
-      <div className="py-4 w-3/4">
-      <main className="py-4">
-        {/* Map loader result to DataTable expected shape */}
-        {(() => {
-          const pagosForTable = pagos.map((p) => ({
-            idPago: p.idPago,
-            idPeriodo: String(p.periodo),
-            codigoCurso: p.codigoCurso,
-            // the data-table column expects 'cedulaEstudiante'
-            cedulaEstudiante: p.cedula,
-            monto: p.monto,
-            fecha: p.fecha instanceof Date ? p.fecha : new Date(String(p.fecha)),
-            tipoPago: p.tipoPago ?? '',
-            comprobante: p.comprobante ?? null,
-          }));
+      <Breadcrumb className='mb-2'>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to='/periodos'>Periodos</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to={periodoPath}>Periodo {idPeriodo}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to={cursoPath}>{cursoLabel}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Pagos</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <h1 className='text-xl font-bold'>
+        Historial de Pagos del Curso {curso?.nombreCurso ?? codigo} - Periodo{' '}
+        {idPeriodo}
+      </h1>
+      <div className='py-4 w-3/4'>
+        <main className='py-4'>
+          {/* Map loader result to DataTable expected shape */}
+          {(() => {
+            const pagosForTable = pagos.map((p) => ({
+              idPago: p.idPago,
+              idPeriodo: String(p.periodo),
+              codigoCurso: p.codigoCurso,
+              // the data-table column expects 'cedulaEstudiante'
+              cedulaEstudiante: p.cedula,
+              monto: p.monto,
+              fecha:
+                p.fecha instanceof Date ? p.fecha : new Date(String(p.fecha)),
+              tipoPago: p.tipoPago ?? '',
+              comprobante: p.comprobante ?? null,
+            }));
 
-          return (
-            <DataTablePagosEstudiantes columns={pagosColumns} data={pagosForTable} onGenerateReceipt={handleGenerateReceipt} />
-          );
-        })()}
-      </main>
+            return (
+              <DataTablePagosEstudiantes
+                columns={pagosColumns}
+                data={pagosForTable}
+                onGenerateReceipt={handleGenerateReceipt}
+              />
+            );
+          })()}
+        </main>
       </div>
 
-       {/* Hidden ReciboEstudiante for printing */}
-       {selectedPago && (
+      {/* Hidden ReciboEstudiante for printing */}
+      {selectedPago && (
         <div
-          id="recibo"
+          id='recibo'
           style={{
             display: 'hidden',
             position: 'absolute',
@@ -213,7 +272,6 @@ export default function PagosCursoPage() {
           />
         </div>
       )}
-
     </>
   );
 }

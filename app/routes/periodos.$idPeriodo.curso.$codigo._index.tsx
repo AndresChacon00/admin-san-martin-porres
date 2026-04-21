@@ -37,6 +37,14 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
+import {
   Command,
   CommandInput,
   CommandList,
@@ -276,9 +284,30 @@ export default function EstudiantesCursoPage() {
     notas,
   } = useLoaderData<typeof loader>();
   const { idPeriodo, codigo } = useParams();
+  const periodoPath = `/periodos/${encodeURIComponent(String(idPeriodo ?? ''))}`;
+  const cursoLabel = curso?.nombreCurso || `Curso ${codigo}`;
 
   return (
     <>
+      <Breadcrumb className='mb-2'>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to='/periodos'>Periodos</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to={periodoPath}>Periodo {idPeriodo}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{cursoLabel}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <h1 className='text-xl font-bold'>
         Estudiantes en el Curso {curso?.nombreCurso} - Periodo {idPeriodo}
       </h1>

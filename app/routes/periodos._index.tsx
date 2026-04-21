@@ -3,6 +3,7 @@ import {
   MetaFunction,
   useFetcher,
   useRevalidator,
+  Link,
 } from '@remix-run/react';
 import {
   addPeriodo,
@@ -24,6 +25,14 @@ import {
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 import { ActionFunction, json } from '@remix-run/node';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -263,6 +272,19 @@ export default function PeriodosPage() {
 
   return (
     <>
+      <Breadcrumb className='mb-2'>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to='/'>Inicio</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Periodos</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <h1 className='text-xl font-bold'>Periodos</h1>
       <div className='py-4 w-3/4'>
         {/* Agregar Periodo Modal */}

@@ -1,4 +1,11 @@
-import { useLoaderData, useParams, MetaFunction, useFetcher, useRevalidator } from '@remix-run/react';
+import {
+  useLoaderData,
+  useParams,
+  MetaFunction,
+  useFetcher,
+  useRevalidator,
+  Link,
+} from '@remix-run/react';
 import {
   obtenerCursosPorPeriodo,
   inscribirCursoEnPeriodo,
@@ -19,6 +26,14 @@ import {
 
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 import {
   Select,
   SelectTrigger,
@@ -45,9 +60,13 @@ export const loader: LoaderFunction = async ({ params }) => {
   }
 
   // compute available courses by codigo
-  const inscritosCodigos = new Set((cursosInscritos as any[]).map((c: any) => String(c.codigo)));
+  const inscritosCodigos = new Set(
+    (cursosInscritos as any[]).map((c: any) => String(c.codigo)),
+  );
   const available = Array.isArray(allCursos)
-    ? (allCursos as any[]).filter((c: any) => !inscritosCodigos.has(String(c.codigo)))
+    ? (allCursos as any[]).filter(
+        (c: any) => !inscritosCodigos.has(String(c.codigo)),
+      )
     : [];
 
   return { inscritos: cursosInscritos, available };
@@ -94,8 +113,10 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function CursosPeriodoPage() {
   const loaderData = useLoaderData<typeof loader>();
   // loader now returns either an error shape, or { inscritos, available }
-  const cursosInscritos = 'inscritos' in loaderData ? (loaderData as any).inscritos : loaderData;
-  const availableCursos = 'available' in loaderData ? (loaderData as any).available : [];
+  const cursosInscritos =
+    'inscritos' in loaderData ? (loaderData as any).inscritos : loaderData;
+  const availableCursos =
+    'available' in loaderData ? (loaderData as any).available : [];
   const { idPeriodo } = useParams();
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
@@ -104,13 +125,31 @@ export default function CursosPeriodoPage() {
 
   return (
     <>
+      <Breadcrumb className='mb-2'>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to='/periodos'>Periodos</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Periodo {idPeriodo}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <h1 className='text-xl font-bold'>Cursos en el Periodo {idPeriodo}</h1>
 
       {/* Botón para abrir el diálogo de inscripción */}
       <div className='py-4 w-3/4'>
         <Dialog open={openInscribir} onOpenChange={setOpenInscribir}>
           <DialogTrigger asChild>
-            <Button className='link-button' onClick={() => setOpenInscribir(true)}>Inscribir Curso</Button>
+            <Button
+              className='link-button'
+              onClick={() => setOpenInscribir(true)}
+            >
+              Inscribir Curso
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -125,7 +164,9 @@ export default function CursosPeriodoPage() {
                 const form = e.currentTarget as HTMLFormElement;
                 const fd = new FormData(form);
                 fd.append('actionType', 'inscribirCurso');
-                const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+                const submitBtn = form.querySelector(
+                  'button[type="submit"]',
+                ) as HTMLButtonElement | null;
                 if (submitBtn) submitBtn.disabled = true;
                 try {
                   const res = await fetch(window.location.pathname, {
@@ -139,7 +180,9 @@ export default function CursosPeriodoPage() {
 
                   if (res.status < 400) {
                     const data = await res.json().catch(() => undefined);
-                    toast.success((data && (data.message || data.msg)) || 'Curso inscrito');
+                    toast.success(
+                      (data && (data.message || data.msg)) || 'Curso inscrito',
+                    );
                     try {
                       window.dispatchEvent(new Event('refreshPeriodos'));
                     } catch (_) {}
@@ -151,7 +194,11 @@ export default function CursosPeriodoPage() {
                   } else {
                     const data = await res.json().catch(() => undefined);
                     const text = await res.text().catch(() => '');
-                    toast.error((data && (data.message || data.msg)) || text || 'Error inscribiendo curso');
+                    toast.error(
+                      (data && (data.message || data.msg)) ||
+                        text ||
+                        'Error inscribiendo curso',
+                    );
                   }
                 } catch (err) {
                   // eslint-disable-next-line no-console
@@ -169,16 +216,29 @@ export default function CursosPeriodoPage() {
                     Curso
                   </Label>
                   <div className='col-span-3'>
-                    <input type='hidden' name='idCurso' value={selectedIdCurso} />
+                    <input
+                      type='hidden'
+                      name='idCurso'
+                      value={selectedIdCurso}
+                    />
                     <div className='mb-4'>
-                      <Select onValueChange={(v) => setSelectedIdCurso(String(v))} defaultValue={selectedIdCurso}>
+                      <Select
+                        onValueChange={(v) => setSelectedIdCurso(String(v))}
+                        defaultValue={selectedIdCurso}
+                      >
                         <SelectTrigger id='idCurso'>
                           <SelectValue placeholder='-- Selecciona un curso --' />
                         </SelectTrigger>
                         <SelectContent>
-                          {Array.isArray(availableCursos) && availableCursos.map((c: any) => (
-                            <SelectItem key={c.codigo} value={String(c.codigo)}>{c.nombreCurso}</SelectItem>
-                          ))}
+                          {Array.isArray(availableCursos) &&
+                            availableCursos.map((c: any) => (
+                              <SelectItem
+                                key={c.codigo}
+                                value={String(c.codigo)}
+                              >
+                                {c.nombreCurso}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -205,18 +265,20 @@ export default function CursosPeriodoPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" className='link-button'>Inscribir Curso</Button>
+                <Button type='submit' className='link-button'>
+                  Inscribir Curso
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
 
-      {/* Tabla de cursos inscritos en este periodo */}
-      <main className="py-4">
-        {'type' in cursosInscritos && cursosInscritos.type === 'error' ? (
-          <p>Ocurrió un error cargando los cursos</p>
-        ) : (
-          <CursosPeriodosDataTable
+        {/* Tabla de cursos inscritos en este periodo */}
+        <main className='py-4'>
+          {'type' in cursosInscritos && cursosInscritos.type === 'error' ? (
+            <p>Ocurrió un error cargando los cursos</p>
+          ) : (
+            <CursosPeriodosDataTable
               columns={cursoColumns} // Pass the base columns
               data={cursosInscritos} // Pass the data from the loader
               idPeriodo={String(idPeriodo)} // Pass the period ID as string
