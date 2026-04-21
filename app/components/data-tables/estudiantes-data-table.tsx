@@ -24,7 +24,6 @@ import { EditarEstudianteModal } from '../crud/EditarEstudianteModal';
 import { EliminarEstudianteModal } from '../crud/EliminarEstudianteModal';
 import { Estudiante } from '~/types/estudiantes.types';
 import { useState } from 'react';
-import { Dialog } from '../ui/dialog';
 
 interface DataTableProps {
   columns: ColumnDef<Estudiante>[];
@@ -113,26 +112,16 @@ export function DataTableEstudiantes({ columns, data }: DataTableProps) {
       </Table>
 
       {/* Editar Estudiante Modal */}
-      <Dialog
-        open={action === 'edit'}
-        onOpenChange={(open) => {
-          if (!open) {
+      {selectedEstudiante && action === 'edit' && (
+        <EditarEstudianteModal
+          estudiante={selectedEstudiante}
+          open={action === 'edit'}
+          onClose={() => {
             setAction(null);
             setSelectedEstudiante(null);
-          }
-        }}
-      >
-        {selectedEstudiante && (
-          <EditarEstudianteModal
-            estudiante={selectedEstudiante}
-            open={action === 'edit'} // Pass the open state
-            onClose={() => {
-              setAction(null); // Reset the action state
-              setSelectedEstudiante(null); // Clear the selected student
-            }}
-          />
-        )}
-      </Dialog>
+          }}
+        />
+      )}
 
       {/* Eliminar Estudiante Modal */}
       {selectedEstudiante && action === 'delete' && (

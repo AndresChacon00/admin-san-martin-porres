@@ -24,7 +24,6 @@ import { EditarCursoModal } from '../crud/EditarCursoModal';
 import { EliminarCursoModal } from '../crud/EliminarCursoModal';
 import { Curso } from '~/types/cursos.types';
 import { useState } from 'react';
-import { Dialog } from '../ui/dialog';
 
 interface DataTableProps {
   columns: ColumnDef<Curso>[];
@@ -112,26 +111,16 @@ export function DataTableCursos({ columns, data }: DataTableProps) {
       </Table>
 
       {/* Editar Curso Modal */}
-      <Dialog
-        open={action === 'edit'}
-        onOpenChange={(open) => {
-          if (!open) {
+      {selectedCurso && action === 'edit' && (
+        <EditarCursoModal
+          curso={selectedCurso}
+          open={action === 'edit'}
+          onClose={() => {
             setAction(null);
             setSelectedCurso(null);
-          }
-        }}
-      >
-        {selectedCurso && (
-          <EditarCursoModal
-            curso={selectedCurso}
-            open={action === 'edit'}
-            onClose={() => {
-              setAction(null);
-              setSelectedCurso(null);
-            }}
-          />
-        )}
-      </Dialog>
+          }}
+        />
+      )}
 
       {/* Eliminar Curso Modal */}
       {selectedCurso && action === 'delete' && (
