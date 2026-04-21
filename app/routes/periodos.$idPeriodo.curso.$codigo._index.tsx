@@ -249,6 +249,25 @@ export const action: ActionFunction = async ({ request, params }) => {
   return null;
 };
 
+export const shouldRevalidate = ({
+  formMethod,
+  formData,
+  defaultShouldRevalidate,
+}: {
+  formMethod?: string;
+  formData?: FormData;
+  defaultShouldRevalidate: boolean;
+}) => {
+  if (
+    formMethod?.toLowerCase() === 'post' &&
+    formData?.get('actionType') === 'guardarNotas'
+  ) {
+    return false;
+  }
+
+  return defaultShouldRevalidate;
+};
+
 export default function EstudiantesCursoPage() {
   const {
     estudiantes: estudiantesInscritos,

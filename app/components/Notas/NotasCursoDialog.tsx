@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -20,9 +20,16 @@ interface NotaRow {
   notaCualitativa?: string | null;
 }
 
+interface GuardarNotasResponse {
+  type?: 'success' | 'error';
+  message?: string;
+}
+
+function isNotasContainer(value: unknown): value is { notas?: NotaRow[] } {
+  return !!value && typeof value === 'object' && 'notas' in value;
+}
+
 export function NotasCursoDialog({
-  idPeriodo,
-  codigoCurso,
   initialNotas,
 }: {
   idPeriodo: string;
@@ -30,9 +37,11 @@ export function NotasCursoDialog({
   initialNotas?: NotaRow[];
 }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [notas, setNotas] = useState<NotaRow[]>([]);
-  const fetcher = useFetcher();
+  const notasFetcher = useFetcher();
+  const saveFetcher = useFetcher();
+  const loading = isSaving && saveFetcher.state !== 'idle';
 
   useEffect(() => {
     if (!open) return;
@@ -41,16 +50,20 @@ export function NotasCursoDialog({
       setNotas(initialNotas as NotaRow[]);
       return;
     }
-    fetcher.load(window.location.pathname);
-  }, [open, initialNotas, fetcher]);
+    notasFetcher.load(window.location.pathname);
+  }, [open, initialNotas, notasFetcher]);
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data) {
-      const data = fetcher.data as any;
-      const list = Array.isArray(data) ? data : (data?.notas ?? []);
+    if (notasFetcher.state === 'idle' && notasFetcher.data) {
+      const data = notasFetcher.data as unknown;
+      const list = Array.isArray(data)
+        ? data
+        : isNotasContainer(data)
+          ? (data.notas ?? [])
+          : [];
       setNotas(list);
     }
-  }, [fetcher.state, fetcher.data]);
+  }, [notasFetcher.state, notasFetcher.data]);
 
   const handleChange = (
     cedula: string,
@@ -75,7 +88,7 @@ export function NotasCursoDialog({
   };
 
   const handleSave = async () => {
-    setLoading(true);
+    setIsSaving(true);
     try {
       const payload = {
         notas: notas.map((n) => ({
@@ -87,26 +100,28 @@ export function NotasCursoDialog({
       const form = new FormData();
       form.append('actionType', 'guardarNotas');
       form.append('notas', JSON.stringify(payload.notas));
-      fetcher.submit(form, { method: 'post' });
+      saveFetcher.submit(form, { method: 'post' });
     } catch (err) {
       console.error('Error preparing notas payload:', err);
       toast.error('Error al preparar las notas');
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data) {
-      const data = fetcher.data as any;
-      if (data?.type === 'success') {
-        toast.success('Notas guardadas');
-        setOpen(false);
-      } else if (data?.type === 'error') {
-        toast.error(data.message || 'Error guardando notas');
-      }
-      setLoading(false);
+    if (!isSaving || saveFetcher.state !== 'idle') return;
+
+    const data = saveFetcher.data as GuardarNotasResponse | undefined;
+    if (data?.type === 'error') {
+      toast.error(data.message || 'Error guardando notas');
+      setIsSaving(false);
+      return;
     }
-  }, [fetcher.state, fetcher.data]);
+
+    toast.success('Notas guardadas');
+    setOpen(false);
+    setIsSaving(false);
+  }, [isSaving, saveFetcher.state, saveFetcher.data]);
 
   return (
     <Dialog open={open} onOpenChange={(o) => setOpen(o)}>

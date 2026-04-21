@@ -58,7 +58,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const id = formData.get('profesorId');
+  const id = formData.get('profesorId') ?? formData.get('empleadoId');
   if (!id) {
     return json({
       type: 'error',
