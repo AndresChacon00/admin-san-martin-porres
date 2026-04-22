@@ -5,6 +5,7 @@ import {
   useParams,
   useFetcher,
   MetaFunction,
+  Link,
 } from '@remix-run/react';
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -20,6 +21,14 @@ import { ArrowLeft, Check, Trash } from 'lucide-react';
 import { Input } from '~/components/ui/input';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Layout } from '~/types/certificados.types';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Certificados | San Martín de Porres' }];
@@ -69,8 +78,11 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function CertificadosPage() {
   const { estudiantes, curso, periodo, templateLayout } =
     useLoaderData<typeof loader>();
-  const { codigo } = useParams();
+  const { codigo, idPeriodo } = useParams();
   const fetcher = useFetcher();
+  const periodoPath = `/periodos/${encodeURIComponent(String(idPeriodo ?? ''))}`;
+  const cursoPath = `${periodoPath}/curso/${encodeURIComponent(String(codigo ?? ''))}`;
+  const cursoLabel = curso?.nombreCurso || codigo;
 
   const [selected, setSelected] = useState<Record<string, boolean>>(() => ({}));
   const [horas, setHoras] = useState<number>(300);
@@ -202,17 +214,42 @@ export default function CertificadosPage() {
       ],
   );
 
-  // helper to get topic position (falls back to default spacing)
-  function getTopicPos(index: number) {
-    const positions = layout?.back?.topicPositions ?? [];
-    if (positions[index]) return positions[index];
-    // fallback compute: base top from content top + spacing
-    const base = (layout.back?.content?.top ??
-      defaultLayout.back.content.top) as number;
+  function hasTopicCoordinates(
+    pos: { top?: number; left?: number } | null | undefined,
+  ): pos is { top: number; left: number } {
+    return (
+      !!pos &&
+      typeof pos.top === 'number' &&
+      typeof pos.left === 'number' &&
+      Number.isFinite(pos.top) &&
+      Number.isFinite(pos.left)
+    );
+  }
+
+  function getDefaultTopicPos(
+    index: number,
+    backContent?: { top?: number; left?: number },
+  ) {
+    const topBase = (backContent?.top ??
+      defaultLayout.back.content.top ??
+      15) as number;
+    const leftBase = (backContent?.left ??
+      defaultLayout.back.content.left ??
+      10) as number;
     return {
-      top: base + index * 8,
-      left: layout?.back?.content?.left ?? defaultLayout.back.content.left,
+      top: topBase + index * 8,
+      left: leftBase,
     };
+  }
+
+  // helper to get topic position (falls back to default spacing)
+  function getTopicPos(index: number): { top: number; left: number } {
+    const positions = layout?.back?.topicPositions ?? [];
+    const candidate = positions[index] as
+      | { top?: number; left?: number }
+      | undefined;
+    if (hasTopicCoordinates(candidate)) return candidate;
+    return getDefaultTopicPos(index, layout?.back?.content);
   }
 
   function updateTopicPos(
@@ -225,7 +262,19 @@ export default function CertificadosPage() {
       const arr = Array.isArray(next.back.topicPositions)
         ? [...next.back.topicPositions]
         : [];
-      arr[index] = { ...(arr[index] || {}), ...newPos };
+      for (let i = 0; i < index; i++) {
+        const p = arr[i] as { top?: number; left?: number } | null;
+        if (!hasTopicCoordinates(p)) {
+          arr[i] = getDefaultTopicPos(i, next.back.content);
+        }
+      }
+      const current = arr[index] as { top?: number; left?: number } | null;
+      arr[index] = {
+        ...(hasTopicCoordinates(current)
+          ? current
+          : getDefaultTopicPos(index, next.back.content)),
+        ...newPos,
+      };
       next.back.topicPositions = arr;
       return next;
     });
@@ -255,6 +304,16 @@ export default function CertificadosPage() {
   }
 
   function addTopic() {
+    setLayout((prev) => {
+      const next = { ...prev };
+      next.back = { ...(next.back || {}) };
+      const currentCount = backTopics.length;
+      const rawPositions = Array.isArray(next.back.topicPositions)
+        ? next.back.topicPositions
+        : [];
+      next.back.topicPositions = rawPositions.slice(0, currentCount);
+      return next;
+    });
     setBackTopics((t) => [...t, { title: 'Nuevo Tema', items: [''] }]);
   }
 
@@ -294,16 +353,34 @@ export default function CertificadosPage() {
 
   function removeTopic(i: number) {
     setBackTopics((t) => t.filter((_, idx) => idx !== i));
+    setLayout((prev) => {
+      const next = { ...prev };
+      next.back = { ...(next.back || {}) };
+      const positions = Array.isArray(next.back.topicPositions)
+        ? next.back.topicPositions
+        : [];
+      next.back.topicPositions = positions.filter((_, idx) => idx !== i);
+      return next;
+    });
   }
 
   // When saving layout, also persist backTopics inside layout.back.topicsList
   async function saveLayoutAndTopics() {
+    const sanitizedTopicPositions = (layout?.back?.topicPositions ?? [])
+      .slice(0, backTopics.length)
+      .map((p, idx) => {
+        const candidate = p as { top?: number; left?: number } | null;
+        return hasTopicCoordinates(candidate)
+          ? candidate
+          : getDefaultTopicPos(idx, layout?.back?.content);
+      });
+
     const merged = {
       ...layout,
       back: {
         ...(layout.back || {}),
         topicsList: backTopics,
-        topicPositions: layout?.back?.topicPositions ?? [],
+        topicPositions: sanitizedTopicPositions,
         stampPositions: layout?.back?.stampPositions ?? [],
       },
     };
@@ -626,6 +703,31 @@ export default function CertificadosPage() {
 
   return (
     <div className='p-6'>
+      <Breadcrumb className='mb-2'>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to='/periodos'>Periodos</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to={periodoPath}>Periodo {idPeriodo}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to={cursoPath}>{cursoLabel}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Certificados</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <h2 className='text-xl font-bold mb-4'>Generación de Certificados</h2>
 
       <div className='mb-4 flex items-center gap-3'>
